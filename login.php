@@ -1,3 +1,38 @@
+<!-- Database Connection -->
+<?php
+session_start();
+include('connect.php'); 
+
+$error = ""; 
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+	$username = $_POST['username'];
+	$password = $_POST['password'];
+
+    // Prepare and execute the SQL query
+    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ? AND password = ?");
+    $stmt->bind_param("ss", $username, $password);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+        $_SESSION['username'] = $user['username'];
+        header("Location: home.html");
+        exit(); 
+    } else {
+        $error = "Invalid username or password.";
+    }
+
+    $stmt->close();
+}
+?>
+<!-- Database Connection -->
+
+
+
+
 <!DOCTYPE html>
 <html lang="en-US">
 	<head>
@@ -27,19 +62,24 @@
 		<!-- login form area -->
 		<main class="login-wrap bg-included">
 			<div class="login-form">
-				<form action="#">
+				<form action="login.php" method="POST">
 					<div class="login-logo px-4">
 						<a href="#">
 							<img src="images/logo.png" alt="">
 						</a>
 					</div>
+
+					<?php if (!empty($error)): ?>
+                		<p style="color:red; text-align:center;"><?php echo $error; ?></p>
+            		<?php endif; ?>
+
 					<div class="single-input pb-3 pb-md-4">
 						<label for="a111">Username</label>
-						<input id="a111" type="text">
+						<input id="a111" type="text" name="username" required>
 					</div>
 					<div class="single-input">
 						<label for="a222">Password</label>
-						<input id="a222" type="text">
+						<input id="a222" type="password" name="password" required>
 					</div>
 					<div class="forgot-password text-end pt-2">
 						<a href="#">Forgot Password?</a>
