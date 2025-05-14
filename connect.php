@@ -1,3 +1,4 @@
+<!-- Database Connection to phpMyAdmin -->
 <?php
 
 $host="localhost";
@@ -10,3 +11,4 @@ if($conn->connect_error){
 }
 
 ?>
+<!-- Database Connection to phpMyAdmin -->
