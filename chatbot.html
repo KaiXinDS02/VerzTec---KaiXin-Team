@@ -1,84 +1,88 @@
 <!DOCTYPE html>
 <html lang="en-US">
-	<head>
-		<!-- Meta setup -->
-		<meta charset="UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<meta name="keywords" content="">
-		<meta name="decription" content="">
-		<!-- Title -->
-		<title>Verztec</title>
-		<!-- Fav Icon -->
-		<link rel="icon" href="images/favicon.ico">	
-		<!-- Include Bootstrap -->
-		<link rel="stylesheet" href="css/bootstrap.css">
-		<!-- link font awesome -->
-		<link rel="stylesheet" href="css/font-awesome.css">
-		<!-- Main StyleSheet -->
-		<link rel="stylesheet" href="style.css">	
-		<!-- Responsive CSS -->
-		<link rel="stylesheet" href="css/responsive.css">
-	</head>
-	<body>
+<head>
+    <!-- Meta setup -->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="keywords" content="">
+    <meta name="decription" content="">
+    <!-- Title -->
+    <title>Verztec</title>
+    <!-- Fav Icon -->
+    <link rel="icon" href="images/favicon.ico">	
+    <!-- Include Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <!-- link font awesome -->
+    <link rel="stylesheet" href="css/font-awesome.css">
+    <!-- Main StyleSheet -->
+    <link rel="stylesheet" href="style.css">	
+    <!-- Responsive CSS -->
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        /* Add padding to the body below the header */
+        body {
+            padding-top: 110px; /* Adjust based on your header height */
+            background-color: #f2f3fa;
+        }
+    </style>
+</head>
+<body>
 
-		   <!-- page header area  -->
-        <header class="header-area">
-            <div class="container-fluid">
-                <div class="row align-items-center">
-                    <div class="col-xl-3 col-md-4 col-6">
-                        <div class="page-logo-wp">
-                            <a href="home.html">
-                                <img src="images/logo.png" alt="">
-                            </a>
-                        </div>
+    <!-- page header area -->
+    <header class="header-area" style="position: fixed; top: 0; left: 0; width: 100%; z-index: 999; background: white;">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-xl-3 col-md-4 col-6">
+                    <div class="page-logo-wp">
+                        <a href="home.html">
+                            <img src="images/logo.png" alt="">
+                        </a>
                     </div>
-                    <div class="col-xl-6 col-md-5 order-3 order-md-2 d-flex justify-content-center justify-content-md-start">
-                        <div class="page-menu-wp">
+                </div>
+                <div class="col-xl-6 col-md-5 order-3 order-md-2 d-flex justify-content-center justify-content-md-start">
+                    <div class="page-menu-wp">
+                        <ul>
+                            <li><a href="home.html">Home</a></li>
+                            <li class = "active"><a href="#">Chatbot</a></li>
+                            <li><a href="files.html">Files</a></li>
+                            <li><a href="admin.html">Admin</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 d-flex justify-content-end order-2 order-md-3">
+                    <div class="page-user-icon profile">
+                        <button>
+                            <img src="images/Profile-Icon.svg" alt="">
+                        </button>
+                        <div class="menu">
                             <ul>
-                                <li><a href="home.html">Home</a></li>
-                                <li class="active"><a href="#">Chatbot</a></li>
-                                <li class><a href="files.html">Files</a></li>
-								<li><a href="admin.html">Admin</a></li>
+                                <li><a href="#"><i class="fa-regular fa-user"></i><span>Profile</span></a></li>
+                                <li><a href="#"><i class="fa-regular fa-message-smile"></i><span>Inbox</span></a></li>
+                                <li><a href="#"><i class="fa-regular fa-gear"></i><span>Settings</span></a></li>
+                                <li><a href="#"><i class="fa-regular fa-square-question"></i><span>Help</span></a></li>
+                                <li><a href="login.php"><i class="fa-regular fa-right-from-bracket"></i><span>Sign Out</span></a></li>
                             </ul>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-6 d-flex justify-content-end order-2 order-md-3">
-                        <div class="page-user-icon profile">
-                            <button>
-                                <img src="images/Profile-Icon.svg" alt="">
-                            </button>
-                          
-                            <div class="menu">
-                                <ul>
-                                    <li><a href="#">
-                                        <i class="fa-regular fa-user"></i>
-                                        <span>Profile</span>
-                                    </a></li>
-                                    <li><a href="#">
-                                        <i class="fa-regular fa-message-smile"></i>
-                                        <span>Inbox</span>
-                                    </a></li>
-                                    <li><a href="#">
-                                        <i class="fa-regular fa-gear"></i>
-                                        <span>Settings</span>
-                                    </a></li>
-                                    <li><a href="#">
-                                        <i class="fa-regular fa-square-question"></i>
-                                        <span>Help</span>
-                                    </a></li>
-                                    <li><a href="#">
-                                        <i class="fa-regular fa-right-from-bracket"></i>
-                                        <span>Sign Out</span>
-                                    </a></li>
-                                </ul>
-                            </div>
-  
                         </div>
                     </div>
                 </div>
             </div>
-        </header>
-        <!-- page header area  -->
-    </body>
+        </div>
+    </header>
+    <!-- page header area -->
+
+    <!-- Add standby Button Section -->
+    <section class="py-4">
+        <div class="container d-flex justify-content-end">
+            <a class="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center" href="#">
+                <i class="fa fa-comments me-2"></i></i> Idk what to add here lol
+            </a>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/scripts.js"></script>
+</body>
 </html>
