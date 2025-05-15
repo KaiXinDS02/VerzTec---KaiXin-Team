@@ -1,34 +1,71 @@
-<!-- Database Connection -->
+<!-- Database Connection for Login System -->
 <?php
 session_start();
 include('connect.php'); 
+require 'vendor/autoload.php'; // For PHPMailer
 
-$error = ""; 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+$error = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	$username = $_POST['username'];
 	$password = $_POST['password'];
 
-    // Prepare and execute the SQL query
-    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ? AND password = ?");
-    $stmt->bind_param("ss", $username, $password);
-    $stmt->execute();
+	// Authenticate user
+	$stmt = $conn->prepare("SELECT * FROM users WHERE username = ? AND password = ?");
+	$stmt->bind_param("ss", $username, $password);
+	$stmt->execute();
+	$result = $stmt->get_result();
 
-    $result = $stmt->get_result();
+	if ($result->num_rows === 1) {
+		$user = $result->fetch_assoc();
 
-    if ($result->num_rows === 1) {
-        $user = $result->fetch_assoc();
-        $_SESSION['username'] = $user['username'];
-        header("Location: user.html");
-        exit(); 
-    } else {
-        $error = "Invalid username or password.";
-    }
+		// Generate and store OTP
+		$otp = rand(100000, 999999);
+		$_SESSION['otp'] = $otp;
+		$_SESSION['username'] = $user['username'];
+		$_SESSION['email'] = $user['email']; 
 
-    $stmt->close();
+		// Send OTP using PHPMailer
+		$mail = new PHPMailer(true);
+		try {
+			$mail->isSMTP();
+			$mail->Host       = 'smtp.gmail.com';
+			$mail->SMTPAuth   = true;
+			$mail->Username   = 'spamacc2306@gmail.com';       
+			$mail->Password   = 'lfvc kyov oife mwze';         
+			$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+			$mail->Port       = 465;
+
+			$mail->setFrom('spamacc2306@gmail.com', 'Verztec');
+			$mail->addAddress($user['email'], $user['username']);
+			$mail->isHTML(true);
+			$mail->Subject = 'Your OTP Code';
+			$mail->Body    = "Your OTP is: <b>$otp</b>. Please do not share this code.";
+
+			$mail->send();
+
+			// Redirect to OTP verification page
+			header("Location: otp_form.php");
+			exit();
+
+		} catch (Exception $e) {
+			$error = "Could not send OTP. Mail error: {$mail->ErrorInfo}";
+		}
+	} else {
+		$error = "Invalid username or password.";
+	}
+
+	$stmt->close();
 }
 ?>
-<!-- Database Connection -->
+<!-- Database Connection for Login System -->
+
+
+
+
 
 
 
