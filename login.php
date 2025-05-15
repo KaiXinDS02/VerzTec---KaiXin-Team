@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
         $_SESSION['username'] = $user['username'];
-        header("Location: home.html");
+        header("Location: user.html");
         exit(); 
     } else {
         $error = "Invalid username or password.";
