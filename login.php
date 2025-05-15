@@ -27,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$_SESSION['otp'] = $otp;
 		$_SESSION['username'] = $user['username'];
 		$_SESSION['email'] = $user['email']; 
+		$_SESSION['role'] = $user['role'];  
 
 		// Send OTP using PHPMailer
 		$mail = new PHPMailer(true);

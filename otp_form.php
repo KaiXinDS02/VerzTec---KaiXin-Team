@@ -1,4 +1,3 @@
-<!-- Page where users key in OTP code before being directed to homepage -->
 <?php
 session_start();
 
@@ -9,12 +8,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $userInput = $_POST['otp_input'];
 
     if (isset($_SESSION['otp']) && $userInput == $_SESSION['otp']) {
-        // ✅ OTP matched
-        unset($_SESSION['otp']); 
-        header("Location: home.html");
-        exit();
+        // OTP matched, now redirect based on role
+        unset($_SESSION['otp']);
+
+        if (isset($_SESSION['role'])) {
+            if ($_SESSION['role'] === 'USER') {
+                header("Location: home_user.html");
+                exit();
+            } else if ($_SESSION['role'] === 'MANAGER' || $_SESSION['role'] === 'ADMIN') {
+                header("Location: home_admin.html");
+                exit();
+            } else {
+                // Unknown role, fallback
+                $error = "Unknown user role. Access denied.";
+            }
+        } else {
+            $error = "User role not set. Please login again.";
+        }
     } else {
-        // ❌ OTP didn't match
+        // OTP didn't match
         $error = "❌ Invalid OTP. Please try again.";
     }
 }
@@ -28,12 +40,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <body>
     <h2>Enter the OTP you received</h2>
 
-    <!-- Display error message if any -->
     <?php if (!empty($error)) : ?>
         <p style="color:red;"><?php echo $error; ?></p>
     <?php endif; ?>
 
-    <!-- OTP Form -->
     <form method="POST" action="">
         <input type="text" name="otp_input" placeholder="Enter OTP" required>
         <button type="submit">Verify</button>
