@@ -1,3 +1,48 @@
+<!-- Upload File Script -->
+<?php
+require 'vendor/autoload.php';
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
+$conn = new mysqli("localhost", "root", "", "login");
+
+$message = ""; // To hold success or error message
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_name'])) {
+    $file = $_FILES['excel_file']['tmp_name'];
+
+    try {
+        $spreadsheet = IOFactory::load($file);
+        $sheet = $spreadsheet->getActiveSheet();
+        $data = $sheet->toArray();
+
+        for ($i = 1; $i < count($data); $i++) {
+            $row = $data[$i];
+            $name = $conn->real_escape_string($row[0]);
+            $password = password_hash($row[1], PASSWORD_DEFAULT);
+            $email = $conn->real_escape_string($row[2]);
+            $department = $conn->real_escape_string($row[3]);
+            $role = $conn->real_escape_string($row[4]);
+            $country = $conn->real_escape_string($row[5]);
+
+            $sql = "INSERT INTO users (username, password, email, department, role, country)
+                    VALUES ('$name', '$password', '$email', '$department', '$role', '$country')";
+            $conn->query($sql);
+        }
+
+        $message = "✅ Import completed.";
+    } catch (Exception $e) {
+        $message = "❌ Import failed: " . $e->getMessage();
+    }
+}
+?>
+<!-- Upload File Script -->
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
@@ -71,14 +116,28 @@
     </header>
     <!-- page header area -->
 
-    <!-- Add User Button Section -->
+    <!-- Upload File Button Section -->
     <section class="py-4">
         <div class="container d-flex justify-content-end">
-            <a class="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center" href="#">
-                <i class="fa fa-user-plus me-2"></i> Add User
-            </a>
+            <form method="POST" enctype="multipart/form-data">
+                <label for="excel_file" class="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center" style="cursor: pointer;">
+                    <i class="fa fa-upload me-2"></i> Upload File
+                </label>
+                <input type="file" name="excel_file" id="excel_file" accept=".xls,.xlsx" onchange="this.form.submit()" style="display: none;">
+            </form>
         </div>
     </section>
+    <!-- Upload File Button Section -->
+
+    <!-- Alert Box -->
+    <?php if (!empty($message)) : ?>
+        <script>
+            window.onload = function() {
+                alert("<?php echo $message; ?>");
+            };
+        </script>
+    <?php endif; ?>
+
 
     <!-- Scripts -->
     <script src="js/jquery-3.4.1.min.js"></script>

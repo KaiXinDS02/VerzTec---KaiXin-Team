@@ -51,7 +51,7 @@ session_start();
                                 <li><a href="files.html">Files</a></li>
                                 <!-- RBAC for admin page -->
                                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] !== 'USER'): ?>
-                                    <li><a href="admin.html">Admin</a></li>
+                                    <li><a href="admin.php">Admin</a></li>
                                 <?php endif; ?>
                                 <!-- RBAC for admin page -->
                             </ul>
@@ -166,7 +166,7 @@ session_start();
                                                     <p>Admin Page</p>
                                                 </div>
                                                 <div class="text-end">
-                                                    <a href="admin.html">Go Now</a>
+                                                    <a href="admin.php">Go Now</a>
                                                 </div>
                                             </div>
                                         </div>
