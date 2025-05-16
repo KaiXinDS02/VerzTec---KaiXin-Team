@@ -1,26 +1,36 @@
+<?php
+session_start();
+    // Example: Set $_SESSION['role'] after login (ensure this is done on login)
+    if (!isset($_SESSION['role'])) {
+    $_SESSION['role'] = 'USER'; // default/fallback for testing, remove in production
+}
+?> 
+
+
+
 <!DOCTYPE html>
 <html lang="en-US">
-	<head>
-		<!-- Meta setup -->
-		<meta charset="UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<meta name="keywords" content="">
-		<meta name="decription" content="">
-		<!-- Title -->
-		<title>Verztec</title>
-		<!-- Fav Icon -->
-		<link rel="icon" href="images/favicon.ico">	
-		<!-- Include Bootstrap -->
-		<link rel="stylesheet" href="css/bootstrap.css">
-		<!-- link font awesome -->
-		<link rel="stylesheet" href="css/font-awesome.css">
-		<!-- Main StyleSheet -->
-		<link rel="stylesheet" href="style.css">	
-		<!-- Responsive CSS -->
-		<link rel="stylesheet" href="css/responsive.css">
-	</head>
-	<body>
+    <head>
+        <!-- Meta setup -->
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="keywords" content="">
+        <meta name="decription" content="">
+        <!-- Title -->
+        <title>Verztec</title>
+        <!-- Fav Icon -->
+        <link rel="icon" href="images/favicon.ico">	
+        <!-- Include Bootstrap -->
+        <link rel="stylesheet" href="css/bootstrap.css">
+        <!-- link font awesome -->
+        <link rel="stylesheet" href="css/font-awesome.css">
+        <!-- Main StyleSheet -->
+        <link rel="stylesheet" href="style.css">	
+        <!-- Responsive CSS -->
+        <link rel="stylesheet" href="css/responsive.css">
+    </head>
+    <body>
 
         <!-- page header area  -->
         <header class="header-area">
@@ -39,6 +49,11 @@
                                 <li class="active"><a href="#">Home</a></li>
                                 <li><a href="chatbot.html">Chatbot</a></li>
                                 <li><a href="files.html">Files</a></li>
+                                <!-- RBAC for admin page -->
+                                <?php if (isset($_SESSION['role']) && $_SESSION['role'] !== 'USER'): ?>
+                                    <li><a href="admin.html">Admin</a></li>
+                                <?php endif; ?>
+                                <!-- RBAC for admin page -->
                             </ul>
                         </div>
                     </div>
@@ -47,7 +62,7 @@
                             <button>
                                 <img src="images/Profile-Icon.svg" alt="">
                             </button>
-                          
+                        
                             <div class="menu">
                                 <ul>
                                     <li><a href="#">
@@ -72,7 +87,7 @@
                                     </a></li>
                                 </ul>
                             </div>
-  
+
                         </div>
                     </div>
                 </div>
@@ -117,9 +132,9 @@
                                         <span><img src="images/menu.svg" alt=""></span>
                                         <input type="text" placeholder="What are you looking for today?">
                                         <span class="ms-auto"><i class="fa-solid fa-magnifying-glass"></i></span>
-                                     </div>
+                                    </div>
                                 </div>
-                                 <div class="row g-x-4">
+                                <div class="row g-x-4">
                                     <div class="col-xl-4 col-lg-6">
                                         <div class="single-acti-box">
                                             <div class="d-flex align-items-center gap-2">
@@ -142,24 +157,38 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <!-- RBAC for Admin page  -->
+                                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] !== 'USER'): ?>
+                                        <div class="col-xl-4 col-lg-6">
+                                            <div class="single-acti-box" style="background-color: #FCBD33;">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <img src="images/mdi_settings.svg" alt="">
+                                                    <p>Admin Page</p>
+                                                </div>
+                                                <div class="text-end">
+                                                    <a href="admin.html">Go Now</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                    <!-- RBAC for Admin page  -->
                                 </div>
                             </div>
-                           
                         </div>
                     </div>
                 </div>
             </div>
         </main>
         <!-- page wrap content  -->
-		
-		<!-- Main jQuery -->
-		<script src="js/jquery-3.4.1.min.js"></script>
-		
-		<!-- Bootstrap.bundle Script -->
-		<script src="js/bootstrap.bundle.min.js"></script>
-		
-		<!-- Custom jQuery -->
-		<script src="js/scripts.js"></script>
-		
-	</body>
+        
+        <!-- Main jQuery -->
+        <script src="js/jquery-3.4.1.min.js"></script>
+        
+        <!-- Bootstrap.bundle Script -->
+        <script src="js/bootstrap.bundle.min.js"></script>
+        
+        <!-- Custom jQuery -->
+        <script src="js/scripts.js"></script>
+        
+    </body>
 </html>

@@ -1,3 +1,4 @@
+<!-- Database Connection for Authentication -->
 <?php
 session_start();
 
@@ -12,16 +13,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         unset($_SESSION['otp']);
 
         if (isset($_SESSION['role'])) {
-            if ($_SESSION['role'] === 'USER') {
-                header("Location: home_user.html");
-                exit();
-            } else if ($_SESSION['role'] === 'MANAGER' || $_SESSION['role'] === 'ADMIN') {
-                header("Location: home_admin.html");
-                exit();
-            } else {
-                // Unknown role, fallback
-                $error = "Unknown user role. Access denied.";
-            }
+            header("Location: home.php");
+            exit();
         } else {
             $error = "User role not set. Please login again.";
         }
@@ -31,7 +24,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 ?>
+<!-- Database Connection for Authentication -->
 
+
+
+
+
+<!-- Front-end -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -50,3 +49,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </form>
 </body>
 </html>
+<!-- Front-end -->
