@@ -14,50 +14,56 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	$password = $_POST['password'];
 
 	// Authenticate user
-	$stmt = $conn->prepare("SELECT * FROM users WHERE username = ? AND password = ?");
-	$stmt->bind_param("ss", $username, $password);
+	$stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+	$stmt->bind_param("s", $username);
 	$stmt->execute();
 	$result = $stmt->get_result();
 
 	if ($result->num_rows === 1) {
 		$user = $result->fetch_assoc();
+		if (password_verify($password, $user['password'])) {
+			// ✅ Password is correct
 
-		// Generate and store OTP
-		$otp = rand(100000, 999999);
-		$_SESSION['otp'] = $otp;
-		$_SESSION['username'] = $user['username'];
-		$_SESSION['email'] = $user['email']; 
-		$_SESSION['role'] = $user['role'];  
+			// Generate and store OTP
+			$otp = rand(100000, 999999);
+			$_SESSION['otp'] = $otp;
+			$_SESSION['username'] = $user['username'];
+			$_SESSION['email'] = $user['email']; 
+			$_SESSION['role'] = $user['role'];  
 
-		// Send OTP using PHPMailer
-		$mail = new PHPMailer(true);
-		try {
-			$mail->isSMTP();
-			$mail->Host       = 'smtp.gmail.com';
-			$mail->SMTPAuth   = true;
-			$mail->Username   = 'spamacc2306@gmail.com';       
-			$mail->Password   = 'lfvc kyov oife mwze';         
-			$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-			$mail->Port       = 465;
+			// Send OTP via PHPMailer (as before)
+			$mail = new PHPMailer(true);
+			try {
+				$mail->isSMTP();
+				$mail->Host       = 'smtp.gmail.com';
+				$mail->SMTPAuth   = true;
+				$mail->Username   = 'spamacc2306@gmail.com';       
+				$mail->Password   = 'lfvc kyov oife mwze';         
+				$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+				$mail->Port       = 465;
 
-			$mail->setFrom('spamacc2306@gmail.com', 'Verztec');
-			$mail->addAddress($user['email'], $user['username']);
-			$mail->isHTML(true);
-			$mail->Subject = 'Your OTP Code';
-			$mail->Body    = "Your OTP is: <b>$otp</b>. Please do not share this code.";
+				$mail->setFrom('spamacc2306@gmail.com', 'Verztec');
+				$mail->addAddress($user['email'], $user['username']);
+				$mail->isHTML(true);
+				$mail->Subject = 'Your OTP Code';
+				$mail->Body    = "Your OTP is: <b>$otp</b>. Please do not share this code.";
 
-			$mail->send();
+				$mail->send();
 
-			// Redirect to OTP verification page
-			header("Location: otp_form.php");
-			exit();
+				// Redirect to OTP verification page
+				header("Location: otp_form.php");
+				exit();
 
-		} catch (Exception $e) {
-			$error = "Could not send OTP. Mail error: {$mail->ErrorInfo}";
+			} catch (Exception $e) {
+				$error = "Could not send OTP. Mail error: {$mail->ErrorInfo}";
+			}
+		} else {
+			$error = "Invalid username or password.";
 		}
 	} else {
 		$error = "Invalid username or password.";
 	}
+
 
 	$stmt->close();
 }
