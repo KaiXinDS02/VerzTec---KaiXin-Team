@@ -127,7 +127,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
             </form>
         </div>
     </section>
+
     <!-- Upload File Button Section -->
+        <section class="py-4">
+        <div class="container">
+            <h4 class="mb-3">Users</h4>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <!-- Table Headers -->
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Role</th>
+                            <th>Country</th>
+                        </tr>
+                    </thead>
+                    <!-- Empty tbody to be filled by AJAX -->
+                    <tbody id="user-data-body">
+                        <!-- User rows will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    <!-- End Display User Data Section -->
+
+
 
     <!-- Alert Box -->
     <?php if (!empty($message)) : ?>
@@ -143,5 +171,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/scripts.js"></script>
+
+    <!-- Load users via AJAX -->
+    <script>
+        $(document).ready(function() {
+            $("#user-data-body").load("fetch_users.php");
+        });
+ 
+    </script>
 </body>
 </html>
