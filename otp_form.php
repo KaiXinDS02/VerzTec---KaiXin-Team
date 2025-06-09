@@ -1,7 +1,6 @@
-<!-- Database Connection for Authentication -->
 <?php
 session_start();
-
+// Database Connection for Authentication
 $error = "";
 
 // Handle form submission

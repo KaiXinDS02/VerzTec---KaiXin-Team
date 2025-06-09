@@ -1,6 +1,6 @@
-<!-- Database Connection for Login System -->
 <?php
 session_start();
+// Database Connection for Login System 
 include('connect.php'); 
 require 'vendor/autoload.php'; // For PHPMailer
 
