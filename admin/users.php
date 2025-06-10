@@ -127,23 +127,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
     <!-- Action Buttons Section -->
     <section class="py-4">
         <div class="container d-flex justify-content-end">
-            <!-- Department Filter Dropdown -->
+            <!-- Department Multi-Select Dropdown -->
             <div class="dropdown me-2">
-            <button class="btn btn-dark rounded-2 dropdown-toggle" type="button" id="deptFilterBtn" data-bs-toggle="dropdown">
+            <button class="btn btn-outline-dark rounded-2 dropdown-toggle bg-transparent text-black" type="button" id="deptFilterBtn" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fa fa-filter me-2"></i> Department
             </button>
-            <ul class="dropdown-menu dropdown-menu-end bg-white" aria-labelledby="deptFilterBtn" id="deptFilterMenu"></ul>
+            <div class="dropdown-menu p-3" aria-labelledby="deptFilterBtn" style="min-width: 200px; max-height: 300px; overflow-y: auto;" id="deptFilterMenu">
+                <!-- dynamically populated checkboxes -->
+            </div>
             </div>
 
-            <!-- Country Filter Dropdown -->
+            <!-- Country Multi-Select Dropdown -->
             <div class="dropdown me-2">
-            <button class="btn btn-dark rounded-2 dropdown-toggle" type="button" id="countryFilterBtn" data-bs-toggle="dropdown">
+            <button class="btn btn-outline-dark rounded-2 dropdown-toggle bg-transparent text-black" type="button" id="countryFilterBtn" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fa fa-filter me-2"></i> Country
             </button>
-            <ul class="dropdown-menu dropdown-menu-end bg-white" aria-labelledby="countryFilterBtn" id="countryFilterMenu"></ul>
+            <div class="dropdown-menu p-3" aria-labelledby="countryFilterBtn" style="min-width: 200px; max-height: 300px; overflow-y: auto;" id="countryFilterMenu">
+                <!-- dynamically populated checkboxes -->
             </div>
-            <!-- Country Filter Dropdown -->
+            </div>
 
+            
             <!-- Add User Button -->
             <button class="btn btn-dark rounded-2 px-4 py-2 me-2 d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addUserModal">
                 <i class="fa fa-user-plus me-2"></i> Add User
@@ -487,76 +491,101 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
                 },
                 columns: [
                     { name: 'user_id', data: 'user_id' },
-                    { name: 'username',  data: 'username' },
-                    { name: 'email',     data: 'email' },
-                    { name: 'department',data: 'department' },
-                    { name: 'role',      data: 'role' },
-                    { name: 'country',   data: 'country' },
+                    { name: 'username', data: 'username' },
+                    { name: 'email', data: 'email' },
+                    { name: 'department', data: 'department' },
+                    { name: 'role', data: 'role' },
+                    { name: 'country', data: 'country' },
                     {
                         data: null,
+                        orderable: false,
+                        width: '80px',
                         render: function(data, type, row) {
                             return '<button class="btn btn-sm btn-link text-black edit-user" title="Edit" data-userid="' + row.user_id + '" data-username="' + row.username + '" data-email="' + row.email + '" data-department="' + row.department + '" data-role="' + row.role + '" data-country="' + row.country + '"><i class="fa fa-edit"></i></button>' +
                                 '<button class="btn btn-sm btn-link text-black delete-user" title="Delete" data-userid="' + row.user_id + '"><i class="fa fa-trash"></i></button>';
                         }
                     }
-                ],
-                columnDefs: [
-                    {
-                        targets: 6,      // last column index
-                        orderable: false,
-                        width: '80px'   // adjust width as needed
-                    }
                 ]
             });
 
-            // Align the search bar to the left
+            // Align search bar to left and style placeholder
             $('.dataTables_filter').addClass('text-start').removeClass('text-end').css('text-align', 'left');
-
-            // Hide the "Search:" label and add placeholder text inside the input
             $('.dataTables_filter label').contents().filter(function() {
-                return this.nodeType === 3; // text nodes
-            }).remove(); // remove the "Search:" text node
+                return this.nodeType === 3;
+            }).remove();
+            $('.dataTables_filter input').attr('placeholder', 'Search').css('color', '#999');
 
-            $('.dataTables_filter input').attr('placeholder', 'Search').css('color', '#999'); // light grey placeholder
-        });
+            // Wait until the ajax data loads to build filter checkboxes
+            $('#users-table').on('xhr.dt', function(e, settings, json, xhr) {
+                if (!json) return;
 
+                // Extract unique departments and countries
+                var departments = [...new Set(json.map(item => item.department))].sort();
+                var countries = [...new Set(json.map(item => item.country))].sort();
 
-
-
-        $('#users-table').on('init.dt', function() {
-            var table = $('#users-table').DataTable();
-
-            function makeFilter(menuId, headerText) {
-                var colIndex = table.column(`${headerText}:name`).index(); // use named columns
-
-                var unique = table.column(colIndex).data()
-                                .unique().sort().toArray();
-
-                var $menu = $(menuId).empty();
-                $menu.append('<li><a class="dropdown-item filter-clear" data-col="' + colIndex + '" href="#">Show All</a></li>');
-                unique.forEach(function(val) {
-                $menu.append(
-                    '<li><a class="dropdown-item filter-item" data-col="' + colIndex + '" data-val="' + val + '" href="#">' + val + '</a></li>'
-                );
+                // Populate Department filters
+                var $deptMenu = $('#deptFilterMenu');
+                $deptMenu.find('.form-check').remove(); // remove old checkboxes
+                departments.forEach(function(dep) {
+                    var checkbox = `
+                    <div class="form-check">
+                        <input class="form-check-input dept-checkbox" type="checkbox" value="${dep}" id="dept-${dep}">
+                        <label class="form-check-label" for="dept-${dep}">${dep}</label>
+                    </div>`;
+                    $deptMenu.append(checkbox);
                 });
+
+                // Populate Country filters
+                var $countryMenu = $('#countryFilterMenu');
+                $countryMenu.find('.form-check').remove();
+                countries.forEach(function(c) {
+                    var checkbox = `
+                    <div class="form-check">
+                        <input class="form-check-input country-checkbox" type="checkbox" value="${c}" id="country-${c}">
+                        <label class="form-check-label" for="country-${c}">${c}</label>
+                    </div>`;
+                    $countryMenu.append(checkbox);
+                });
+            });
+
+            // Functions to get selected filters
+            function getSelectedDepartments() {
+                return $('.dept-checkbox:checked').map(function() { return this.value; }).get();
+            }
+            function getSelectedCountries() {
+                return $('.country-checkbox:checked').map(function() { return this.value; }).get();
             }
 
-            makeFilter('#deptFilterMenu', 'department');
-            makeFilter('#countryFilterMenu', 'country');
+            // Custom filter function for DataTables
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                var selectedDepts = getSelectedDepartments();
+                var selectedCountries = getSelectedCountries();
 
-            $('.filter-item').click(function(e) {
-                e.preventDefault();
-                var col = $(this).data('col');
-                var val = $(this).data('val');
-                table.column(col).search('^' + $.fn.dataTable.util.escapeRegex(val) + '$', true, false).draw();
+                var dept = data[3];     // Department column index
+                var country = data[5];  // Country column index
+
+                var deptMatch = selectedDepts.length === 0 || selectedDepts.includes(dept);
+                var countryMatch = selectedCountries.length === 0 || selectedCountries.includes(country);
+
+                return deptMatch && countryMatch;
             });
 
-            $('.filter-clear').click(function(e) {
-                e.preventDefault();
-                var col = $(this).data('col');
-                table.column(col).search('').draw();
+            // Redraw table when any checkbox changes
+            $('#deptFilterMenu, #countryFilterMenu').on('change', 'input[type="checkbox"]', function() {
+                table.draw();
+            });
+
+            // Clear filter buttons
+            $('#clearDeptFilters').on('click', function() {
+                $('#deptFilterMenu input[type="checkbox"]').prop('checked', false);
+                table.draw();
+            });
+            $('#clearCountryFilters').on('click', function() {
+                $('#countryFilterMenu input[type="checkbox"]').prop('checked', false);
+                table.draw();
             });
         });
+
 
     </script>
 
