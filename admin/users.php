@@ -5,6 +5,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 // Upload File Script
 $conn = new mysqli("db", "user", "password", "Verztec");
 
+
 $message = ""; // To hold success or error message
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_name'])) {
@@ -65,6 +66,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
     <link rel="stylesheet" href="style.css">	
     <!-- Responsive CSS -->
     <link rel="stylesheet" href="css/responsive.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
     <style>
         /* Add padding to the body below the header */
         body {
@@ -123,6 +127,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
     <!-- Action Buttons Section -->
     <section class="py-4">
         <div class="container d-flex justify-content-end">
+            <!-- Department Filter Dropdown -->
+            <div class="dropdown me-2">
+            <button class="btn btn-dark rounded-2 dropdown-toggle" type="button" id="deptFilterBtn" data-bs-toggle="dropdown">
+                <i class="fa fa-filter me-2"></i> Department
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end bg-white" aria-labelledby="deptFilterBtn" id="deptFilterMenu"></ul>
+            </div>
+
+            <!-- Country Filter Dropdown -->
+            <div class="dropdown me-2">
+            <button class="btn btn-dark rounded-2 dropdown-toggle" type="button" id="countryFilterBtn" data-bs-toggle="dropdown">
+                <i class="fa fa-filter me-2"></i> Country
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end bg-white" aria-labelledby="countryFilterBtn" id="countryFilterMenu"></ul>
+            </div>
+            <!-- Country Filter Dropdown -->
+
             <!-- Add User Button -->
             <button class="btn btn-dark rounded-2 px-4 py-2 me-2 d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addUserModal">
                 <i class="fa fa-user-plus me-2"></i> Add User
@@ -199,7 +220,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
         <div class="container">
             <h4 class="mb-3">Users</h4>
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table id="users-table" class="table table-hover">
                     <!-- Table Headers -->
                     <thead class="table-dark">
                         <tr>
@@ -212,10 +233,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
                             <th> </th> 
                         </tr>
                     </thead>
-                    <!-- Empty tbody to be filled by AJAX -->
-                    <tbody id="user-data-body">
-                        <!-- User rows will be loaded here -->
-                    </tbody>
+                    
                 </table>
             </div>
         </div>
@@ -297,6 +315,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/scripts.js"></script>
+
+    <!-- jQuery (required for DataTables) -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
     
     <!-- Add User Pop-Up -->
     <script>
@@ -347,6 +372,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
         });
     });
     </script>
+    <!-- Add User Pop-Up -->
 
 
     <!-- Load users via AJAX -->
@@ -445,9 +471,97 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
             });
         });
     </script>
+    <!-- Load users via AJAX -->
+
+    <!--  Initialize DataTables -->
+    <script>
+        $(document).ready(function() {
+            var table = $('#users-table').DataTable({
+                dom: '<"top-bar mb-3"f>rt',
+                paging: false,
+                info: false,
+                lengthChange: false,
+                ajax: {
+                    url: 'admin/fetch_users.php',
+                    dataSrc: ''
+                },
+                columns: [
+                    { name: 'user_id', data: 'user_id' },
+                    { name: 'username',  data: 'username' },
+                    { name: 'email',     data: 'email' },
+                    { name: 'department',data: 'department' },
+                    { name: 'role',      data: 'role' },
+                    { name: 'country',   data: 'country' },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return '<button class="btn btn-sm btn-link text-black edit-user" title="Edit" data-userid="' + row.user_id + '" data-username="' + row.username + '" data-email="' + row.email + '" data-department="' + row.department + '" data-role="' + row.role + '" data-country="' + row.country + '"><i class="fa fa-edit"></i></button>' +
+                                '<button class="btn btn-sm btn-link text-black delete-user" title="Delete" data-userid="' + row.user_id + '"><i class="fa fa-trash"></i></button>';
+                        }
+                    }
+                ],
+                columnDefs: [
+                    {
+                        targets: 6,      // last column index
+                        orderable: false,
+                        width: '80px'   // adjust width as needed
+                    }
+                ]
+            });
+
+            // Align the search bar to the left
+            $('.dataTables_filter').addClass('text-start').removeClass('text-end').css('text-align', 'left');
+
+            // Hide the "Search:" label and add placeholder text inside the input
+            $('.dataTables_filter label').contents().filter(function() {
+                return this.nodeType === 3; // text nodes
+            }).remove(); // remove the "Search:" text node
+
+            $('.dataTables_filter input').attr('placeholder', 'Search').css('color', '#999'); // light grey placeholder
+        });
 
 
 
+
+        $('#users-table').on('init.dt', function() {
+            var table = $('#users-table').DataTable();
+
+            function makeFilter(menuId, headerText) {
+                var colIndex = table.column(`${headerText}:name`).index(); // use named columns
+
+                var unique = table.column(colIndex).data()
+                                .unique().sort().toArray();
+
+                var $menu = $(menuId).empty();
+                $menu.append('<li><a class="dropdown-item filter-clear" data-col="' + colIndex + '" href="#">Show All</a></li>');
+                unique.forEach(function(val) {
+                $menu.append(
+                    '<li><a class="dropdown-item filter-item" data-col="' + colIndex + '" data-val="' + val + '" href="#">' + val + '</a></li>'
+                );
+                });
+            }
+
+            makeFilter('#deptFilterMenu', 'department');
+            makeFilter('#countryFilterMenu', 'country');
+
+            $('.filter-item').click(function(e) {
+                e.preventDefault();
+                var col = $(this).data('col');
+                var val = $(this).data('val');
+                table.column(col).search('^' + $.fn.dataTable.util.escapeRegex(val) + '$', true, false).draw();
+            });
+
+            $('.filter-clear').click(function(e) {
+                e.preventDefault();
+                var col = $(this).data('col');
+                table.column(col).search('').draw();
+            });
+        });
+
+    </script>
+
+
+    <!--  Initialize DataTables -->
 
 </body>
 </html>
