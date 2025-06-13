@@ -1,10 +1,13 @@
 FROM php:8.2-apache
 
-# Install system dependencies and PHP extensions
+# Install system dependencies and PHP extensions (zip, mysqli, pdo, gd)
 RUN apt-get update && apt-get install -y \
     libzip-dev zip unzip \
+    libpng-dev libjpeg-dev libfreetype6-dev \
     && docker-php-ext-configure zip \
-    && docker-php-ext-install zip mysqli pdo pdo_mysql
+    && docker-php-ext-install zip mysqli pdo pdo_mysql \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
