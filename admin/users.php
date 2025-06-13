@@ -2,14 +2,16 @@
 session_start();
 require __DIR__ . '/../vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\IOFactory;
-// Upload File Script
-$conn = new mysqli("db", "user", "password", "Verztec");
 
+include 'auto_log_function.php';
+include __DIR__ . '/../connect.php';
 
 $message = ""; // To hold success or error message
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_name'])) {
     $file = $_FILES['excel_file']['tmp_name'];
+    $fileName = $_FILES['excel_file']['name']; // Get original file name
+    $insertedCount = 0;
 
     try {
         $spreadsheet = IOFactory::load($file);
@@ -27,15 +29,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
 
             $sql = "INSERT INTO users (username, password, email, department, role, country)
                     VALUES ('$name', '$password', '$email', '$department', '$role', '$country')";
-            $conn->query($sql);
+            if ($conn->query($sql)) {
+                $insertedCount++;
+            }
         }
 
-        $message = "✅ Import completed.";
+        $message = "Import completed. $insertedCount users added.";
+
+        // ✅ Log the upload action
+        if (isset($_SESSION['user_id'])) {
+            $adminId = $_SESSION['user_id'];
+            $details = "Uploaded user file '$fileName'. $insertedCount users added.";
+            log_action($conn, $adminId, 'add_user', $details);
+        }
+
     } catch (Exception $e) {
-        $message = "❌ Import failed: " . $e->getMessage();
+        $message = "Import failed: " . $e->getMessage();
     }
 }
 ?>
+
 <!-- Upload File Script -->
 
 
@@ -547,6 +560,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
                     $countryMenu.append(checkbox);
                 });
             });
+
+            // delete user 
+            $('#users-table').on('click', '.delete-user', function () {
+                const userId = $(this).data('userid');
+
+                if (confirm('Are you sure you want to delete this user?')) {
+                    $.ajax({
+                        url: 'admin/delete_users.php', 
+                        type: 'POST',
+                        data: { user_id: userId },
+                        success: function (response) {
+                            if (response.trim() === 'success') {
+                                alert('User deleted successfully.');
+                                $('#users-table').DataTable().ajax.reload(null, false);
+                            } else {
+                                alert('Delete failed: ' + response);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            alert('AJAX error: ' + status + ' - ' + error);
+                            console.error(xhr.responseText);
+                        }
+                    });
+                }
+            });
+
 
             // Functions to get selected filters
             function getSelectedDepartments() {

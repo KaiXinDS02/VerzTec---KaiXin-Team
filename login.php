@@ -2,6 +2,7 @@
 session_start();
 // Database Connection for Login System 
 include('connect.php'); 
+include 'admin/auto_log_function.php';
 require 'vendor/autoload.php'; // For PHPMailer
 
 use PHPMailer\PHPMailer\PHPMailer;

@@ -1,7 +1,10 @@
 <?php
-$mysqli = new mysqli('db', 'user', 'password', 'Verztec');
-if ($mysqli->connect_error) {
-    die('Connection failed: ' . $mysqli->connect_error);
-}
-echo '✅ Connected successfully!';
+require_once 'connect.php';
+session_start();
+
+include 'admin/auto_log_function.php'; // your fixed logger file
+
+auto_log_action(); // direct call
+
+echo "Testing audit log...";
 ?>

@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/../connect.php';
-
+require __DIR__ . '/../admin/auto_log_function.php'; 
+session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = trim($_POST["username"]);
@@ -15,6 +16,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("ssssss", $username, $password, $email, $department, $role, $country);
 
         if ($stmt->execute()) {
+            // ✅ Log the action
+            if (isset($_SESSION['user_id'])) {
+                $details = "Added user: $username (email: $email, role: $role, dept: $department, country: $country)";
+                log_action($conn, $_SESSION['user_id'], "add_user", $details);
+            }
             echo "success";
         } else {
             echo "Database error: " . $stmt->error;

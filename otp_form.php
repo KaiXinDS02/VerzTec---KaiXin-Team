@@ -1,5 +1,6 @@
 <?php
 session_start();
+include 'admin/auto_log_function.php';
 if (!isset($_SESSION['otp']) || !isset($_SESSION['email'])) {
     header("Location: login.php");
     exit();

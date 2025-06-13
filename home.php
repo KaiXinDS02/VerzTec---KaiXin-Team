@@ -1,5 +1,6 @@
 <?php
 session_start();
+include 'admin/auto_log_function.php';
     // Example: Set $_SESSION['role'] after login (ensure this is done on login)
     if (!isset($_SESSION['role'])) {
     $_SESSION['role'] = 'USER'; // default/fallback for testing, remove in production

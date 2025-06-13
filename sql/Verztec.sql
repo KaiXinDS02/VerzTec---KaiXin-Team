@@ -5,6 +5,7 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
+-- USERS TABLE
 CREATE TABLE `users` (
   `user_id` int(11) NOT NULL,
   `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -24,5 +25,19 @@ ALTER TABLE `users`
 
 ALTER TABLE `users`
   MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+
+
+
+-- AUDIT LOG TABLE
+CREATE TABLE `audit_log` (
+  `log_id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `user_id` INT,
+  `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  `action` VARCHAR(255) NOT NULL,
+  `details` TEXT,
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
 
 COMMIT;
