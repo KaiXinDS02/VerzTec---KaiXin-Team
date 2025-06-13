@@ -1,97 +1,150 @@
 <?php
 session_start();
 require __DIR__ . '/../vendor/autoload.php';
-use PhpOffice\PhpSpreadsheet\IOFactory;
 
 include 'auto_log_function.php';
 include __DIR__ . '/../connect.php';
 
-$message = ""; // To hold success or error message
+$message = "";
 
+// Handle Excel upload
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_name'])) {
-    $file = $_FILES['excel_file']['tmp_name'];
-    $fileName = $_FILES['excel_file']['name']; // Get original file name
+    $file          = $_FILES['excel_file']['tmp_name'];
+    $fileName      = $_FILES['excel_file']['name'];
     $insertedCount = 0;
 
     try {
-        $spreadsheet = IOFactory::load($file);
-        $sheet = $spreadsheet->getActiveSheet();
-        $data = $sheet->toArray();
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
+        $data        = $spreadsheet->getActiveSheet()->toArray();
 
         for ($i = 1; $i < count($data); $i++) {
-            $row = $data[$i];
-            $name = $conn->real_escape_string($row[0]);
-            $password = password_hash($row[1], PASSWORD_DEFAULT);
-            $email = $conn->real_escape_string($row[2]);
-            $department = $conn->real_escape_string($row[3]);
-            $role = $conn->real_escape_string($row[4]);
-            $country = $conn->real_escape_string($row[5]);
+            list($nameRaw, $passRaw, $emailRaw, $deptRaw, $roleRaw, $countryRaw) = $data[$i];
+            $name       = $conn->real_escape_string($nameRaw);
+            $password   = password_hash($passRaw, PASSWORD_DEFAULT);
+            $email      = $conn->real_escape_string($emailRaw);
+            $department = $conn->real_escape_string($deptRaw);
+            $role       = $conn->real_escape_string($roleRaw);
+            $country    = $conn->real_escape_string($countryRaw);
 
-            $sql = "INSERT INTO users (username, password, email, department, role, country)
-                    VALUES ('$name', '$password', '$email', '$department', '$role', '$country')";
+            $sql = "
+                INSERT INTO users 
+                    (username, password, email, department, role, country)
+                VALUES 
+                    ('$name', '$password', '$email', '$department', '$role', '$country')
+            ";
             if ($conn->query($sql)) {
                 $insertedCount++;
             }
         }
-
         $message = "Import completed. $insertedCount users added.";
 
-        // ✅ Log the upload action
         if (isset($_SESSION['user_id'])) {
             $adminId = $_SESSION['user_id'];
             $details = "Uploaded user file '$fileName'. $insertedCount users added.";
             log_action($conn, $adminId, 'add_user', $details);
         }
-
     } catch (Exception $e) {
         $message = "Import failed: " . $e->getMessage();
     }
 }
+
+// Fetch total user count for header
+$res       = $conn->query("SELECT COUNT(*) AS cnt FROM users");
+$userCount = $res->fetch_assoc()['cnt'];
 ?>
-
-<!-- Upload File Script -->
-
-
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
-    <base href="../">
-    <!-- Meta setup -->
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="keywords" content="">
-    <meta name="decription" content="">
-    <!-- Title -->
-    <title>Verztec</title>
-    <!-- Fav Icon -->
-    <link rel="icon" href="images/favicon.ico">	
-    <!-- Include Bootstrap -->
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <!-- link font awesome -->
-    <link rel="stylesheet" href="css/font-awesome.css">
-    <!-- Main StyleSheet -->
-    <link rel="stylesheet" href="style.css">	
-    <!-- Responsive CSS -->
-    <link rel="stylesheet" href="css/responsive.css">
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-
-    <style>
-        /* Add padding to the body below the header */
-        body {
-            padding-top: 110px; /* Adjust based on your header height */
-            background-color: #f2f3fa;
-        }
-    </style>
+  <base href="../">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Verztec Admin</title>
+  <link rel="icon" href="images/favicon.ico">
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/font-awesome.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+  <style>
+    html, body { height:100%; margin:0 }
+    body {
+      background: #f2f3fa;
+      padding-top: 160px;
+      padding-bottom: 160px;
+    }
+    .sidebar-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin: 1rem;
+      padding: 1rem;
+      min-height: calc(100vh - 320px);
+    }
+    .sidebar-card .nav-link {
+      color: #333;
+      margin-bottom: .75rem;
+      border-radius: 6px;
+      padding: .75rem 1rem;
+    }
+    .sidebar-card .nav-link.active {
+      background-color: #FFD050;
+      color: #000;
+    }
+    .sidebar-card .nav-link i { font-size:1.2rem }
+    .search-box {
+      position: relative;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      width: 240px;
+    }
+    .search-box input {
+      border: none;
+      padding: .375rem .75rem .375rem 2.5rem;
+      border-radius: 8px;
+      width: 100%;
+    }
+    .search-box i {
+      position: absolute; left:.75rem; top:50%;
+      transform:translateY(-50%); color:#999;
+    }
+    .filter-dropdown .dropdown-toggle {
+      background: #fff; border:1px solid #ddd;
+      border-radius:8px; color:#333;
+    }
+    .filter-dropdown .dropdown-toggle::after {
+      margin-left:.5em;
+      border-top:.3em solid #333;
+      border-right:.3em solid transparent;
+      border-left:.3em solid transparent;
+    }
+    .filter-dropdown .dropdown-toggle:hover {
+      background:#000; color:#fff; border-color:#000;
+    }
+    .filter-dropdown .dropdown-toggle:hover::after {
+      border-top-color:#fff;
+    }
+    .table-container {
+      background:#fff; border-radius:8px;
+      overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.1);
+      flex-grow:1; overflow-y:auto; display:flex; flex-direction:column;
+    }
+    .table-container table {
+      margin:0; border-collapse:collapse;
+    }
+    .table-container table thead th {
+      background:#212529; color:#fff;
+    }
+    .table-container table thead th:first-child {
+      border-top-left-radius:8px;
+    }
+    .table-container table thead th:last-child {
+      border-top-right-radius:8px;
+    }
+  </style>
 </head>
 <body>
-
     <!-- page header area -->
     <header class="header-area" style="position: fixed; top: 0; left: 0; width: 100%; z-index: 999; background: white;">
         <div class="container-fluid">
@@ -134,502 +187,327 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
     </header>
     <!-- page header area -->
 
-
-
-
-    <!-- Action Buttons Section -->
-    <section class="py-4">
-        <div class="container d-flex justify-content-end">
-            <!-- Department Multi-Select Dropdown -->
-            <div class="dropdown me-2">
-            <button class="btn btn-outline-dark rounded-2 dropdown-toggle bg-transparent text-black" type="button" id="deptFilterBtn" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa fa-filter me-2"></i> Department
-            </button>
-            <div class="dropdown-menu p-3" aria-labelledby="deptFilterBtn" style="min-width: 200px; max-height: 300px; overflow-y: auto;" id="deptFilterMenu">
-                <!-- dynamically populated checkboxes -->
-            </div>
-            </div>
-
-            <!-- Country Multi-Select Dropdown -->
-            <div class="dropdown me-2">
-            <button class="btn btn-outline-dark rounded-2 dropdown-toggle bg-transparent text-black" type="button" id="countryFilterBtn" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa fa-filter me-2"></i> Country
-            </button>
-            <div class="dropdown-menu p-3" aria-labelledby="countryFilterBtn" style="min-width: 200px; max-height: 300px; overflow-y: auto;" id="countryFilterMenu">
-                <!-- dynamically populated checkboxes -->
-            </div>
-            </div>
-
-            
-            <!-- Add User Button -->
-            <button class="btn btn-dark rounded-2 px-4 py-2 me-2 d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                <i class="fa fa-user-plus me-2"></i> Add User
-            </button>
-            <!-- Add User Button -->
-
-            <!-- Upload File Button -->
-            <form method="POST" enctype="multipart/form-data">
-                <label for="excel_file" class="btn btn-dark rounded-2 px-4 py-2 d-flex align-items-center" style="cursor: pointer;">
-                    <i class="fa fa-upload me-2"></i> Upload File
-                </label>
-                <input type="file" name="excel_file" id="excel_file" accept=".xls,.xlsx" onchange="this.form.submit()" style="display: none;">
-            </form>
-            <!-- Upload File Button -->
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-2">
+        <div class="sidebar-card">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link active d-flex align-items-center" href="#">
+                <i class="fa fa-users me-2"></i> Users
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center" href="admin/audit_log.html">
+                <i class="fa fa-clock-rotate-left me-2"></i> Audit Log
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center" href="admin/announcements.html">
+                <i class="fa fa-bullhorn me-2"></i> Announcements
+              </a>
+            </li>
+          </ul>
         </div>
-    </section>
-    <!-- Action Buttons Section -->
-    
+      </div>
 
-    <!-- Add User Modal -->
-    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+      <!-- Main -->
+      <div class="col-md-10 d-flex flex-column px-4" style="height:calc(100vh - 320px);">
+        <!-- Header + Count -->
+        <div class="mb-2">
+          <h4 class="fw-bold">
+            Users (<span id="userCount"><?= $userCount ?></span>)
+          </h4>
+        </div>
+
+        <!-- Controls -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="search-box">
+            <i class="fa fa-search"></i>
+            <input type="text" id="tableSearch" placeholder="Search user">
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <div class="dropdown filter-dropdown">
+              <button class="btn dropdown-toggle" id="deptFilterBtn" data-bs-toggle="dropdown">
+                Department: All
+              </button>
+              <div class="dropdown-menu p-3" id="deptFilterMenu" style="max-height:300px;overflow-y:auto;"></div>
+            </div>
+            <div class="dropdown filter-dropdown">
+              <button class="btn dropdown-toggle" id="countryFilterBtn" data-bs-toggle="dropdown">
+                Country: All
+              </button>
+              <div class="dropdown-menu p-3" id="countryFilterMenu" style="max-height:300px;overflow-y:auto;"></div>
+            </div>
+            <button class="btn btn-dark d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addUserModal">
+              <i class="fa fa-user-plus me-2"></i> Add User
+            </button>
+            <button class="btn btn-dark d-flex align-items-center" onclick="document.getElementById('excel_file').click();">
+              <i class="fa fa-upload me-2"></i> Upload File
+            </button>
+            <form method="POST" enctype="multipart/form-data" style="display:none;">
+              <input type="file" name="excel_file" id="excel_file" accept=".xls,.xlsx" onchange="this.form.submit()">
+            </form>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+          <table id="users-table" class="table table-hover mb-0 w-100">
+            <thead class="table-dark">
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th>Role</th>
+                <th>Country</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD USER MODAL -->
+  <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+      <div class="modal-content">
         <form id="addUserForm">
-            <div class="modal-header">
+          <div class="modal-header">
             <h5 class="modal-title" id="addUserModalLabel">Add User</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body bg-white">
+          </div>
+          <div class="modal-body bg-white">
             <div class="mb-3">
-                <label>Username</label>
-                <input type="text" class="form-control" id="add-username" name="username" required>
-            </div>
-            <div class="mb-3">
-                <label>Password</label>
-                <input type="password" class="form-control" id="add-password" name="password" required>
+              <label>Username</label>
+              <input type="text" class="form-control" id="add-username" name="username" required>
             </div>
             <div class="mb-3">
-                <label>Email</label>
-                <input type="email" class="form-control" id="add-email" name="email" required>
+              <label>Password</label>
+              <input type="password" class="form-control" id="add-password" name="password" required>
             </div>
             <div class="mb-3">
-                <label>Department</label>
-                <input type="text" class="form-control" id="add-department" name="department" required>
+              <label>Email</label>
+              <input type="email" class="form-control" id="add-email" name="email" required>
             </div>
             <div class="mb-3">
-                <label>Role</label>
-                <select class="form-select" id="add-role" name="role" required>
-                <option value="ADMIN">ADMIN</option>
-                <option value="MANAGER">MANAGER</option>
-                <option value="USER" selected>USER</option>
-                </select>
+              <label>Department</label>
+              <input type="text" class="form-control" id="add-department" name="department" required>
             </div>
             <div class="mb-3">
-                <label>Country</label>
-                <input type="text" class="form-control" id="add-country" name="country" required>
+              <label>Role</label>
+              <select class="form-select" id="add-role" name="role" required>
+                <option>ADMIN</option>
+                <option>MANAGER</option>
+                <option selected>USER</option>
+              </select>
             </div>
+            <div class="mb-3">
+              <label>Country</label>
+              <input type="text" class="form-control" id="add-country" name="country" required>
             </div>
-            <div class="modal-footer">
+          </div>
+          <div class="modal-footer">
             <button type="submit" class="btn btn-dark">Add User</button>
-            </div>
+          </div>
         </form>
-        </div>
+      </div>
     </div>
-    </div>
-    <!-- Add User Modal -->
+  </div>
 
-
-
-
-
-    <!-- Display User Data Section -->
-        <section class="py-4">
-        <div class="container">
-            <h4 class="mb-3">Users</h4>
-            <div class="table-responsive">
-                <table id="users-table" class="table table-hover">
-                    <!-- Table Headers -->
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Department</th>
-                            <th>Role</th>
-                            <th>Country</th>
-                            <th> </th> 
-                        </tr>
-                    </thead>
-                    
-                </table>
-            </div>
-        </div>
-    </section>
-    <!-- End Display User Data Section -->
-
-
-
-    <!-- Alert Box -->
-    <?php if (!empty($message)) : ?>
-        <script>
-            window.onload = function() {
-                alert("<?php echo $message; ?>");
-            };
-        </script>
-    <?php endif; ?>
-
-
-
-    <!-- Edit User Pop-Up -->
-    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+  <!-- EDIT USER MODAL -->
+  <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+      <div class="modal-content">
         <form id="editUserForm">
-            <div class="modal-header">
-            <h5 class="modal-title">Edit User</h5>
+          <div class="modal-header">
+            <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
+          </div>
+          <div class="modal-body">
             <input type="hidden" id="edit-user-id" name="user_id">
             <div class="mb-3">
-                <label>Username</label>
-                <input type="text" class="form-control" id="edit-username" name="username" required>
+              <label>Username</label>
+              <input type="text" class="form-control" id="edit-username" name="username" required>
             </div>
             <div class="mb-3">
-                <label>Password</label>
-                <div class="input-group">
-                    <input type="password" class="form-control" id="edit-password" name="password" disabled readonly>
-                    <button type="button" class="btn btn-outline-secondary" id="reset-password-btn">Reset</button>
-                </div>
-                <small class="form-text text-muted">Click reset to change password.</small>
-            </div>
-
-            <div class="mb-3">
-                <label>Email</label>
-                <input type="email" class="form-control" id="edit-email" name="email" required>
+              <label>Password</label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="edit-password" name="password" disabled readonly>
+                <button type="button" class="btn btn-outline-secondary" id="reset-password-btn">Reset</button>
+              </div>
+              <small class="form-text text-muted">Click reset to change password.</small>
             </div>
             <div class="mb-3">
-                <label>Department</label>
-                <input type="text" class="form-control" id="edit-department" name="department" required>
+              <label>Email</label>
+              <input type="email" class="form-control" id="edit-email" name="email" required>
             </div>
             <div class="mb-3">
-                <label>Role</label>
-                <select class="form-control" id="edit-role" name="role" required>
-                    <option value="ADMIN">ADMIN</option>
-                    <option value="MANAGER">MANAGER</option>
-                    <option value="USER">USER</option>
-                </select>
+              <label>Department</label>
+              <input type="text" class="form-control" id="edit-department" name="department" required>
             </div>
             <div class="mb-3">
-                <label>Country</label>
-                <input type="text" class="form-control" id="edit-country" name="country" required>
+              <label>Role</label>
+              <select class="form-control" id="edit-role" name="role">
+                <option>ADMIN</option>
+                <option>MANAGER</option>
+                <option>USER</option>
+              </select>
             </div>
+            <div class="mb-3">
+              <label>Country</label>
+              <input type="text" class="form-control" id="edit-country" name="country" required>
             </div>
-            <div class="modal-footer">
+          </div>
+          <div class="modal-footer">
             <button type="submit" class="btn btn-dark">Save Changes</button>
-            </div>
+          </div>
         </form>
-        </div>
+      </div>
     </div>
-    </div>
-    <!-- Edit User Pop-Up -->
+  </div>
 
+  <?php if ($message): ?>
+    <script>window.onload=function(){alert("<?= $message ?>");};</script>
+  <?php endif; ?>
 
-
-
-
-    <!-- Scripts -->
-    <script src="js/jquery-3.4.1.min.js"></script>
-    <script src="js/bootstrap.bundle.min.js"></script>
-    <script src="js/scripts.js"></script>
-
-    <!-- jQuery (required for DataTables) -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
-    
-    <!-- Add User Pop-Up -->
-    <script>
-    document.getElementById('addUserForm').addEventListener('submit', function (e) {
-        e.preventDefault(); // Stop form from submitting normally
-
-        const requiredFields = ['username', 'password', 'email', 'department', 'role', 'country'];
-        let isValid = true;
-
-        // Validate fields
-        requiredFields.forEach(field => {
-            const input = document.getElementById(`add-${field}`);
-            if (!input.value.trim()) {
-                input.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                input.classList.remove('is-invalid');
-            }
-        });
-
-        if (!isValid) return;
-
-        // Send AJAX request
-        const formData = new FormData(this);
-        fetch('admin/add_user.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.text())
-        .then(data => {
-            if (data.trim() === "success") {
-                // Close modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('addUserModal'));
-                modal.hide();
-
-                // Optional: Reset form
-                this.reset();
-                document.getElementById('add-role').value = "USER";
-
-                // Refresh page to show new user in table
-                location.reload();
-            } else {
-                alert("Error: " + data); // Fallback alert in case something fails
-            }
-        })
-        .catch(error => {
-            alert("Request failed: " + error.message);
-        });
+  <script src="js/jquery-3.4.1.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/scripts.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+  <script>
+    // Add User AJAX
+    $('#addUserForm').on('submit', function(e){
+      e.preventDefault();
+      let valid = true;
+      ['username','password','email','department','role','country'].forEach(f=>{
+        const el = $('#add-'+f);
+        if(!el.val().trim()){ el.addClass('is-invalid'); valid=false; }
+        else el.removeClass('is-invalid');
+      });
+      if(!valid) return;
+      fetch('admin/add_user.php',{method:'POST',body:new FormData(this)})
+        .then(r=>r.text()).then(d=>{
+          if(d.trim()==='success'){
+            $('#addUserModal').modal('hide');
+            this.reset();
+            $('#add-role').val('USER');
+            table.ajax.reload(null,false);
+          } else alert('Error: '+d);
+        }).catch(err=>alert(err));
     });
-    </script>
-    <!-- Add User Pop-Up -->
 
+    // Initialize DataTable
+    const table = $('#users-table').DataTable({
+      dom: 'rt',
+      paging: false,
+      info: false,
+      lengthChange: false,
+      ajax: {url:'admin/fetch_users.php', dataSrc:''},
+      columns: [
+        {data:'user_id'}, {data:'username'}, {data:'email'},
+        {data:'department'}, {data:'role'}, {data:'country'},
+        {
+          data:null, orderable:false,
+          render:d=>`
+            <button class="edit-user btn-link" data-userid="${d.user_id}"
+                    data-username="${d.username}"
+                    data-email="${d.email}"
+                    data-department="${d.department}"
+                    data-role="${d.role}"
+                    data-country="${d.country}">
+              <i class="fa fa-edit"></i>
+            </button>
+            <button class="delete-user btn-link" data-userid="${d.user_id}">
+              <i class="fa fa-trash"></i>
+            </button>`
+        }
+      ]
+    });
 
-    <!-- Load users via AJAX -->
-    <script>
-        $(document).ready(function () {
-            // Load user data initially
-            $("#user-data-body").load("admin/fetch_users.php", function () {
-                attachDeleteHandlers(); // Attach delete buttons after loading
-            });
+    // Update count
+    table.on('xhr.dt', function(e, s, json){
+      $('#userCount').text(json.length);
+    });
 
-            // Function to attach delete button event listeners
-            function attachDeleteHandlers() {
-                $(".delete-user").off("click").on("click", function (e) {
-                    e.preventDefault();
+    // Search hook
+    $('#tableSearch').on('input', ()=>table.search($('#tableSearch').val()).draw());
 
-                    const userId = $(this).data("userid");
+    // Populate filters
+    table.on('xhr.dt', function(){
+      const data = table.ajax.json();
+      const deps = [...new Set(data.map(u=>u.department))].sort();
+      const cts  = [...new Set(data.map(u=>u.country))].sort();
+      $('#deptFilterMenu').empty().append(deps.map(v=>`
+        <div class="form-check">
+          <input class="form-check-input dept-checkbox" type="checkbox" value="${v}">
+          <label class="form-check-label">${v}</label>
+        </div>`).join(''));
+      $('#countryFilterMenu').empty().append(cts.map(v=>`
+        <div class="form-check">
+          <input class="form-check-input country-checkbox" type="checkbox" value="${v}">
+          <label class="form-check-label">${v}</label>
+        </div>`).join(''));
+    });
 
-                    // Show one confirmation prompt
-                    if (confirm("Are you sure you want to delete this user?")) {
-                        $.ajax({
-                            url: "admin/delete_users.php",
-                            type: "POST",
-                            data: { user_id: userId },
-                            success: function (response) {
-                                if (response.trim() === "success") {
-                                    alert("User deleted successfully.");
-                                    $("#user-data-body").load("admin/fetch_users.php", function () {
-                                        attachDeleteHandlers(); // Reattach after reload
-                                    });
-                                } else {
-                                    alert("Failed to delete user: " + response);
-                                }
-                            },
-                            error: function (xhr, status, error) {
-                                console.log(xhr.responseText);
-                                alert("Error while sending delete request.");
-                            }
-                        });
-                    }
-                });
-            }
+    // Custom filter
+    $.fn.dataTable.ext.search.push((settings,row)=>{
+      const sd=$('.dept-checkbox:checked').map((_,e)=>e.value).get(),
+            sc=$('.country-checkbox:checked').map((_,e)=>e.value).get();
+      return (sd.length===0||sd.includes(row[3]))
+          &&(sc.length===0||sc.includes(row[5]));
+    });
+    $('#deptFilterMenu,#countryFilterMenu').on('change','input',()=>table.draw());
+
+    // Delete
+    $('#users-table').on('click','.delete-user',function(){
+      const id=$(this).data('userid');
+      if(confirm('Delete this user?')){
+        $.post('admin/delete_users.php',{user_id:id},res=>{
+          if(res.trim()==='success') table.ajax.reload(null,false);
+          else alert('Delete failed: '+res);
         });
-    </script>
-    <script>
-        $(document).ready(function () {
-            // Open modal and fill form
-            $(document).on("click", ".edit-user", function () {
-                const user = $(this).data();
-                $("#edit-user-id").val(user.userid);
-                $("#edit-username").val(user.username);
-                $("#edit-password").val("•••••••••").prop("disabled", true).prop("readonly", true);
-                $("#edit-email").val(user.email);
-                $("#edit-department").val(user.department);
-                $("#edit-role").val(user.role);
-                $("#edit-country").val(user.country);
-                $("#editUserModal").modal("show");
-            });
+      }
+    });
 
-            // Handle password reset button
-            $(document).on("click", "#reset-password-btn", function () {
-                const $pwd = $("#edit-password");
-                $pwd.prop("disabled", false).prop("readonly", false).val("").focus();
-            });
+    // Edit
+    $('#users-table').on('click','.edit-user',function(){
+      const d=$(this).data();
+      $('#edit-user-id').val(d.userid);
+      $('#edit-username').val(d.username);
+      $('#edit-password').val('•••••••••').prop('disabled',true).prop('readonly',true);
+      $('#edit-email').val(d.email);
+      $('#edit-department').val(d.department);
+      $('#edit-role').val(d.role);
+      $('#edit-country').val(d.country);
+      $('#editUserModal').modal('show');
+    });
 
-            // Handle edit form submit
-            $("#editUserForm").on("submit", function (e) {
-                e.preventDefault();
+    // Reset password
+    $('#reset-password-btn').click(()=>{
+      $('#edit-password').prop('disabled',false).prop('readonly',false).val('').focus();
+    });
 
-                // Disable password input before submission if unchanged
-                const $pwd = $("#edit-password");
-                if ($pwd.prop("disabled")) {
-                    $pwd.prop("disabled", false); // Temporarily enable so it's included
-                    $pwd.val(""); // Clear to indicate no change
-                }
-
-                const formData = $(this).serialize();
-
-                $.ajax({
-                    url: "admin/update_user.php",
-                    method: "POST",
-                    data: formData,
-                    success: function (response) {
-                        response = response.trim();
-                        if (response === "success") {
-                            alert("User updated successfully.");
-                            $("#editUserModal").modal("hide");
-                            $("#user-data-body").load("admin/fetch_users.php");
-                        } else {
-                            alert("Update failed: " + response);
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        alert("AJAX error: " + error);
-                    }
-                });
-            });
-        });
-    </script>
-    <!-- Load users via AJAX -->
-
-    <!--  Initialize DataTables -->
-    <script>
-        $(document).ready(function() {
-            var table = $('#users-table').DataTable({
-                dom: '<"top-bar mb-3"f>rt',
-                paging: false,
-                info: false,
-                lengthChange: false,
-                ajax: {
-                    url: 'admin/fetch_users.php',
-                    dataSrc: ''
-                },
-                columns: [
-                    { name: 'user_id', data: 'user_id' },
-                    { name: 'username', data: 'username' },
-                    { name: 'email', data: 'email' },
-                    { name: 'department', data: 'department' },
-                    { name: 'role', data: 'role' },
-                    { name: 'country', data: 'country' },
-                    {
-                        data: null,
-                        orderable: false,
-                        width: '80px',
-                        render: function(data, type, row) {
-                            return '<button class="btn btn-sm btn-link text-black edit-user" title="Edit" data-userid="' + row.user_id + '" data-username="' + row.username + '" data-email="' + row.email + '" data-department="' + row.department + '" data-role="' + row.role + '" data-country="' + row.country + '"><i class="fa fa-edit"></i></button>' +
-                                '<button class="btn btn-sm btn-link text-black delete-user" title="Delete" data-userid="' + row.user_id + '"><i class="fa fa-trash"></i></button>';
-                        }
-                    }
-                ]
-            });
-
-            // Align search bar to left and style placeholder
-            $('.dataTables_filter').addClass('text-start').removeClass('text-end').css('text-align', 'left');
-            $('.dataTables_filter label').contents().filter(function() {
-                return this.nodeType === 3;
-            }).remove();
-            $('.dataTables_filter input').attr('placeholder', 'Search').css('color', '#999');
-
-            // Wait until the ajax data loads to build filter checkboxes
-            $('#users-table').on('xhr.dt', function(e, settings, json, xhr) {
-                if (!json) return;
-
-                // Extract unique departments and countries
-                var departments = [...new Set(json.map(item => item.department))].sort();
-                var countries = [...new Set(json.map(item => item.country))].sort();
-
-                // Populate Department filters
-                var $deptMenu = $('#deptFilterMenu');
-                $deptMenu.find('.form-check').remove(); // remove old checkboxes
-                departments.forEach(function(dep) {
-                    var checkbox = `
-                    <div class="form-check">
-                        <input class="form-check-input dept-checkbox" type="checkbox" value="${dep}" id="dept-${dep}">
-                        <label class="form-check-label" for="dept-${dep}">${dep}</label>
-                    </div>`;
-                    $deptMenu.append(checkbox);
-                });
-
-                // Populate Country filters
-                var $countryMenu = $('#countryFilterMenu');
-                $countryMenu.find('.form-check').remove();
-                countries.forEach(function(c) {
-                    var checkbox = `
-                    <div class="form-check">
-                        <input class="form-check-input country-checkbox" type="checkbox" value="${c}" id="country-${c}">
-                        <label class="form-check-label" for="country-${c}">${c}</label>
-                    </div>`;
-                    $countryMenu.append(checkbox);
-                });
-            });
-
-            // delete user 
-            $('#users-table').on('click', '.delete-user', function () {
-                const userId = $(this).data('userid');
-
-                if (confirm('Are you sure you want to delete this user?')) {
-                    $.ajax({
-                        url: 'admin/delete_users.php', 
-                        type: 'POST',
-                        data: { user_id: userId },
-                        success: function (response) {
-                            if (response.trim() === 'success') {
-                                alert('User deleted successfully.');
-                                $('#users-table').DataTable().ajax.reload(null, false);
-                            } else {
-                                alert('Delete failed: ' + response);
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            alert('AJAX error: ' + status + ' - ' + error);
-                            console.error(xhr.responseText);
-                        }
-                    });
-                }
-            });
-
-
-            // Functions to get selected filters
-            function getSelectedDepartments() {
-                return $('.dept-checkbox:checked').map(function() { return this.value; }).get();
-            }
-            function getSelectedCountries() {
-                return $('.country-checkbox:checked').map(function() { return this.value; }).get();
-            }
-
-            // Custom filter function for DataTables
-            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                var selectedDepts = getSelectedDepartments();
-                var selectedCountries = getSelectedCountries();
-
-                var dept = data[3];     // Department column index
-                var country = data[5];  // Country column index
-
-                var deptMatch = selectedDepts.length === 0 || selectedDepts.includes(dept);
-                var countryMatch = selectedCountries.length === 0 || selectedCountries.includes(country);
-
-                return deptMatch && countryMatch;
-            });
-
-            // Redraw table when any checkbox changes
-            $('#deptFilterMenu, #countryFilterMenu').on('change', 'input[type="checkbox"]', function() {
-                table.draw();
-            });
-
-            // Clear filter buttons
-            $('#clearDeptFilters').on('click', function() {
-                $('#deptFilterMenu input[type="checkbox"]').prop('checked', false);
-                table.draw();
-            });
-            $('#clearCountryFilters').on('click', function() {
-                $('#countryFilterMenu input[type="checkbox"]').prop('checked', false);
-                table.draw();
-            });
-        });
-
-
-    </script>
-
-
-    <!--  Initialize DataTables -->
-
+    // Submit edit
+    $('#editUserForm').on('submit', function(e){
+      e.preventDefault();
+      if($('#edit-password').prop('disabled')){
+        $('#edit-password').prop('disabled',false).val('');
+      }
+      $.post('admin/update_user.php',$(this).serialize(),res=>{
+        if(res.trim()==='success'){
+          alert('Updated');
+          $('#editUserModal').modal('hide');
+          table.ajax.reload(null,false);
+        } else alert('Update failed: '+res);
+      });
+    });
+  </script>
 </body>
 </html>
