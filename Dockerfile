@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Install system dependencies and PHP extensions
+# Install system dependencies and PHP extensions (zip, mysqli, pdo, gd)
 RUN apt-get update && apt-get install -y \
     libzip-dev zip unzip libpng-dev libjpeg-dev libfreetype6-dev \
     && docker-php-ext-configure zip \
