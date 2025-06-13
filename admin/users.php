@@ -1,5 +1,4 @@
 <?php
-session_start();
 require __DIR__ . '/../vendor/autoload.php';
 
 include 'auto_log_function.php';
@@ -198,7 +197,7 @@ $userCount = $res->fetch_assoc()['cnt'];
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link d-flex align-items-center" href="admin/audit_log.html">
+              <a class="nav-link d-flex align-items-center" href="admin/audit_log.php">
                 <i class="fa fa-clock-rotate-left me-2"></i> Audit Log
               </a>
             </li>

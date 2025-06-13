@@ -1,4 +1,5 @@
 <?php
+ini_set('session.cookie_path', '/');
 session_start();
 // Database Connection for Login System 
 include('connect.php'); 
@@ -27,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // ✅ Password is correct
 
             // Store session variables
+			$_SESSION['user_id'] = $user['user_id']; // or whatever your PK column is
             $_SESSION['username'] = $user['username'];
             $_SESSION['email'] = $user['email']; 
             $_SESSION['role'] = $user['role'];  
