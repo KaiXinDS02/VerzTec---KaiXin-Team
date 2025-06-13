@@ -3,10 +3,11 @@ session_start();
 // Database Connection for Login System 
 include('connect.php'); 
 include 'admin/auto_log_function.php';
-require 'vendor/autoload.php'; // For PHPMailer
+require __DIR__ . '/vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+
 
 $error = "";
 
