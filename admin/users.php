@@ -91,7 +91,6 @@ $userCount = $res->fetch_assoc()['cnt'];
       background-color: #FFD050;
       color: #000;
     }
-    .sidebar-card .nav-link i { font-size:1.2rem }
     .search-box {
       position: relative;
       background: #fff;
@@ -442,28 +441,41 @@ $userCount = $res->fetch_assoc()['cnt'];
     // Populate filters
     table.on('xhr.dt', function(){
       const data = table.ajax.json();
-      const deps = [...new Set(data.map(u=>u.department))].sort();
-      const cts  = [...new Set(data.map(u=>u.country))].sort();
-      $('#deptFilterMenu').empty().append(deps.map(v=>`
-        <div class="form-check">
-          <input class="form-check-input dept-checkbox" type="checkbox" value="${v}">
-          <label class="form-check-label">${v}</label>
-        </div>`).join(''));
-      $('#countryFilterMenu').empty().append(cts.map(v=>`
-        <div class="form-check">
-          <input class="form-check-input country-checkbox" type="checkbox" value="${v}">
-          <label class="form-check-label">${v}</label>
-        </div>`).join(''));
+      $('#deptFilterMenu').empty().append(
+        [...new Set(data.map(u=>u.department))].sort().map(v=>`
+          <div class="form-check">
+            <input class="form-check-input dept-checkbox" type="checkbox" value="${v}">
+            <label class="form-check-label">${v}</label>
+          </div>`).join('')
+      );
+      $('#countryFilterMenu').empty().append(
+        [...new Set(data.map(u=>u.country))].sort().map(v=>`
+          <div class="form-check">
+            <input class="form-check-input country-checkbox" type="checkbox" value="${v}">
+            <label class="form-check-label">${v}</label>
+          </div>`).join('')
+      );
     });
 
     // Custom filter
     $.fn.dataTable.ext.search.push((settings,row)=>{
-      const sd=$('.dept-checkbox:checked').map((_,e)=>e.value).get(),
-            sc=$('.country-checkbox:checked').map((_,e)=>e.value).get();
+      const sd = $('.dept-checkbox:checked').map((_,e)=>e.value).get();
+      const sc = $('.country-checkbox:checked').map((_,e)=>e.value).get();
       return (sd.length===0||sd.includes(row[3]))
           &&(sc.length===0||sc.includes(row[5]));
     });
-    $('#deptFilterMenu,#countryFilterMenu').on('change','input',()=>table.draw());
+
+    // ** NEW: update button labels on filter change **
+    $('#deptFilterMenu').on('change','input[type="checkbox"]', function(){
+      const sel = $('.dept-checkbox:checked').map((_,e)=>e.value).get();
+      $('#deptFilterBtn').text('Department: ' + (sel.length ? sel.join(', ') : 'All'));
+      table.draw();
+    });
+    $('#countryFilterMenu').on('change','input[type="checkbox"]', function(){
+      const sel = $('.country-checkbox:checked').map((_,e)=>e.value).get();
+      $('#countryFilterBtn').text('Country: ' + (sel.length ? sel.join(', ') : 'All'));
+      table.draw();
+    });
 
     // Delete
     $('#users-table').on('click','.delete-user',function(){
