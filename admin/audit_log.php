@@ -112,7 +112,7 @@ if ($result && $result->num_rows) {
     .table-container {
       background: #fff;
       border-radius: 8px;
-      overflow: hidden;
+      overflow-y: auto; 
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       flex-grow: 1;
       display: flex;
@@ -146,7 +146,7 @@ if ($result && $result->num_rows) {
             <ul>
               <li><a href="home.php">Home</a></li>
               <li><a href="chatbot.html">Chatbot</a></li>
-              <li><a href="files.html">Files</a></li>
+              <li><a href="files.php">Files</a></li>
               <li class="active"><a href="#">Admin</a></li>
             </ul>
           </div>

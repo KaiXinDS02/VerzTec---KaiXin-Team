@@ -159,7 +159,7 @@ $userCount = $res->fetch_assoc()['cnt'];
                         <ul>
                             <li><a href="home.php">Home</a></li>
                             <li><a href="chatbot.html">Chatbot</a></li>
-                            <li><a href="files.html">Files</a></li>
+                            <li><a href="files.php">Files</a></li>
                             <li class = "active"><a href="#">Admin</a></li>
                         </ul>
                     </div>

@@ -73,7 +73,7 @@ if (!isset($_SESSION['role'])) {
             <ul>
               <li class="active"><a href="#">Home</a></li>
               <li><a href="chatbot.html">Chatbot</a></li>
-              <li><a href="files.html">Files</a></li>
+              <li><a href="files.php">Files</a></li>
               <?php if ($_SESSION['role'] !== 'USER'): ?>
                 <li><a href="admin/users.php">Admin</a></li>
               <?php endif; ?>
@@ -161,7 +161,7 @@ if (!isset($_SESSION['role'])) {
                       <img src="images/mdi_files.svg" alt="">
                       <p>Files and Policies</p>
                     </div>
-                    <div class="text-end"><a href="files.html">Go Now</a></div>
+                    <div class="text-end"><a href="files.php">Go Now</a></div>
                   </div>
                 </div>
                 <?php if ($_SESSION['role'] !== 'USER'): ?>
