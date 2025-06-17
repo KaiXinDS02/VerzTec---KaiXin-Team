@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 						<input id="a222" type="password" name="password" required>
 					</div>
 					<div class="forgot-password text-end pt-2">
-						<a href="#">Forgot Password?</a>
+						<a href="forgot_password/enter_username.php">Forgot Password?</a>
 					</div>
 					<div class="submit-btn">
 						<button type="submit">Login</button>
