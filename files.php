@@ -9,15 +9,13 @@ header('Content-Type: text/html; charset=utf-8');
 $message = "";
 $directory = 'files';
 
-// Use actual session user ID if available
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 $user_id = $_SESSION['user_id'];
 
-
-// Fetch username based on user_id
+// Fetch username
 $username = 'Unknown';
 $stmt = $conn->prepare("SELECT username FROM users WHERE user_id = ?");
 $stmt->bind_param("i", $user_id);
@@ -26,22 +24,39 @@ $stmt->bind_result($username);
 $stmt->fetch();
 $stmt->close();
 
+// Friendly file type mapper
+function getFriendlyFileType($mimeType) {
+    $map = [
+        'application/pdf' => 'pdf',
+        'application/msword' => 'msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'msword',
+        'application/vnd.ms-excel' => 'excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'excel',
+        'application/vnd.ms-powerpoint' => 'powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'powerpoint',
+        'image/jpeg' => 'jpeg',
+        'image/png' => 'png',
+        'image/gif' => 'gif',
+        'text/plain' => 'text',
+        'application/zip' => 'zip',
+        'application/x-rar-compressed' => 'rar',
+    ];
+    return $map[$mimeType] ?? 'other';
+}
 
+// File Upload
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
     $uploadFile = $_FILES['upload_file'];
 
     if ($uploadFile['error'] === UPLOAD_ERR_OK) {
-        $originalName = basename($uploadFile['name']); // Original filename including spaces
+        $originalName = basename($uploadFile['name']);
 
-        // Create directory if not exists
         if (!is_dir($directory)) {
             mkdir($directory, 0755, true);
         }
 
         $ext = pathinfo($originalName, PATHINFO_EXTENSION);
         $base = pathinfo($originalName, PATHINFO_FILENAME);
-
-        // Remove any existing ' (n)' suffix from base name
         $base = preg_replace('/ \(\d+\)$/', '', $base);
 
         $counter = 0;
@@ -51,14 +66,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
             $counter++;
         } while (file_exists($targetPath));
 
-        $originalName = $newName; // Final name for DB
-
+        $originalName = $newName;
 
         if (move_uploaded_file($uploadFile['tmp_name'], $targetPath)) {
             $mimeType = mime_content_type($targetPath);
-            $fileType = explode('/', $mimeType)[1] ?? $mimeType;
+            $fileType = getFriendlyFileType($mimeType);
             $fileSizeKb = round(filesize($targetPath) / 1024);
-
             $relativePath = $directory . '/' . $originalName;
 
             $stmt = $conn->prepare("INSERT INTO files (user_id, filename, file_path, file_type, file_size) VALUES (?, ?, ?, ?, ?)");
@@ -79,14 +92,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
     }
 }
 
-// Scan /files directory and insert new files into DB if missing
+// Scan /files and insert if not in DB
 $inserted = 0;
 foreach (scandir($directory) as $file) {
     if ($file === '.' || $file === '..') continue;
 
     $filePath = realpath("$directory/$file");
     $mimeType = mime_content_type($filePath);
-    $fileType = explode('/', $mimeType)[1] ?? $mimeType;
+    $fileType = getFriendlyFileType($mimeType);
     $fileSize = round(filesize($filePath) / 1024);
     $relativePath = $directory . '/' . $file;
 
@@ -106,6 +119,7 @@ foreach (scandir($directory) as $file) {
     $check->close();
 }
 
+// Fetch all file records
 $fileRecords = [];
 $sql = "
   SELECT 
@@ -127,6 +141,7 @@ if ($result && $result->num_rows) {
 }
 $conn->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en-US">
@@ -192,7 +207,7 @@ $conn->close();
     .table-container {
       background: #fff;
       border-radius: 8px;
-      overflow: hidden;
+      overflow: auto;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       flex-grow: 1;
       display: flex;
@@ -307,6 +322,7 @@ $conn->close();
                 <th>Uploaded At</th>
                 <th>Type</th>
                 <th>Size (kb)</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -316,7 +332,21 @@ $conn->close();
                   <td><?= htmlspecialchars($file['uploaded_at']) ?></td>
                   <td><?= htmlspecialchars($file['file_type']) ?></td>
                   <td><?= htmlspecialchars($file['file_size']) ?></td>
+                  <td>
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item preview-file" href="file_preview.php?file_id=<?= urlencode($file['id']) ?>" target="_blank">Preview</a></li>
+                        <li><a class="dropdown-item" href="/file_download.php?file_id=<?= $file['id'] ?>" target="_blank" download>Download</a></li>
+                        <li><a class="dropdown-item edit-file" href="#" data-fileid="<?= $file['id'] ?>">Edit</a></li>
+                        <li><a class="dropdown-item text-danger delete-file" href="delete_file.php" data-fileid="<?= $file['id'] ?>">Delete</a></li>
+                      </ul>
+                    </div>
+                  </td>
                 </tr>
+
               <?php endforeach; ?>
             </tbody>
           </table>
@@ -340,13 +370,15 @@ $conn->close();
       lengthChange: false
     });
 
+    // SEARCH
     $('#tableSearch').on('input', function(){
       table.search(this.value).draw();
     });
 
+    // FILTER
     const types = new Set();
     table.rows().every(function(){
-      const val = this.data()[2]; // column 3 = file_type
+      const val = this.data()[2]; // column = file_type
       types.add(val);
     });
 
@@ -362,7 +394,7 @@ $conn->close();
 
     $.fn.dataTable.ext.search.push((settings, row) => {
       const selected = $('.type-checkbox:checked').map((_,el)=>el.value).get();
-      return !selected.length || selected.includes(row[2]);
+      return !selected.length || selected.includes(row[2]); // column = file_type
     });
 
     $('#typeFilterMenu').on('change', '.type-checkbox', function(){
@@ -371,5 +403,59 @@ $conn->close();
       $('#typeFilterBtn').text('File Type: ' + (chosen.length ? chosen.join(', ') : 'All'));
     });
   </script>
+
+  <script>
+    $(document).ready(function () {
+      let fileIdToDelete = null;
+
+      // Open the modal when delete is clicked
+      $('#file-table').on('click', '.delete-file', function (e) {
+        e.preventDefault();
+        fileIdToDelete = $(this).data('fileid');
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        deleteModal.show();
+      });
+
+      // Confirm deletion
+      $('#confirmDeleteBtn').on('click', function () {
+        if (fileIdToDelete) {
+          $.post('admin/delete_file.php', { file_id: fileIdToDelete }, function (res) {
+            if (res.trim() === 'success') {
+              location.reload();
+            } else {
+              alert('Delete failed: ' + res);
+            }
+          }).fail(function () {
+            alert('Error contacting server.');
+          });
+        }
+
+        // Close modal
+        const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+        deleteModal.hide();
+      });
+    });
+  </script>
+
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Deletion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this file?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
