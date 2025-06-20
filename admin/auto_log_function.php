@@ -43,7 +43,9 @@ function auto_log_action($conn) {
         'login.php',
         'otp_form.php',
         'home.php',
-        'users.php'
+        'users.php',
+        'files.php',
+        'audit_log.php'
     ];
 
     if (!in_array($current_page, $important_pages)) {

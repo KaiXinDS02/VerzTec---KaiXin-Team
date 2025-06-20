@@ -9,10 +9,10 @@ header('Content-Type: text/html; charset=utf-8');
 $message = "";
 $directory = 'files';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+// if (!isset($_SESSION['user_id'])) {
+//     header("Location: login.php");
+//     exit();
+// }
 $user_id = $_SESSION['user_id'];
 
 // Fetch username
@@ -340,7 +340,7 @@ $conn->close();
                       <ul class="dropdown-menu">
                         <li><a class="dropdown-item preview-file" href="file_preview.php?file_id=<?= urlencode($file['id']) ?>" target="_blank">Preview</a></li>
                         <li><a class="dropdown-item" href="/file_download.php?file_id=<?= $file['id'] ?>" target="_blank" download>Download</a></li>
-                        <li><a class="dropdown-item edit-file" href="#" data-fileid="<?= $file['id'] ?>">Edit</a></li>
+                        <li><a class="dropdown-item edit-file" href="admin/edit_file.php?file_id=<?= $file['id'] ?>" target="_blank">Edit</a></li>
                         <li><a class="dropdown-item text-danger delete-file" href="delete_file.php" data-fileid="<?= $file['id'] ?>">Delete</a></li>
                       </ul>
                     </div>

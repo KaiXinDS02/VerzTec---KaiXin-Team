@@ -1,0 +1,5 @@
+[2025-06-20T08:20:51.904] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: undefined
+[2025-06-20T08:20:51.907] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-20T08:20:51.916] [WARN] [localhost] [docId] [userId] nodeJS - worker 817 started.
+[2025-06-20T08:20:51.917] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: undefined
+[2025-06-20T08:20:51.917] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
