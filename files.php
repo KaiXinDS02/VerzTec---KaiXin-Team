@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
 
             if ($stmt->execute()) {
                 $message = "File uploaded successfully.";
-                log_action($conn, $user_id, 'file_upload', "User $username uploaded file: $originalName");
+                log_action($conn, $user_id, 'files', 'add', "Uploaded file: $originalName of size $fileSizeKb KB.");
             } else {
                 $message = "Database insert failed: " . $stmt->error;
             }

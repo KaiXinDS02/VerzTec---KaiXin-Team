@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['file_id'])) {
             readfile($fullPath);
 
             // Log the download action
-            log_action($conn, $user_id, 'file_download', "Downloaded: $filename");
+            log_action($conn, $user_id, 'files', 'download', "Downloaded: $filename");
             exit;
         } else {
             http_response_code(404);

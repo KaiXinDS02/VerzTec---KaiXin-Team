@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id'])) {
         if (isset($_SESSION['user_id'])) {
             $adminId = $_SESSION['user_id']; // The admin performing the delete
             $details = "Deleted user '$username' (ID: $userId)";
-            log_action($conn, $adminId, 'delete_user', $details);
+            log_action($conn, $adminId, 'users','delete', $details);
         }
     } else {
         echo 'fail';

@@ -33,6 +33,7 @@ CREATE TABLE `audit_log` (
   `log_id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
   `user_id` INT,
   `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  `category` VARCHAR(255) NOT NULL,
   `action` VARCHAR(255) NOT NULL,
   `details` TEXT,
   FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE SET NULL

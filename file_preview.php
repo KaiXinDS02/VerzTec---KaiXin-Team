@@ -1,12 +1,15 @@
 <?php
+session_start();
 include 'connect.php'; // Assumes $conn is defined here
 require 'vendor/autoload.php'; // Load Composer packages
+require_once 'admin/auto_log_function.php'; // Add this for logging
+
 use Firebase\JWT\JWT;
 
 $filesFolderPath = '/var/www/html/files/';
 $baseFileUrl = 'http://host.docker.internal:8080/files/';
 $onlyOfficeUrl = 'http://localhost:8081/';
-$jwtSecret = 'my_jwt_secret'; // Same value as in your Docker run command
+$jwtSecret = 'my_jwt_secret';
 
 // Ensure file_id is provided
 if (!isset($_GET['file_id'])) {
@@ -33,6 +36,13 @@ if (!file_exists($file_path)) {
     die("File does not exist on disk.");
 }
 
+// Log the preview
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+    $details = "Previewed file: $filename";
+    log_action($conn, $user_id, "files", "open", $details);
+}
+
 $fileUrl = $baseFileUrl . rawurlencode($filename);
 $docKey = md5($filename . filemtime($file_path)); // Unique key per version
 
@@ -51,7 +61,6 @@ $config = [
     ]
 ];
 
-// Generate JWT token
 $token = JWT::encode($config, $jwtSecret, 'HS256');
 ?>
 <!DOCTYPE html>

@@ -14,6 +14,7 @@ $sql = "
     al.log_id,
     al.timestamp,
     al.user_id,
+    al.category,
     al.action,
     al.details,
     u.username
@@ -210,6 +211,27 @@ if ($result && $result->num_rows) {
             <i class="fa fa-search"></i>
             <input type="text" id="tableSearch" placeholder="Search log">
           </div>
+          
+          <!-- Category Filter -->
+          <div class="dropdown filter-dropdown me-2">
+            <button 
+              class="btn dropdown-toggle" 
+              id="categoryFilterBtn" 
+              data-bs-toggle="dropdown" 
+              aria-expanded="false"
+            >
+              Category: All
+            </button>
+            <div 
+              class="dropdown-menu p-3" 
+              id="categoryFilterMenu"
+              aria-labelledby="categoryFilterBtn"
+              style="max-height:300px; overflow-y:auto;"
+            >
+              <!-- dynamically filled -->
+            </div>
+          </div>
+
           <!-- Action Filter -->
           <div class="dropdown filter-dropdown">
             <button 
@@ -231,6 +253,7 @@ if ($result && $result->num_rows) {
           </div>
         </div>
 
+
         <!-- Table -->
         <div class="table-container">
           <table id="audit-table" class="table table-hover mb-0 w-100">
@@ -239,6 +262,7 @@ if ($result && $result->num_rows) {
                 <th>Log ID</th>
                 <th>Timestamp (UTC+8)</th>
                 <th>Performed by</th>
+                <th>Category</th>
                 <th>Action</th>
                 <th>Description</th>
               </tr>
@@ -249,6 +273,7 @@ if ($result && $result->num_rows) {
                   <td><?= htmlspecialchars($log['log_id']) ?></td>
                   <td><?= htmlspecialchars($log['timestamp']) ?></td>
                   <td><?= htmlspecialchars($log['username']) ?></td>
+                  <td><?= htmlspecialchars($log['category']) ?></td>
                   <td><?= htmlspecialchars($log['action']) ?></td>
                   <td><?= htmlspecialchars($log['details']) ?></td>
                 </tr>
@@ -275,7 +300,7 @@ if ($result && $result->num_rows) {
       lengthChange: false
     });
 
-    // Update log‐count on load
+    // Update log-count on load
     $('#logCount').text(table.rows().count());
 
     // Hook up search box
@@ -283,35 +308,71 @@ if ($result && $result->num_rows) {
       table.search(this.value).draw();
     });
 
-    // Build the Action‐filter menu
+    // Build the Category filter menu
+    const categories = new Set();
+    table.rows().every(function(){
+      const val = this.data()[3]; // column 4 = Category (0-based indexing)
+      categories.add(val);
+    });
+
+    let categoryMenuHtml = '';
+    [...categories].sort().forEach(cat => {
+      categoryMenuHtml += `
+        <div class="form-check">
+          <input class="form-check-input category-checkbox" type="checkbox" value="${cat}" checked>
+          <label class="form-check-label">${cat}</label>
+        </div>`;
+    });
+    $('#categoryFilterMenu').html(categoryMenuHtml);
+
+    // Build the Action filter menu
     const actions = new Set();
     table.rows().every(function(){
-      const val = this.data()[3]; // column 3 = Action
+      const val = this.data()[4]; // column 5 = Action
       actions.add(val);
     });
 
-    let menuHtml = '';
+    let actionMenuHtml = '';
     [...actions].sort().forEach(act => {
-      menuHtml += `
+      actionMenuHtml += `
         <div class="form-check">
-          <input class="form-check-input action-checkbox" type="checkbox" value="${act}">
+          <input class="form-check-input action-checkbox" type="checkbox" value="${act}" checked>
           <label class="form-check-label">${act}</label>
         </div>`;
     });
-    $('#actionFilterMenu').html(menuHtml);
+    $('#actionFilterMenu').html(actionMenuHtml);
 
-    // Custom filtering logic
+    // Custom filtering logic to filter by both category and action
     $.fn.dataTable.ext.search.push((settings, row) => {
-      const selected = $('.action-checkbox:checked').map((_,el)=>el.value).get();
-      return !selected.length || selected.includes(row[3]);
+
+      const category = row[3];
+      const action = row[4];
+      
+      // Get checked categories
+      const selectedCategories = $('.category-checkbox:checked').map((_,el) => el.value).get();
+      // Get checked actions
+      const selectedActions = $('.action-checkbox:checked').map((_,el) => el.value).get();
+
+      const categoryMatch = !selectedCategories.length || selectedCategories.includes(category);
+      const actionMatch = !selectedActions.length || selectedActions.includes(action);
+
+      return categoryMatch && actionMatch;
     });
 
-    // When checkboxes change, redraw + update button
+    // When Category checkboxes change, redraw + update button
+    $('#categoryFilterMenu').on('change', '.category-checkbox', function(){
+      table.draw();
+      const chosenCategories = $('.category-checkbox:checked').map((_,el) => el.value).get();
+      $('#categoryFilterBtn').text('Category: ' + (chosenCategories.length ? chosenCategories.join(', ') : 'All'));
+    });
+
+    // When Action checkboxes change, redraw + update button
     $('#actionFilterMenu').on('change', '.action-checkbox', function(){
       table.draw();
-      const chosen = $('.action-checkbox:checked').map((_,el)=>el.value).get();
-      $('#actionFilterBtn').text('Action: ' + (chosen.length ? chosen.join(', ') : 'All'));
+      const chosenActions = $('.action-checkbox:checked').map((_,el) => el.value).get();
+      $('#actionFilterBtn').text('Action: ' + (chosenActions.length ? chosenActions.join(', ') : 'All'));
     });
+
   </script>
 </body>
 </html>

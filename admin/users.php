@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
         if (isset($_SESSION['user_id'])) {
             $adminId = $_SESSION['user_id'];
             $details = "Uploaded user file '$fileName'. $insertedCount users added.";
-            log_action($conn, $adminId, 'add_user', $details);
+            log_action($conn, $adminId, 'users', 'add', $details);
         }
     } catch (Exception $e) {
         $message = "Import failed: " . $e->getMessage();

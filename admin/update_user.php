@@ -2,7 +2,7 @@
 require __DIR__ . '/../connect.php';
 require __DIR__ . '/../admin/auto_log_function.php';
 
-session_start();
+
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $user_id    = intval($_POST['user_id']);
@@ -71,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if (isset($_SESSION['user_id'])) {
             $admin_id = $_SESSION['user_id'];
             $details = "Updated '$username' with user ID $user_id. " . implode(", ", $changes);
-            log_action($conn, $admin_id, 'edit_user', $details);
+            log_action($conn, $admin_id, 'users', 'edit', $details);
         }
     } else {
         echo "error: " . $conn->error;
