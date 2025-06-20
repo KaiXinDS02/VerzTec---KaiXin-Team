@@ -341,6 +341,7 @@ $conn->close();
                         <li><a class="dropdown-item preview-file" href="file_preview.php?file_id=<?= urlencode($file['id']) ?>" target="_blank">Preview</a></li>
                         <li><a class="dropdown-item" href="/file_download.php?file_id=<?= $file['id'] ?>" target="_blank" download>Download</a></li>
                         <li><a class="dropdown-item edit-file" href="admin/edit_file.php?file_id=<?= $file['id'] ?>" target="_blank">Edit</a></li>
+                        <li><a class="dropdown-item rename-file" href="rename_file.php" data-id="<?= $file['id'] ?>" data-name="<?= htmlspecialchars($file['filename']) ?>">Rename</a></li>
                         <li><a class="dropdown-item text-danger delete-file" href="delete_file.php" data-fileid="<?= $file['id'] ?>">Delete</a></li>
                       </ul>
                     </div>
@@ -456,6 +457,46 @@ $conn->close();
       </div>
     </div>
   </div>
+
+  <!-- Rename File Modal -->
+  <div class="modal fade" id="renameModal" tabindex="-1">
+    <div class="modal-dialog">
+      <form method="POST" action="admin/rename_file.php" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Rename File</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="file_id" id="fileIdInput">
+          <div class="mb-3">
+            <label for="newFilename" class="form-label">New Filename</label>
+            <input type="text" class="form-control" name="new_filename" id="newFilename" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-dark">Rename</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+  document.querySelectorAll('.rename-file').forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      const fileId = this.dataset.id;
+      const fileName = this.dataset.name;
+
+      document.getElementById('fileIdInput').value = fileId;
+      document.getElementById('newFilename').value = fileName;
+
+      const renameModal = new bootstrap.Modal(document.getElementById('renameModal'));
+      renameModal.show();
+    });
+  });
+  </script>
+
+
 
 </body>
 </html>
