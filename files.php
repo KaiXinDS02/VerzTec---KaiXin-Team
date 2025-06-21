@@ -13,9 +13,28 @@ $directory = 'files';
 //     header("Location: login.php");
 //     exit();
 // }
+
 $user_id = 1;
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
+}
+
+// Fetch unique departments from users table
+$deptResult = $conn->query("SELECT DISTINCT department FROM users WHERE department IS NOT NULL AND department != '' ORDER BY department ASC");
+$departments = [];
+if ($deptResult) {
+  while ($row = $deptResult->fetch_assoc()) {
+    $departments[] = $row['department'];
+  }
+}
+
+// Fetch countries from countries table
+$countryResult = $conn->query("SELECT country FROM countries ORDER BY country ASC");
+$countries = [];
+if ($countryResult) {
+  while ($row = $countryResult->fetch_assoc()) {
+    $countries[] = $row['country'];
+  }
 }
 
 // Fetch username
@@ -45,54 +64,6 @@ function getFriendlyFileType($mimeType) {
         'application/x-rar-compressed' => 'rar',
     ];
     return $map[$mimeType] ?? 'other';
-}
-
-// File Upload
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
-    $uploadFile = $_FILES['upload_file'];
-
-    if ($uploadFile['error'] === UPLOAD_ERR_OK) {
-        $originalName = basename($uploadFile['name']);
-
-        if (!is_dir($directory)) {
-            mkdir($directory, 0755, true);
-        }
-
-        $ext = pathinfo($originalName, PATHINFO_EXTENSION);
-        $base = pathinfo($originalName, PATHINFO_FILENAME);
-        $base = preg_replace('/ \(\d+\)$/', '', $base);
-
-        $counter = 0;
-        do {
-            $newName = $counter === 0 ? "{$base}.{$ext}" : "{$base} ({$counter}).{$ext}";
-            $targetPath = $directory . '/' . $newName;
-            $counter++;
-        } while (file_exists($targetPath));
-
-        $originalName = $newName;
-
-        if (move_uploaded_file($uploadFile['tmp_name'], $targetPath)) {
-            $mimeType = mime_content_type($targetPath);
-            $fileType = getFriendlyFileType($mimeType);
-            $fileSizeKb = round(filesize($targetPath) / 1024);
-            $relativePath = $directory . '/' . $originalName;
-
-            $stmt = $conn->prepare("INSERT INTO files (user_id, filename, file_path, file_type, file_size) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("isssi", $user_id, $originalName, $relativePath, $fileType, $fileSizeKb);
-
-            if ($stmt->execute()) {
-                $message = "File uploaded successfully.";
-                log_action($conn, $user_id, 'files', 'add', "Uploaded file: $originalName of size $fileSizeKb KB.");
-            } else {
-                $message = "Database insert failed: " . $stmt->error;
-            }
-            $stmt->close();
-        } else {
-            $message = "Failed to move uploaded file.";
-        }
-    } else {
-        $message = "Upload error code: " . $uploadFile['error'];
-    }
 }
 
 // Scan /files and insert if not in DB
@@ -243,6 +214,68 @@ $conn->close();
       gap: 0.5rem;
       flex-wrap: wrap;
     }
+
+    .edit-submenu {
+      display: none;
+      position: absolute;
+      top: 50px;
+      left: 100%; /* position to the right of main dropdown */
+      min-width: 150px;
+      z-index: 1050;
+    }
+    .dropdown-menu {
+      padding: 0.5rem 0;
+    }
+    .dropdown-item {
+      padding: 0.4rem 1rem;
+    }
+
+    /* nested dropdown */
+    .dropdown-submenu {
+      position: relative;
+    }
+
+    .dropdown-submenu .dropdown-menu {
+      position: absolute;
+      top: 0;
+      right: 100%;
+      margin-top: -6px;
+      margin-right: 2px;
+      border-radius: 6px;
+      min-width: 180px;
+      z-index: 1001;
+    }
+
+    .dropdown-submenu:hover > .dropdown-menu {
+      display: block;
+    }
+
+    .dropdown-submenu > a:after {
+      display: none;
+    }
+
+    .dropdown-submenu .dropdown-toggle::after {
+      display: none;
+    }
+
+    /* Ensure submenu appears completely outside the parent */
+    .dropdown-menu {
+      position: relative;
+      z-index: 1000;
+    }
+
+    /* Arrow styling */
+    .dropdown-submenu .fa-chevron-right {
+      font-size: 0.8em;
+      color: #6c757d;
+    }
+
+    /* Prevent overlap and ensure proper spacing */
+    .dropdown-submenu .dropdown-menu {
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(0, 0, 0, 0.175);
+    }
+
   </style>
 </head>
 <body>
@@ -314,7 +347,7 @@ $conn->close();
               </div>
             </div>
 
-            <button class="btn btn-dark d-flex align-items-center" onclick="document.getElementById('upload_file').click();">
+            <button class="btn btn-dark d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
               <i class="fa fa-upload me-2"></i> Upload File
             </button>
             <form method="POST" enctype="multipart/form-data" style="display:none;">
@@ -354,12 +387,25 @@ $conn->close();
                         
                         <!-- Role-Specific Buttons -->
                         <?php if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['MANAGER', 'ADMIN'])): ?>
-                            <li><a class="dropdown-item edit-file" href="admin/edit_file.php?file_id=<?= $file['id'] ?>" target="_blank">Edit</a></li>
-                            <li><a class="dropdown-item rename-file" href="rename_file.php" data-id="<?= $file['id'] ?>" data-name="<?= htmlspecialchars($file['filename']) ?>">Rename</a></li>
+                            <!-- Nested Dropdown for Edit -->
+                            <li class="dropdown-submenu">
+                              <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                Edit
+                                <i class="fas fa-chevron-right float-end mt-1"></i>
+                              </a>
+                              <ul class="dropdown-menu dropdown-submenu-left">
+                                <li><a class="dropdown-item rename-file" href="rename_file.php" data-id="<?= $file['id'] ?>" data-name="<?= htmlspecialchars($file['filename']) ?>">Rename File</a></li>
+                                <li><a class="dropdown-item edit-file" href="admin/edit_file.php?file_id=<?= $file['id'] ?>" target="_blank">Edit Content</a></li>
+                                <li><a class="dropdown-item edit-visibility" href="admin/edit_visibility.php?file_id=<?= $file['id'] ?>">Edit Visibility</a></li>
+                              </ul>
+                            </li>
+                            
                             <li><a class="dropdown-item text-danger delete-file" href="delete_file.php" data-fileid="<?= $file['id'] ?>">Delete</a></li>
                         <?php endif; ?>
                       </ul>
                     </div>
+
+
                   </td>
                 </tr>
 
@@ -371,6 +417,100 @@ $conn->close();
       </div>
     </div>
   </div>
+  
+  <!-- Upload File Modal -->
+  <div class="modal fade" id="uploadFileModal" tabindex="-1" aria-labelledby="uploadFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadFileModalLabel">Upload File</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <!-- ✅ Correct Form Start -->
+        <form id="uploadFileForm" action="admin/upload_file.php" method="POST" enctype="multipart/form-data">
+          <div class="modal-body">
+
+            <!-- Upload Area -->
+            <div class="border border-dashed rounded p-4 text-center"
+                style="border: 2px dashed #ccc;"
+                ondrop="handleDrop(event)"
+                ondragover="event.preventDefault()">
+              <p class="mb-2">Drag and drop a file here or</p>
+              <input type="file" id="fileInput" name="upload_file" class="form-control d-inline-block" style="width: auto;" required>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- Access Controls -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Visibility</label><br>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="visibility" id="accessAll" value="all" checked>
+                <label class="form-check-label" for="accessAll">All</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="visibility" id="accessRestricted" value="restricted">
+                <label class="form-check-label" for="accessRestricted">Restricted Access</label>
+              </div>
+            </div>
+
+            <!-- Show on restricted -->
+            <div id="restrictionOptions" class="d-none">
+
+              <!-- Restrict By -->
+              <div class="mb-3">
+                <label class="form-label fw-bold">Restrict By</label><br>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input restrict-toggle" type="checkbox" id="restrictByDept" value="department">
+                  <label class="form-check-label" for="restrictByDept">Department</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input restrict-toggle" type="checkbox" id="restrictByCountry" value="country">
+                  <label class="form-check-label" for="restrictByCountry">Country</label>
+                </div>
+              </div>
+
+              <!-- Department options -->
+              <div class="mb-3 d-none" id="restrictDepartmentDiv">
+                <label class="form-label">Select Departments</label>
+                <?php foreach ($departments as $dept): ?>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="departments[]" value="<?= htmlspecialchars($dept) ?>" id="dept<?= htmlspecialchars($dept) ?>">
+                    <label class="form-check-label" for="dept<?= htmlspecialchars($dept) ?>"><?= htmlspecialchars($dept) ?></label>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+
+              <!-- Country options -->
+              <div class="mb-3 d-none" id="restrictCountryDiv">
+                <label class="form-label">Select Countries</label>
+                <?php foreach ($countries as $country): ?>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="countries[]" value="<?= htmlspecialchars($country) ?>" id="country<?= htmlspecialchars($country) ?>">
+                    <label class="form-check-label" for="country<?= htmlspecialchars($country) ?>"><?= htmlspecialchars($country) ?></label>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ✅ Modal Footer inside Form -->
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Upload</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+
+
+
 
   <!-- JS -->
   <script src="js/jquery-3.4.1.min.js"></script>
@@ -510,7 +650,84 @@ $conn->close();
     });
   });
   </script>
+  <script>
+    // JavaScript to handle nested dropdown functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Handle submenu clicks
+      document.querySelectorAll('.dropdown-submenu a.dropdown-toggle').forEach(function(element) {
+        element.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          let submenu = this.nextElementSibling;
+          if (submenu) {
+            // Toggle the submenu
+            if (submenu.style.display === 'block') {
+              submenu.style.display = 'none';
+            } else {
+              // Hide other submenus
+              document.querySelectorAll('.dropdown-submenu .dropdown-menu').forEach(function(menu) {
+                menu.style.display = 'none';
+              });
+              submenu.style.display = 'block';
+            }
+          }
+        });
+      });
 
+      // Handle hover for better UX
+      document.querySelectorAll('.dropdown-submenu').forEach(function(element) {
+        element.addEventListener('mouseenter', function() {
+          let submenu = this.querySelector('.dropdown-menu');
+          if (submenu) {
+            submenu.style.display = 'block';
+          }
+        });
+
+        element.addEventListener('mouseleave', function() {
+          let submenu = this.querySelector('.dropdown-menu');
+          if (submenu) {
+            submenu.style.display = 'none';
+          }
+        });
+      });
+
+      // Close submenus when main dropdown closes
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.dropdown')) {
+          document.querySelectorAll('.dropdown-submenu .dropdown-menu').forEach(function(menu) {
+            menu.style.display = 'none';
+          });
+        }
+      });
+    });
+    </script>
+    <script>
+      // Show/hide restriction options
+      document.querySelectorAll('input[name="visibility"]').forEach(el => {
+        el.addEventListener('change', () => {
+          const restricted = document.getElementById('accessRestricted').checked;
+          document.getElementById('restrictionOptions').classList.toggle('d-none', !restricted);
+        });
+      });
+
+      // Show/hide department/country selectors
+      document.querySelectorAll('.restrict-toggle').forEach(el => {
+        el.addEventListener('change', () => {
+          document.getElementById('restrictDepartmentDiv').classList.toggle('d-none', !document.getElementById('restrictByDept').checked);
+          document.getElementById('restrictCountryDiv').classList.toggle('d-none', !document.getElementById('restrictByCountry').checked);
+        });
+      });
+
+      // Drag and drop support
+      function handleDrop(event) {
+        event.preventDefault();
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+          document.getElementById('fileInput').files = files;
+        }
+      }
+    </script>
 
 
 </body>
