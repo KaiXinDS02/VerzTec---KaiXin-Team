@@ -19,6 +19,10 @@ if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
 }
 
+$role = $_SESSION['role'] ?? '';
+$dept = $_SESSION['department'] ?? 'Your Department';
+$country = $_SESSION['country'] ?? 'Your Country';
+
 // Fetch unique departments from users table
 $deptResult = $conn->query("SELECT DISTINCT department FROM users WHERE department IS NOT NULL AND department != '' ORDER BY department ASC");
 $departments = [];
@@ -68,6 +72,7 @@ function getFriendlyFileType($mimeType) {
 
 // Scan /files and insert if not in DB
 $inserted = 0;
+
 foreach (scandir($directory) as $file) {
     if ($file === '.' || $file === '..') continue;
 
@@ -75,7 +80,7 @@ foreach (scandir($directory) as $file) {
     $mimeType = mime_content_type($filePath);
     $fileType = getFriendlyFileType($mimeType);
     $fileSize = round(filesize($filePath) / 1024);
-    $relativePath = $directory . '/' . $file;
+    $relativePath = 'files/' . $file; // Use web-safe relative path
 
     $check = $conn->prepare("SELECT id FROM files WHERE file_path = ?");
     $check->bind_param("s", $relativePath);
@@ -85,7 +90,16 @@ foreach (scandir($directory) as $file) {
     if ($check->num_rows === 0) {
         $stmt = $conn->prepare("INSERT INTO files (user_id, filename, file_path, file_type, file_size) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("isssi", $user_id, $file, $relativePath, $fileType, $fileSize);
+
         if ($stmt->execute()) {
+            $file_id = $stmt->insert_id;
+
+            // Insert default visibility: ALL
+            $visStmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope) VALUES (?, 'ALL')");
+            $visStmt->bind_param("i", $file_id);
+            $visStmt->execute();
+            $visStmt->close();
+
             $inserted++;
         }
         $stmt->close();
@@ -93,27 +107,49 @@ foreach (scandir($directory) as $file) {
     $check->close();
 }
 
-// Fetch all file records
-$fileRecords = [];
-$sql = "
-  SELECT 
-    f.id,
-    f.uploaded_at,
-    f.filename,
-    f.file_type,
-    f.file_size,
-    u.username
-  FROM files AS f
-  LEFT JOIN users AS u ON f.user_id = u.user_id
-  ORDER BY f.uploaded_at DESC
-";
-$result = $conn->query($sql);
-if ($result && $result->num_rows) {
-    while ($row = $result->fetch_assoc()) {
-        $fileRecords[] = $row;
-    }
+$role = $_SESSION['role'] ?? '';
+$country = $_SESSION['country'] ?? '';
+$department = $_SESSION['department'] ?? '';
+
+if ($role === 'ADMIN') {
+    $stmt = $conn->prepare("
+        SELECT f.*
+        FROM files f
+        ORDER BY f.uploaded_at DESC
+    ");
+} elseif ($role === 'MANAGER') {
+    $stmt = $conn->prepare("
+        SELECT DISTINCT f.*
+        FROM files f
+        JOIN file_visibility v ON f.id = v.file_id
+        WHERE v.visibility_scope = 'ALL'
+           OR (v.visibility_scope = 'COUNTRY' AND v.category = ?)
+        ORDER BY f.uploaded_at DESC
+    ");
+    $stmt->bind_param("s", $country);
+} else { // USER
+    $stmt = $conn->prepare("
+        SELECT DISTINCT f.*
+        FROM files f
+        JOIN file_visibility v1 ON f.id = v1.file_id
+        LEFT JOIN file_visibility v2 ON f.id = v2.file_id
+        WHERE v1.visibility_scope = 'ALL'
+           OR (v1.visibility_scope = 'COUNTRY' AND v1.category = ?)
+           OR (v2.visibility_scope = 'DEPARTMENT' AND v2.category = ?)
+        GROUP BY f.id
+        HAVING 
+            SUM(v1.visibility_scope = 'ALL') > 0 OR 
+            (SUM(v1.visibility_scope = 'COUNTRY' AND v1.category = ?) > 0 AND SUM(v2.visibility_scope = 'DEPARTMENT' AND v2.category = ?) > 0)
+        ORDER BY f.uploaded_at DESC
+    ");
+    $stmt->bind_param("ssss", $country, $department, $country, $department);
 }
-$conn->close();
+
+$stmt->execute();
+$result = $stmt->get_result();
+$files = $result->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
 ?>
 
 
@@ -369,7 +405,7 @@ $conn->close();
               </tr>
             </thead>
             <tbody>
-              <?php foreach ($fileRecords as $file): ?>
+              <?php foreach ($files as $file): ?>
                 <tr>
                   <td><?= htmlspecialchars($file['filename']) ?></td>
                   <td><?= htmlspecialchars($file['uploaded_at']) ?></td>
@@ -428,7 +464,7 @@ $conn->close();
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
-        <!-- ✅ Correct Form Start -->
+        <!-- Form -->
         <form id="uploadFileForm" action="admin/upload_file.php" method="POST" enctype="multipart/form-data">
           <div class="modal-body">
 
@@ -443,61 +479,84 @@ $conn->close();
 
             <hr class="my-4">
 
-            <!-- Access Controls -->
-            <div class="mb-3">
-              <label class="form-label fw-bold">Visibility</label><br>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="visibility" id="accessAll" value="all" checked>
-                <label class="form-check-label" for="accessAll">All</label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="visibility" id="accessRestricted" value="restricted">
-                <label class="form-check-label" for="accessRestricted">Restricted Access</label>
-              </div>
-            </div>
-
-            <!-- Show on restricted -->
-            <div id="restrictionOptions" class="d-none">
-
-              <!-- Restrict By -->
+            <?php if ($role === 'ADMIN'): ?>
+              <!-- Admin Visibility Options -->
               <div class="mb-3">
-                <label class="form-label fw-bold">Restrict By</label><br>
+                <label class="form-label fw-bold">Visibility</label><br>
                 <div class="form-check form-check-inline">
-                  <input class="form-check-input restrict-toggle" type="checkbox" id="restrictByDept" value="department">
-                  <label class="form-check-label" for="restrictByDept">Department</label>
+                  <input class="form-check-input" type="radio" name="visibility" id="accessAll" value="all" checked>
+                  <label class="form-check-label" for="accessAll">All</label>
                 </div>
                 <div class="form-check form-check-inline">
-                  <input class="form-check-input restrict-toggle" type="checkbox" id="restrictByCountry" value="country">
-                  <label class="form-check-label" for="restrictByCountry">Country</label>
+                  <input class="form-check-input" type="radio" name="visibility" id="accessRestricted" value="restricted">
+                  <label class="form-check-label" for="accessRestricted">Restricted Access</label>
                 </div>
               </div>
 
-              <!-- Department options -->
-              <div class="mb-3 d-none" id="restrictDepartmentDiv">
-                <label class="form-label">Select Departments</label>
-                <?php foreach ($departments as $dept): ?>
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="departments[]" value="<?= htmlspecialchars($dept) ?>" id="dept<?= htmlspecialchars($dept) ?>">
-                    <label class="form-check-label" for="dept<?= htmlspecialchars($dept) ?>"><?= htmlspecialchars($dept) ?></label>
+              <div id="restrictionOptions" class="d-none">
+                <!-- Restrict By -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Restrict By</label><br>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input restrict-toggle" type="checkbox" id="restrictByDept" value="department">
+                    <label class="form-check-label" for="restrictByDept">Department</label>
                   </div>
-                <?php endforeach; ?>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input restrict-toggle" type="checkbox" id="restrictByCountry" value="country">
+                    <label class="form-check-label" for="restrictByCountry">Country</label>
+                  </div>
+                </div>
+
+                <!-- Department Options -->
+                <div class="mb-3 d-none" id="restrictDepartmentDiv">
+                  <label class="form-label">Select Departments</label>
+                  <?php foreach ($departments as $d): ?>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="departments[]" value="<?= htmlspecialchars($d) ?>" id="dept<?= htmlspecialchars($d) ?>">
+                      <label class="form-check-label" for="dept<?= htmlspecialchars($d) ?>"><?= htmlspecialchars($d) ?></label>
+                    </div>
+                  <?php endforeach; ?>
+                </div>
+
+                <!-- Country Options -->
+                <div class="mb-3 d-none" id="restrictCountryDiv">
+                  <label class="form-label">Select Countries</label>
+                  <?php foreach ($countries as $c): ?>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="countries[]" value="<?= htmlspecialchars($c) ?>" id="country<?= htmlspecialchars($c) ?>">
+                      <label class="form-check-label" for="country<?= htmlspecialchars($c) ?>"><?= htmlspecialchars($c) ?></label>
+                    </div>
+                  <?php endforeach; ?>
+                </div>
               </div>
 
-              <!-- Country options -->
-              <div class="mb-3 d-none" id="restrictCountryDiv">
-                <label class="form-label">Select Countries</label>
-                <?php foreach ($countries as $country): ?>
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="countries[]" value="<?= htmlspecialchars($country) ?>" id="country<?= htmlspecialchars($country) ?>">
-                    <label class="form-check-label" for="country<?= htmlspecialchars($country) ?>"><?= htmlspecialchars($country) ?></label>
-                  </div>
-                <?php endforeach; ?>
+            <?php elseif ($role === 'MANAGER'): ?>
+              <!-- Manager Visibility Options -->
+              <input type="hidden" name="visibility" value="restricted">
+              <input type="hidden" name="departments[]" value="<?= htmlspecialchars($dept) ?>">
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Visibility</label><br>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="manager_visibility" id="onlyDepartment" value="department" checked>
+                  <label class="form-check-label" for="onlyDepartment">
+                    Only allow access to my Department: <?= htmlspecialchars($dept) ?>
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="manager_visibility" id="wholeCountry" value="country">
+                  <label class="form-check-label" for="wholeCountry">
+                    Allow access to the whole country: <?= htmlspecialchars($country) ?>
+                  </label>
+                </div>
               </div>
 
-            </div>
+              <!-- Hidden input populated by JS before submit -->
+              <input type="hidden" name="countries[]" value="<?= htmlspecialchars($country) ?>" id="managerCountryInput" disabled>
+            <?php endif; ?>
+
           </div>
 
-          <!-- ✅ Modal Footer inside Form -->
           <div class="modal-footer">
             <button type="submit" class="btn btn-primary">Upload</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -525,6 +584,7 @@ $conn->close();
       info: false,
       lengthChange: false
     });
+
 
     // SEARCH
     $('#tableSearch').on('input', function(){
