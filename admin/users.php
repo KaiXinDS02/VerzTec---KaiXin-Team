@@ -5,8 +5,18 @@ include 'auto_log_function.php';
 include __DIR__ . '/../connect.php';
 
 $message = "";
+// Assuming session is started and manager's department is stored in session
+$managerDept = $_SESSION['department'] ?? null;
 
-// Handle Excel upload
+// Load all valid countries from the countries table into an array
+$validCountries = [];
+$result = $conn->query("SELECT country FROM countries");
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $validCountries[] = $row['country'];
+    }
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_name'])) {
     $file          = $_FILES['excel_file']['tmp_name'];
     $fileName      = $_FILES['excel_file']['name'];
@@ -16,6 +26,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
         $data        = $spreadsheet->getActiveSheet()->toArray();
 
+        // Validation loop: Check department and country before insertion
+        for ($i = 1; $i < count($data); $i++) {
+            $deptRaw = trim($data[$i][3]);    // 4th column = department
+            $countryRaw = trim($data[$i][5]); // 6th column = country
+
+            // Manager department check
+            if (isset($_SESSION['role']) && $_SESSION['role'] === 'MANAGER' && $deptRaw !== $managerDept) {
+                throw new Exception("All users must belong to your department: $managerDept");
+            }
+
+            // Country validation check
+            if (!in_array($countryRaw, $validCountries)) {
+                throw new Exception("Please ensure that all users are assigned to a country that has been created in the system.");
+            }
+        }
+
+        // If validation passed, insert rows
         for ($i = 1; $i < count($data); $i++) {
             list($nameRaw, $passRaw, $emailRaw, $deptRaw, $roleRaw, $countryRaw) = $data[$i];
             $name       = $conn->real_escape_string($nameRaw);
@@ -35,6 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
                 $insertedCount++;
             }
         }
+
         $message = "Import completed. $insertedCount users added.";
 
         if (isset($_SESSION['user_id'])) {
@@ -46,6 +74,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['excel_file']['tmp_nam
         $message = "Import failed: " . $e->getMessage();
     }
 }
+
+
+if (!empty($message)) {
+    echo "<script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const modalBody = document.getElementById('excelMessageBody');
+        modalBody.textContent = " . json_encode($message) . ";
+        const modal = new bootstrap.Modal(document.getElementById('excelMessageModal'));
+        modal.show();
+      });
+    </script>";
+}
+
 
 // Fetch total user count for header
 $res       = $conn->query("SELECT COUNT(*) AS cnt FROM users");
@@ -65,6 +106,7 @@ $userCount = $res->fetch_assoc()['cnt'];
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="css/responsive.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+  
   <style>
     html, body { height:100%; margin:0 }
     body {
@@ -124,22 +166,48 @@ $userCount = $res->fetch_assoc()['cnt'];
       border-top-color:#fff;
     }
     .table-container {
-      background:#fff; border-radius:8px;
-      overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.1);
-      flex-grow:1; overflow-y:auto; display:flex; flex-direction:column;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      flex-grow: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      height: 500px; /* Set a fixed height for scrolling */
     }
+
     .table-container table {
-      margin:0; border-collapse:collapse;
+      margin: 0;
+      border-collapse: collapse;
+      width: 100%;
     }
+
     .table-container table thead th {
-      background:#212529; color:#fff;
+      background: #212529;
+      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
+
     .table-container table thead th:first-child {
-      border-top-left-radius:8px;
+      border-top-left-radius: 8px;
     }
+
     .table-container table thead th:last-child {
-      border-top-right-radius:8px;
+      border-top-right-radius: 8px;
     }
+ 
+    #users-table thead th {
+      position: sticky;
+      top: 0;
+      background: #212529;
+      color: white;
+      z-index: 10;
+    }
+
+
   </style>
 </head>
 <body>
@@ -196,11 +264,13 @@ $userCount = $res->fetch_assoc()['cnt'];
                 <i class="fa fa-users me-2"></i> Users
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center" href="admin/audit_log.php">
-                <i class="fa fa-clock-rotate-left me-2"></i> Audit Log
-              </a>
-            </li>
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'ADMIN'): ?>
+              <li class="nav-item">
+                <a class="nav-link d-flex align-items-center" href="admin/audit_log.php">
+                  <i class="fa fa-clock-rotate-left me-2"></i> Audit Log
+                </a>
+              </li>
+            <?php endif; ?>
             <li class="nav-item">
               <a class="nav-link d-flex align-items-center" href="admin/announcements.html">
                 <i class="fa fa-bullhorn me-2"></i> Announcements
@@ -238,6 +308,9 @@ $userCount = $res->fetch_assoc()['cnt'];
               </button>
               <div class="dropdown-menu p-3" id="countryFilterMenu" style="max-height:300px;overflow-y:auto;"></div>
             </div>
+            <button class="btn btn-dark d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addCountryModal">
+              <i class="fa fa-globe me-2"></i> Add Country
+            </button>
             <button class="btn btn-dark d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addUserModal">
               <i class="fa fa-user-plus me-2"></i> Add User
             </button>
@@ -253,7 +326,7 @@ $userCount = $res->fetch_assoc()['cnt'];
         <!-- Table -->
         <div class="table-container">
           <table id="users-table" class="table table-hover mb-0 w-100">
-            <thead class="table-dark">
+            <thead id="users-table" class="table-dark">
               <tr>
                 <th>ID</th>
                 <th>Username</th>
@@ -264,12 +337,23 @@ $userCount = $res->fetch_assoc()['cnt'];
                 <th></th>
               </tr>
             </thead>
-            <tbody></tbody>
           </table>
         </div>
       </div>
     </div>
   </div>
+
+
+  <!-- FETCH DISTINCT COUNTIRES FROM DATABASE -->
+  <?php
+    $countries = [];
+    $result = $conn->query("SELECT DISTINCT country FROM countries WHERE country IS NOT NULL AND country != '' ORDER BY country ASC");
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $countries[] = $row['country'];
+        }
+    }
+  ?>
 
   <!-- ADD USER MODAL -->
   <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
@@ -295,7 +379,18 @@ $userCount = $res->fetch_assoc()['cnt'];
             </div>
             <div class="mb-3">
               <label>Department</label>
-              <input type="text" class="form-control" id="add-department" name="department" required>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="add-department" 
+                name="department"
+                <?php
+                  if (isset($_SESSION['role']) && $_SESSION['role'] === 'MANAGER') {
+                      $dept = isset($_SESSION['department']) ? htmlspecialchars($_SESSION['department']) : '';
+                      echo 'value="' . $dept . '" disabled readonly';
+                  }
+                ?>
+              >
             </div>
             <div class="mb-3">
               <label>Role</label>
@@ -307,7 +402,12 @@ $userCount = $res->fetch_assoc()['cnt'];
             </div>
             <div class="mb-3">
               <label>Country</label>
-              <input type="text" class="form-control" id="add-country" name="country" required>
+              <select class="form-select" id="add-country" name="country" required>
+                <option value="">Select a country</option>
+                <?php foreach ($countries as $country): ?>
+                  <option value="<?= htmlspecialchars($country) ?>"><?= htmlspecialchars($country) ?></option>
+                <?php endforeach; ?>
+              </select>
             </div>
           </div>
           <div class="modal-footer">
@@ -347,7 +447,18 @@ $userCount = $res->fetch_assoc()['cnt'];
             </div>
             <div class="mb-3">
               <label>Department</label>
-              <input type="text" class="form-control" id="edit-department" name="department" required>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="edit-department" 
+                name="department" required
+                <?php
+                  if (isset($_SESSION['role']) && $_SESSION['role'] === 'MANAGER') {
+                      $dept = isset($_SESSION['department']) ? htmlspecialchars($_SESSION['department']) : '';
+                      echo 'value="' . $dept . '" disabled readonly';
+                  }
+                ?>
+              >
             </div>
             <div class="mb-3">
               <label>Role</label>
@@ -359,7 +470,14 @@ $userCount = $res->fetch_assoc()['cnt'];
             </div>
             <div class="mb-3">
               <label>Country</label>
-              <input type="text" class="form-control" id="edit-country" name="country" required>
+              <div class="d-flex gap-2">
+                <select class="form-select flex-grow-1" id="edit-country" name="country" required>
+                  <option value="">Select a country</option>
+                  <?php foreach ($countries as $country): ?>
+                    <option value="<?= htmlspecialchars($country) ?>"><?= htmlspecialchars($country) ?></option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -370,9 +488,67 @@ $userCount = $res->fetch_assoc()['cnt'];
     </div>
   </div>
 
-  <?php if ($message): ?>
-    <script>window.onload=function(){alert("<?= $message ?>");};</script>
-  <?php endif; ?>
+  <!-- ADD COUNTRY MODAL -->
+  <div class="modal fade" id="addCountryModal" tabindex="-1" aria-labelledby="addCountryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="addCountryForm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add New Country</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="new-country-name" class="form-label">Country Name</label>
+              <input type="text" class="form-control" id="new-country-name" name="new_country" required>
+            </div>
+            <div id="country-error" class="text-danger small d-none"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-dark">Add Country</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- COUNTRY SUCCESS MESSAGE MODEL -->
+  <div class="modal fade" id="countryMessageModal" tabindex="-1" aria-labelledby="countryMessageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="countryMessageModalLabel">Status</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="countryMessageBody">
+          <!-- Message inserted dynamically -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Excel Upload Message Modal -->
+  <div class="modal fade" id="excelMessageModal" tabindex="-1" aria-labelledby="excelMessageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="excelMessageModalLabel">Upload Status</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="excelMessageBody">
+          <!-- Message goes here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
 
   <script src="js/jquery-3.4.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
@@ -464,7 +640,7 @@ $userCount = $res->fetch_assoc()['cnt'];
           &&(sc.length===0||sc.includes(row[5]));
     });
 
-    // ** NEW: update button labels on filter change **
+    // update button labels on filter change
     $('#deptFilterMenu').on('change','input[type="checkbox"]', function(){
       const sel = $('.dept-checkbox:checked').map((_,e)=>e.value).get();
       $('#deptFilterBtn').text('Department: ' + (sel.length ? sel.join(', ') : 'All'));
@@ -519,6 +695,66 @@ $userCount = $res->fetch_assoc()['cnt'];
         } else alert('Update failed: '+res);
       });
     });
+
+   
+
   </script>
+  <script>
+    document.getElementById("addCountryForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const newCountry = document.getElementById("new-country-name").value.trim();
+      const errorBox = document.getElementById("country-error");
+      const messageBody = document.getElementById("countryMessageBody");
+      const messageModal = new bootstrap.Modal(document.getElementById("countryMessageModal"));
+
+      // Hide previous error message if any
+      errorBox.classList.add('d-none');
+
+      if (!newCountry) {
+        errorBox.textContent = 'Please enter a country name.';
+        errorBox.classList.remove('d-none');
+        return;
+      }
+
+      fetch('admin/add_country.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'new_country=' + encodeURIComponent(newCountry)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Add to dropdown
+          const countrySelect = document.getElementById("add-country");
+          const option = new Option(newCountry, newCountry, true, true);
+          countrySelect.add(option);
+
+          // Reset form and close add modal
+          document.getElementById("new-country-name").value = '';
+          bootstrap.Modal.getInstance(document.getElementById("addCountryModal")).hide();
+
+          // Show success modal
+          messageBody.textContent = 'Country added successfully!';
+          messageModal.show();
+        } else {
+          errorBox.textContent = data.message || 'Country already exists or error occurred.';
+          errorBox.classList.remove('d-none');
+        }
+      })
+      .catch(() => {
+        errorBox.textContent = 'Error adding country.';
+        errorBox.classList.remove('d-none');
+      });
+    });
+    </script>
+
+    <!-- FixedHeader CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css">
+    <script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
+
+
+
+
 </body>
 </html>

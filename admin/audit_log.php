@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 require __DIR__ . '/../vendor/autoload.php';
 include __DIR__ . '/../connect.php';
 
@@ -129,6 +129,13 @@ if ($result && $result->num_rows) {
     .table-container table thead th:last-child {
       border-top-right-radius: 8px;
     }
+    #audit-table thead th {
+      position: sticky;
+      top: 0;
+      background: #212529;
+      color: white;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
@@ -257,7 +264,7 @@ if ($result && $result->num_rows) {
         <!-- Table -->
         <div class="table-container">
           <table id="audit-table" class="table table-hover mb-0 w-100">
-            <thead class="table-dark">
+            <thead id="audit-table" class="table-dark">
               <tr>
                 <th>Log ID</th>
                 <th>Timestamp (UTC+8)</th>

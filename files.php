@@ -13,7 +13,10 @@ $directory = 'files';
 //     header("Location: login.php");
 //     exit();
 // }
-$user_id = $_SESSION['user_id'];
+$user_id = 1;
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+}
 
 // Fetch username
 $username = 'Unknown';
@@ -223,6 +226,13 @@ $conn->close();
     .table-container table thead th:last-child {
       border-top-right-radius: 8px;
     }
+    #file-table thead th {
+      position: sticky;
+      top: 0;
+      background: #212529;
+      color: white;
+      z-index: 10;
+    }
 
     /* Layout fix for controls */
     .controls-row {
@@ -316,7 +326,7 @@ $conn->close();
         <!-- Table -->
         <div class="table-container">
           <table id="file-table" class="table table-hover mb-0 w-100">
-            <thead class="table-dark">
+            <thead id="file-table" class="table-dark">
               <tr>
                 <th>Filename</th>
                 <th>Uploaded At</th>
@@ -333,6 +343,7 @@ $conn->close();
                   <td><?= htmlspecialchars($file['file_type']) ?></td>
                   <td><?= htmlspecialchars($file['file_size']) ?></td>
                   <td>
+                    <!-- Dropdown for Vertical Ellipsis -->
                     <div class="dropdown">
                       <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-ellipsis-v"></i>
@@ -340,9 +351,13 @@ $conn->close();
                       <ul class="dropdown-menu">
                         <li><a class="dropdown-item preview-file" href="file_preview.php?file_id=<?= urlencode($file['id']) ?>" target="_blank">Preview</a></li>
                         <li><a class="dropdown-item" href="/file_download.php?file_id=<?= $file['id'] ?>" target="_blank" download>Download</a></li>
-                        <li><a class="dropdown-item edit-file" href="admin/edit_file.php?file_id=<?= $file['id'] ?>" target="_blank">Edit</a></li>
-                        <li><a class="dropdown-item rename-file" href="rename_file.php" data-id="<?= $file['id'] ?>" data-name="<?= htmlspecialchars($file['filename']) ?>">Rename</a></li>
-                        <li><a class="dropdown-item text-danger delete-file" href="delete_file.php" data-fileid="<?= $file['id'] ?>">Delete</a></li>
+                        
+                        <!-- Role-Specific Buttons -->
+                        <?php if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['MANAGER', 'ADMIN'])): ?>
+                            <li><a class="dropdown-item edit-file" href="admin/edit_file.php?file_id=<?= $file['id'] ?>" target="_blank">Edit</a></li>
+                            <li><a class="dropdown-item rename-file" href="rename_file.php" data-id="<?= $file['id'] ?>" data-name="<?= htmlspecialchars($file['filename']) ?>">Rename</a></li>
+                            <li><a class="dropdown-item text-danger delete-file" href="delete_file.php" data-fileid="<?= $file['id'] ?>">Delete</a></li>
+                        <?php endif; ?>
                       </ul>
                     </div>
                   </td>

@@ -2,7 +2,7 @@
 require __DIR__ . '/../connect.php';
 require __DIR__ . '/../admin/auto_log_function.php'; 
 
-session_start(); 
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id'])) {
     $userId = intval($_POST['user_id']);

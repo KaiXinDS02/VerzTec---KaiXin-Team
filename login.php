@@ -32,6 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['username'] = $user['username'];
             $_SESSION['email'] = $user['email']; 
             $_SESSION['role'] = $user['role'];  
+			$_SESSION['department'] = $user['department'];  
+			
 
             // Generate OTP
             $otp = rand(100000, 999999);

@@ -5,6 +5,14 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
+
+-- COUNTRIES TABLE
+CREATE TABLE `countries` (
+    `country_id` int(11) AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    `country` varchar(50) NOT NULL UNIQUE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
 -- USERS TABLE
 CREATE TABLE `users` (
   `user_id` int(11) NOT NULL,
@@ -24,7 +32,7 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `username` (`username`);
 
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 
 
