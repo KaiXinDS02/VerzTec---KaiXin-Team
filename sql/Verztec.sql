@@ -26,6 +26,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `username`, `password`, `email`, `department`, `role`, `country`) VALUES
 (1, 'char', '$2y$10$SfzkreVOAas3juveXaTZOeGPsHrNqg7fyUkkBSm0CCbqbkD5Qdzde', 'chuacharmaine648@gmail.com', 'IT', 'ADMIN', 'Singapore');
+(2, 'kx', '$2y$10$SfzkreVOAas3juveXaTZOeGPsHrNqg7fyUkkBSm0CCbqbkD5Qdzde', 'happykxin@gmail.com', 'IT', 'ADMIN', 'Singapore');
 
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
@@ -61,7 +62,7 @@ CREATE TABLE `files` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
--- FILES TABLE
+-- FILE VISIBILITY TABLE
 CREATE TABLE `file_visibility` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `file_id` INT NOT NULL,

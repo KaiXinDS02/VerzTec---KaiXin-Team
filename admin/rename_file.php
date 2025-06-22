@@ -40,11 +40,11 @@ if (!rename($old_full_path, $new_full_path)) {
     exit;
 }
 
-$stmt = $conn->prepare("UPDATE files SET filename = ?, file_path = ? WHERE id = ?");
+$stmt = $conn->prepare("UPDATE files SET filename = ?, file_path = ?, uploaded_at = NOW() WHERE id = ?");
 $stmt->bind_param("ssi", $new_filename, $new_relative_path, $file_id);
 
 if ($stmt->execute()) {
-    log_action($conn, $user_id, 'file', 'edit', "Renamed file ID $file_id to '$new_filename'");
+    log_action($conn, $user_id, 'files', 'edit', "Renamed file ID $file_id to '$new_filename'");
 }
 
 $stmt->close();

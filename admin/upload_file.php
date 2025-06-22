@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '/../connect.php';
+require __DIR__ . '/../admin/auto_log_function.php';
 
-session_start();  // Ensure session is started
 
 $user_id   = $_SESSION['user_id'] ?? null;
 $user_role = $_SESSION['role'] ?? '';
@@ -122,7 +122,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
                         $mgrCountryStmt->close();
                     }
                 }
-
+                // Logging action
+                log_action(
+                    $conn,
+                    $user_id,
+                    'files',
+                    'add',
+                    "Uploaded file: $originalName ($fileType, $fileSizeKb KB)."
+                );
 
                 echo "Upload successful.";
             } else {

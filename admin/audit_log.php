@@ -278,7 +278,11 @@ if ($result && $result->num_rows) {
               <?php foreach ($auditLogs as $log): ?>
                 <tr>
                   <td><?= htmlspecialchars($log['log_id']) ?></td>
-                  <td><?= htmlspecialchars($log['timestamp']) ?></td>
+                  <?php
+                  $date = new DateTime($log['timestamp'], new DateTimeZone('UTC'));
+                  $date->setTimezone(new DateTimeZone('Asia/Singapore'));
+                  ?>
+                  <td><?= $date->format('Y-m-d H:i:s') ?></td>
                   <td><?= htmlspecialchars($log['username']) ?></td>
                   <td><?= htmlspecialchars($log['category']) ?></td>
                   <td><?= htmlspecialchars($log['action']) ?></td>
