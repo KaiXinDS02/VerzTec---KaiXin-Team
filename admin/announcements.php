@@ -1,8 +1,6 @@
 <?php
 session_start();
 
-require __DIR__ . '/../vendor/autoload.php';
-include 'auto_log_function.php';
 include __DIR__ . '/../connect.php'; // ← uses Docker-style: host=db, user=user, password=password
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
