@@ -71,7 +71,21 @@ CREATE TABLE `file_visibility` (
   FOREIGN KEY (`file_id`) REFERENCES `files`(`id`) ON DELETE CASCADE
 );
 
+-- ANNOUNCEMENTS TABLE
+CREATE TABLE `announcements` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) DEFAULT NULL,
+  `context` text,
+  `target_audience` varchar(255) DEFAULT NULL,
+  `priority` enum('High','Medium','Low') DEFAULT 'Medium',
+  `timestamp` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- INSERT SAMPLE INTO ANNOUNCEMENTS TABLE
+INSERT INTO `announcements` (`title`, `context`, `target_audience`, `priority`) VALUES
+('System Maintenance', 'The platform will undergo maintenance from 10 PM to 12 AM tonight.', 'Everyone', 'High'),
+('New Feature Released', 'Document tagging is now available under the files section!', 'Users', 'Medium');
 
 
 COMMIT;
