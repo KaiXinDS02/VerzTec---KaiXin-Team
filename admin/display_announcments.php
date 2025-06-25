@@ -26,13 +26,13 @@ $conn->close();
     <style>
         @font-face {
             font-family: 'Gudea';
-            src: url('Fonts/Gudea-Regular.ttf') format('truetype');
+            src: url('fonts/Gudea-Regular.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
         @font-face {
             font-family: 'Open Sans';
-            src: url('Fonts/OpenSans-Regular.ttf') format('truetype');
+            src: url('fonts/OpenSans-Regular.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
