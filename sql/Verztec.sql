@@ -1,3 +1,4 @@
+DROP DATABASE Verztec;
 CREATE DATABASE IF NOT EXISTS Verztec;
 USE Verztec;
 
@@ -26,7 +27,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `username`, `password`, `email`, `department`, `role`, `country`) VALUES
 (1, 'char', '$2y$10$SfzkreVOAas3juveXaTZOeGPsHrNqg7fyUkkBSm0CCbqbkD5Qdzde', 'chuacharmaine648@gmail.com', 'IT', 'ADMIN', 'Singapore');
-(2, 'kx', '$2y$10$SfzkreVOAas3juveXaTZOeGPsHrNqg7fyUkkBSm0CCbqbkD5Qdzde', 'happykxin@gmail.com', 'IT', 'ADMIN', 'Singapore');
+
 
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),

@@ -213,3 +213,58 @@
 [2025-06-27T12:59:52.309] [WARN] [localhost] [docId] [userId] nodeJS - worker 1212 started.
 [2025-06-27T12:59:52.310] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
 [2025-06-27T12:59:52.310] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:11:26.944] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:11:26.947] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:11:26.951] [WARN] [localhost] [docId] [userId] nodeJS - worker 878 started.
+[2025-06-30T02:11:26.952] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:11:26.952] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:11:50.856] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:11:50.858] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:11:50.862] [WARN] [localhost] [docId] [userId] nodeJS - worker 1205 started.
+[2025-06-30T02:11:50.863] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:11:50.863] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:28:14.978] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:28:14.980] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:28:14.984] [WARN] [localhost] [docId] [userId] nodeJS - worker 878 started.
+[2025-06-30T02:28:14.985] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:28:14.986] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:28:37.920] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:28:37.922] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:28:37.925] [WARN] [localhost] [docId] [userId] nodeJS - worker 1205 started.
+[2025-06-30T02:28:37.926] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:28:37.926] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:36:23.942] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:36:23.945] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:36:23.949] [WARN] [localhost] [docId] [userId] nodeJS - worker 884 started.
+[2025-06-30T02:36:23.950] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:36:23.951] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:36:51.525] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:36:51.528] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:36:51.531] [WARN] [localhost] [docId] [userId] nodeJS - worker 1212 started.
+[2025-06-30T02:36:51.532] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:36:51.532] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:37:25.523] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:37:25.526] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:37:25.531] [WARN] [localhost] [docId] [userId] nodeJS - worker 878 started.
+[2025-06-30T02:37:25.532] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:37:25.532] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:37:49.228] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:37:49.230] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T02:37:49.234] [WARN] [localhost] [docId] [userId] nodeJS - worker 1205 started.
+[2025-06-30T02:37:49.235] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T02:37:49.235] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T03:11:35.859] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T03:11:35.862] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T03:11:35.866] [WARN] [localhost] [docId] [userId] nodeJS - worker 884 started.
+[2025-06-30T03:11:35.867] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T03:11:35.867] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T03:12:39.803] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T03:12:39.809] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T03:12:39.814] [WARN] [localhost] [docId] [userId] nodeJS - worker 878 started.
+[2025-06-30T03:12:39.816] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T03:12:39.816] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T03:13:04.507] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T03:13:04.511] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T03:13:04.516] [WARN] [localhost] [docId] [userId] nodeJS - worker 1205 started.
+[2025-06-30T03:13:04.517] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 20; availableParallelism: 20
+[2025-06-30T03:13:04.517] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
