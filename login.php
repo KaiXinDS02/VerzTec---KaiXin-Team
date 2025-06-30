@@ -43,13 +43,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Send OTP via PHPMailer
             $mail = new PHPMailer(true);
             try {
-                $mail->isSMTP();
+                //$mail->isSMTP();
                 $mail->Host       = 'smtp.gmail.com';
                 $mail->SMTPAuth   = true;
                 $mail->Username   = 'spamacc2306@gmail.com';       
                 $mail->Password   = 'lfvc kyov oife mwze';         
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-                $mail->Port       = 465;
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port       = 587;
 
                 $mail->setFrom('spamacc2306@gmail.com', 'Verztec');
                 $mail->addAddress($user['email'], $user['username']);
