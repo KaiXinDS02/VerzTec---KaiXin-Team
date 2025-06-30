@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Send OTP via PHPMailer
             $mail = new PHPMailer(true);
             try {
-                //$mail->isSMTP();
+                $mail->isSMTP();
                 $mail->Host       = 'smtp.gmail.com';
                 $mail->SMTPAuth   = true;
                 $mail->Username   = 'spamacc2306@gmail.com';       
