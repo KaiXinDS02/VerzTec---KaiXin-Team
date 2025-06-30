@@ -26,7 +26,8 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `users` (`user_id`, `username`, `password`, `email`, `department`, `role`, `country`) VALUES
-(1, 'char', '$2y$10$SfzkreVOAas3juveXaTZOeGPsHrNqg7fyUkkBSm0CCbqbkD5Qdzde', 'chuacharmaine648@gmail.com', 'IT', 'ADMIN', 'Singapore');
+(1, 'char', '$2y$10$SfzkreVOAas3juveXaTZOeGPsHrNqg7fyUkkBSm0CCbqbkD5Qdzde', 'chuacharmaine648@gmail.com', 'IT', 'ADMIN', 'Singapore'),
+(2, 'kai xin', '$2y$10$SfzkreVOAas3juveXaTZOeGPsHrNqg7fyUkkBSm0CCbqbkD5Qdzde', 'happykxin@gmail.com', 'IT', 'ADMIN', 'Singapore');
 
 
 ALTER TABLE `users`
