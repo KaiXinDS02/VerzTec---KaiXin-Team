@@ -190,3 +190,85 @@
 [2025-06-22T01:31:16.234] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
 [2025-06-22T01:31:16.236] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
 [2025-06-22T01:31:16.503] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 8.3.3. Build: 18
+[2025-06-27T12:16:24.174] [WARN] [localhost] [docId] [userId] nodeJS - Express server starting...
+[2025-06-27T12:16:24.203] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-27T12:16:24.205] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-27T12:16:24.959] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 8.3.3. Build: 18
+[2025-06-27T12:17:06.361] [WARN] [localhost] [docId] [userId] nodeJS - Express server starting...
+[2025-06-27T12:17:06.370] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-27T12:17:06.371] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-27T12:17:06.587] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 8.3.3. Build: 18
+[2025-06-27T13:09:20.803] [WARN] [localhost] [docId] [userId] nodeJS - start shutdown:true
+[2025-06-27T13:09:20.806] [WARN] [localhost] [docId] [userId] nodeJS - active connections: 0
+[2025-06-27T13:09:20.806] [WARN] [localhost] [docId] [userId] nodeJS - end shutdown
+[2025-06-30T01:08:49.567] [WARN] [localhost] [docId] [userId] nodeJS - Express server starting...
+[2025-06-30T01:08:49.596] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:08:49.600] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:08:50.369] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 8.3.3. Build: 18
+[2025-06-30T01:09:44.032] [WARN] [localhost] [docId] [userId] nodeJS - Express server starting...
+[2025-06-30T01:09:44.041] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:09:44.042] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:09:44.251] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 8.3.3. Build: 18
+[2025-06-30T01:11:49.000] [WARN] [localhost] [docId] [userId] nodeJS - start shutdown:true
+[2025-06-30T01:11:49.003] [WARN] [localhost] [docId] [userId] nodeJS - active connections: 0
+[2025-06-30T01:11:49.003] [WARN] [localhost] [docId] [userId] nodeJS - end shutdown
+[2025-06-30T01:14:45.577] [WARN] [localhost] [docId] [userId] nodeJS - Express server starting...
+[2025-06-30T01:14:45.585] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:14:45.586] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:14:45.862] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 8.3.3. Build: 18
+[2025-06-30T01:15:33.831] [WARN] [localhost] [docId] [userId] nodeJS - Express server starting...
+[2025-06-30T01:15:33.846] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:15:33.847] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:15:34.067] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 8.3.3. Build: 18
+[2025-06-30T01:16:06.860] [WARN] [localhost] [docId] [userId] nodeJS - start shutdown:true
+[2025-06-30T01:16:06.861] [WARN] [localhost] [docId] [userId] nodeJS - active connections: 0
+[2025-06-30T01:16:06.861] [WARN] [localhost] [docId] [userId] nodeJS - end shutdown
+[2025-06-30T01:17:07.579] [WARN] [localhost] [docId] [userId] nodeJS - Express server starting...
+[2025-06-30T01:17:07.590] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:17:07.592] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:17:07.874] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 8.3.3. Build: 18
+[2025-06-30T01:17:38.354] [WARN] [localhost] [docId] [userId] nodeJS - start shutdown:true
+[2025-06-30T01:17:38.355] [WARN] [localhost] [docId] [userId] nodeJS - active connections: 0
+[2025-06-30T01:17:38.355] [WARN] [localhost] [docId] [userId] nodeJS - end shutdown
+[2025-06-30T01:19:33.604] [WARN] [localhost] [docId] [userId] nodeJS - Express server starting...
+[2025-06-30T01:19:33.612] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:19:33.613] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:19:33.945] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 8.3.3. Build: 18
+[2025-06-30T01:20:10.086] [WARN] [localhost] [docId] [userId] nodeJS - start shutdown:true
+[2025-06-30T01:20:10.086] [WARN] [localhost] [docId] [userId] nodeJS - active connections: 0
+[2025-06-30T01:20:10.087] [WARN] [localhost] [docId] [userId] nodeJS - end shutdown
+[2025-06-30T01:21:13.938] [WARN] [localhost] [docId] [userId] nodeJS - Express server starting...
+[2025-06-30T01:21:13.946] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:21:13.947] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:21:14.233] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 8.3.3. Build: 18
+[2025-06-30T01:21:19.948] [WARN] [localhost] [docId] [userId] nodeJS - start shutdown:true
+[2025-06-30T01:21:19.948] [WARN] [localhost] [docId] [userId] nodeJS - active connections: 0
+[2025-06-30T01:21:19.948] [WARN] [localhost] [docId] [userId] nodeJS - end shutdown
+[2025-06-30T01:22:26.207] [WARN] [localhost] [docId] [userId] nodeJS - Express server starting...
+[2025-06-30T01:22:26.215] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:22:26.216] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:22:26.505] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 8.3.3. Build: 18
+[2025-06-30T01:23:04.296] [WARN] [localhost] [docId] [userId] nodeJS - Express server starting...
+[2025-06-30T01:23:04.303] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:23:04.305] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-06-30T01:23:04.500] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 8.3.3. Build: 18
+[2025-06-30T02:47:25.280] [ERROR] [localhost] [274d3e1e8ce7b54407100641427634f2] [uid-17502524884122] nodeJS - error parseReplyData: data = <br />
+<b>Warning</b>:  file_get_contents(http://localhost:8081/cache/files/data/274d3e1e8ce7b54407100641427634f2_2306/output.docx/output.docx?md5=uC-wMX36BCckcmbYYIakEA&amp;expires=1751252546&amp;shardkey=274d3e1e8ce7b54407100641427634f2&amp;filename=output.docx): Failed to open stream: Connection refused in <b>/var/www/html/admin/edit_file.php</b> on line <b>53</b><br />
+{"error":"Unhandled status or failed to save document"} SyntaxError: Unexpected token < in JSON at position 0
+    at JSON.parse (<anonymous>)
+    at Object.parseReplyData (/snapshot/server/DocService/sources/DocsCoServer.js)
+    at /snapshot/server/DocService/sources/canvasservice.js
+    at Generator.next (<anonymous>)
+    at onFulfilled (/snapshot/server/DocService/node_modules/co/index.js:65:19)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+[2025-06-30T02:47:25.286] [WARN] [localhost] [274d3e1e8ce7b54407100641427634f2] [uid-17502524884122] nodeJS - storeForgotten
+[2025-06-30T02:49:10.518] [ERROR] [localhost] [274d3e1e8ce7b54407100641427634f2] [uid-17502524884121] nodeJS - error parseReplyData: data = <br />
+<b>Warning</b>:  file_get_contents(http://localhost:8081/cache/files/data/274d3e1e8ce7b54407100641427634f2_3646/output.docx/output.docx?md5=Y3l-pBpTuGXvVdpabDKdDQ&amp;expires=1751252651&amp;shardkey=274d3e1e8ce7b54407100641427634f2&amp;filename=output.docx): Failed to open stream: Connection refused in <b>/var/www/html/admin/edit_file.php</b> on line <b>53</b><br />
+{"error":"Unhandled status or failed to save document"} SyntaxError: Unexpected token < in JSON at position 0
+    at JSON.parse (<anonymous>)
+    at Object.parseReplyData (/snapshot/server/DocService/sources/DocsCoServer.js)
+    at /snapshot/server/DocService/sources/canvasservice.js
+    at Generator.next (<anonymous>)
+    at onFulfilled (/snapshot/server/DocService/node_modules/co/index.js:65:19)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+[2025-06-30T02:49:10.522] [WARN] [localhost] [274d3e1e8ce7b54407100641427634f2] [uid-17502524884121] nodeJS - storeForgotten
