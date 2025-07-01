@@ -323,3 +323,8 @@
 [2025-06-30T10:25:40.452] [WARN] [localhost] [docId] [userId] nodeJS - worker 813 started.
 [2025-06-30T10:25:40.454] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: undefined
 [2025-06-30T10:25:40.455] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T10:28:33.512] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: undefined
+[2025-06-30T10:28:33.515] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-06-30T10:28:33.527] [WARN] [localhost] [docId] [userId] nodeJS - worker 1043 started.
+[2025-06-30T10:28:33.528] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: undefined
+[2025-06-30T10:28:33.529] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
