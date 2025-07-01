@@ -43,7 +43,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="css/responsive.css">
   <style>
-    /* nothing extra—rely on existing login styles */
+    /* allow positioning of back button */
+    .login-form { position: relative; }
+
+    /* back button styling */
+    .back-btn {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      padding: 0;
+      border: none;
+      border-radius: 0.5rem;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .back-btn i {
+      color: #000;
+      font-size: 1rem;
+    }
   </style>
   <script>
     // countdown logic
@@ -57,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         countdown--;
         setTimeout(updateCountdown,1000);
       } else {
-        el.innerHTML = 
+        el.innerHTML =
           '<a href="otp_resend.php" style="color:#007bff;text-decoration:none;">Resend OTP</a>';
       }
     }
@@ -69,6 +92,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- exactly same wrapper as login page -->
   <main class="login-wrap bg-included">
     <div class="login-form">
+
+      <!-- back button -->
+      <button type="button" class="back-btn" onclick="location.href='login.php';">
+        <i class="fa fa-arrow-left"></i>
+      </button>
+
       <form action="otp_form.php" method="POST">
         <div class="login-logo px-4">
           <a href="#"><img src="images/logo.png" alt="Verztec"></a>
