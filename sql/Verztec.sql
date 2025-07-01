@@ -28,7 +28,8 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`user_id`, `username`, `password`, `email`, `department`, `role`, `country`) VALUES
 (1, 'char', '$2y$10$SfzkreVOAas3juveXaTZOeGPsHrNqg7fyUkkBSm0CCbqbkD5Qdzde', 'chuacharmaine648@gmail.com', 'IT', 'ADMIN', 'Singapore'),
 (2, 'julia', '$2y$10$SfzkreVOAas3juveXaTZOeGPsHrNqg7fyUkkBSm0CCbqbkD5Qdzde', 'chewjulia1415@gmail.com', 'IT', 'ADMIN', 'Singapore'),
-(3, 'kai xin', '$2y$10$SfzkreVOAas3juveXaTZOeGPsHrNqg7fyUkkBSm0CCbqbkD5Qdzde', 'happykxin@gmail.com', 'IT', 'ADMIN', 'Singapore');
+(3, 'rumaisa', '$2y$10$SfzkreVOAas3juveXaTZOeGPsHrNqg7fyUkkBSm0CCbqbkD5Qdzde', 'azzyy.rrafiudeen@gmail.com', 'IT', 'ADMIN', 'Singapore'),
+(4, 'kai xin', '$2y$10$SfzkreVOAas3juveXaTZOeGPsHrNqg7fyUkkBSm0CCbqbkD5Qdzde', 'happykxin@gmail.com', 'IT', 'ADMIN', 'Singapore');
 
 
 ALTER TABLE `users`
