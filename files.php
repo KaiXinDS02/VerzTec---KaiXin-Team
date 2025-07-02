@@ -89,7 +89,7 @@ foreach($files as $f){
   $vs->close();
 }
 
-// Fetch username (unused in this page, but kept)
+// Fetch username 
 $username='Unknown';
 $usr = $conn->prepare("SELECT username FROM users WHERE user_id=?");
 $usr->bind_param("i",$user_id);
@@ -124,9 +124,111 @@ function getIconColor($type){
   }
 }
 
-// Scan /files and insert missing (original logic omitted for brevity)...
 
+// Friendly file type mapper for friendly display in Table
+function getFriendlyFileType($mimeType) {
+    $map = [
+        'application/pdf' => 'pdf',
+        'application/msword' => 'msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'msword',
+        'application/vnd.ms-excel' => 'excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'excel',
+        'application/vnd.ms-powerpoint' => 'powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'powerpoint',
+        'image/jpeg' => 'jpeg',
+        'image/png' => 'png',
+        'image/gif' => 'gif',
+        'text/plain' => 'text',
+        'application/zip' => 'zip',
+        'application/x-rar-compressed' => 'rar',
+      ];
+    return $map[$mimeType] ?? 'other';
+  }
+
+  // Scan /files and insert if not in DB
+  $inserted = 0;
+
+  foreach (scandir($directory) as $file) {
+      if ($file === '.' || $file === '..') continue;
+
+      $filePath = realpath("$directory/$file");
+      $mimeType = mime_content_type($filePath);
+      $fileType = getFriendlyFileType($mimeType);
+      $fileSize = round(filesize($filePath) / 1024);
+      $relativePath = 'files/' . $file; // Use web-safe relative path
+
+      $check = $conn->prepare("SELECT id FROM files WHERE file_path = ?");
+      $check->bind_param("s", $relativePath);
+      $check->execute();
+      $check->store_result();
+
+      if ($check->num_rows === 0) {
+          $stmt = $conn->prepare("INSERT INTO files (user_id, filename, file_path, file_type, file_size) VALUES (?, ?, ?, ?, ?)");
+          $stmt->bind_param("isssi", $user_id, $file, $relativePath, $fileType, $fileSize);
+
+          if ($stmt->execute()) {
+              $file_id = $stmt->insert_id;
+
+              // Insert default visibility: ALL
+              $visStmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope) VALUES (?, 'ALL')");
+              $visStmt->bind_param("i", $file_id);
+              $visStmt->execute();
+              $visStmt->close();
+
+              $inserted++;
+          }
+          $stmt->close();
+      }
+      $check->close();
+  }
+
+  $role = $_SESSION['role'] ?? '';
+  $country = $_SESSION['country'] ?? '';
+  $department = $_SESSION['department'] ?? '';
+
+  if ($role === 'ADMIN') {
+      $stmt = $conn->prepare("
+          SELECT f.*
+          FROM files f
+          ORDER BY f.uploaded_at DESC
+      ");
+  } elseif ($role === 'MANAGER') {
+      $stmt = $conn->prepare("
+          SELECT DISTINCT f.*
+          FROM files f
+          JOIN file_visibility v ON f.id = v.file_id
+          WHERE v.visibility_scope = 'ALL'
+            OR (v.visibility_scope = 'COUNTRY' AND v.category = ?)
+          ORDER BY f.uploaded_at DESC
+      ");
+      $stmt->bind_param("s", $country);
+  } else { // USER
+      $stmt = $conn->prepare("
+          SELECT DISTINCT f.*
+          FROM files f
+          JOIN file_visibility v1 ON f.id = v1.file_id
+          LEFT JOIN file_visibility v2 ON f.id = v2.file_id
+          WHERE v1.visibility_scope = 'ALL'
+            OR (v1.visibility_scope = 'COUNTRY' AND v1.category = ?)
+            OR (v2.visibility_scope = 'DEPARTMENT' AND v2.category = ?)
+          GROUP BY f.id
+          HAVING 
+              SUM(v1.visibility_scope = 'ALL') > 0 OR 
+              (SUM(v1.visibility_scope = 'COUNTRY' AND v1.category = ?) > 0 AND SUM(v2.visibility_scope = 'DEPARTMENT' AND v2.category = ?) > 0)
+          ORDER BY f.uploaded_at DESC
+      ");
+      $stmt->bind_param("ssss", $country, $department, $country, $department);
+  }
+
+  $stmt->execute();
+  $result = $stmt->get_result();
+  $files = $result->fetch_all(MYSQLI_ASSOC);
+  $stmt->close();
 ?>
+
+
+
+<!-- Front-End -->
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
