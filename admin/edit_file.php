@@ -1,6 +1,6 @@
 <?php
-
 require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../admin/auto_log_function.php'; 
 require_once __DIR__ . '/../connect.php';
 use Firebase\JWT\JWT;
 
@@ -69,6 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['callback']) && $_GET['
     exit;
 }
 
+
 // GET request for loading editor
 if (!isset($_GET['file_id'])) {
     die("No file_id specified.");
@@ -96,6 +97,14 @@ if (!file_exists($file_path)) {
 
 $fileUrl = $baseFileUrl . rawurlencode($filename);
 $docKey = md5($filename . filemtime($file_path));
+
+
+// Log the file editor
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+    $details = "Opened file editor: $filename";
+    log_action($conn, $user_id, "files", "edit", $details);
+}
 
 $config = [
     'document' => [

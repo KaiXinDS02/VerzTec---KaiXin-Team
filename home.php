@@ -206,5 +206,8 @@ if (!isset($_SESSION['username'])) {
       });
     })();
   </script>
+
+  <!-- Session Timeout -->
+  <script src="js/inactivity.js"></script>
 </body>
 </html>

@@ -10,6 +10,9 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 
+$logout_reason = $_GET['reason'] ?? '';
+$show_modal = ($logout_reason === 'timeout');
+
 $error = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -100,15 +103,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		<link rel="icon" href="images/favicon.ico">	
 		<!-- Include Bootstrap -->
 		<link rel="stylesheet" href="css/bootstrap.css">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 		<!-- link font awesome -->
 		<link rel="stylesheet" href="css/font-awesome.css">
 		<!-- Main StyleSheet -->
 		<link rel="stylesheet" href="style.css">	
 		<!-- Responsive CSS -->
 		<link rel="stylesheet" href="css/responsive.css">
+		
+
 	</head>
 	<body>
-
+		<!-- Inactivity Logout Modal -->
+		<div class="modal fade" id="inactivityModal" tabindex="-1" aria-labelledby="inactivityModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content text-center">
+			<div class="modal-header">
+				<h5 class="modal-title" id="inactivityModalLabel">Session Expired</h5>
+			</div>
+			<div class="modal-body">
+				You were logged out due to 5 minutes of inactivity.
+			</div>
+			<div class="modal-footer justify-content-center">
+				<a href="login.php" class="btn btn-primary">OK</a>
+			</div>
+			</div>
+		</div>
+		</div>
 		
 		
 		<!-- login form area -->
@@ -145,7 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		<!-- login form area  -->
 
 
-
+		
 		
 		
 		<!-- Main jQuery -->
@@ -153,9 +174,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		
 		<!-- Bootstrap.bundle Script -->
 		<script src="js/bootstrap.bundle.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 		
 		<!-- Custom jQuery -->
 		<script src="js/scripts.js"></script>
 		
+		<?php if (isset($_GET['reason']) && $_GET['reason'] === 'timeout'): ?>
+		<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			var modal = new bootstrap.Modal(document.getElementById('inactivityModal'));
+			modal.show();
+		});
+		</script>
+		<?php endif; ?>
+
 	</body>
 </html>
