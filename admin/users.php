@@ -632,6 +632,7 @@ $userCount = $res->fetch_assoc()['cnt'];
       );
     });
 
+
     // Custom filter
     $.fn.dataTable.ext.search.push((settings,row)=>{
       const sd = $('.dept-checkbox:checked').map((_,e)=>e.value).get();

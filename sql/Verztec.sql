@@ -13,6 +13,9 @@ CREATE TABLE `countries` (
     `country` varchar(50) NOT NULL UNIQUE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+INSERT INTO `countries` (`country_id`, `country`) VALUES
+(1, 'Singapore');
+
 
 -- USERS TABLE
 CREATE TABLE `users` (
