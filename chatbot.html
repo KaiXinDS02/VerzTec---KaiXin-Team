@@ -71,14 +71,145 @@
     </header>
     <!-- page header area -->
 
-    <!-- Add standby Button Section -->
+    <!-- Chatbot Interface Section -->
     <section class="py-4">
-        <div class="container d-flex justify-content-end">
-            <a class="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center" href="#">
-                <i class="fa fa-comments me-2"></i></i> Idk what to add here lol
-            </a>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fa fa-robot me-2"></i>VerzTec AI Assistant</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="chat-container" style="height: 400px; overflow-y: auto; border: 1px solid #dee2e6; padding: 15px; background-color: #f8f9fa; margin-bottom: 20px;">
+                                <div class="chat-message bot-message">
+                                    <div class="message-content">
+                                        <strong>VerzTec Assistant:</strong> Hello! I'm here to help you with questions about VerzTec policies, procedures, and documents. How can I assist you today?
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="user-input" class="form-control" placeholder="Ask me anything about VerzTec..." onkeypress="handleKeyPress(event)">
+                                <button class="btn btn-primary" type="button" onclick="sendMessage()">
+                                    <i class="fa fa-paper-plane"></i> Send
+                                </button>
+                            </div>
+                            <div id="loading" class="text-center mt-3" style="display: none;">
+                                <i class="fa fa-spinner fa-spin"></i> Thinking...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
+
+    <style>
+        .chat-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: 20%;
+            text-align: right;
+        }
+        
+        .bot-message {
+            background-color: #ffffff;
+            margin-right: 20%;
+            border: 1px solid #dee2e6;
+        }
+        
+        .message-content {
+            word-wrap: break-word;
+        }
+        
+        #chat-container {
+            scroll-behavior: smooth;
+        }
+    </style>
+
+    <script>
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('user-input');
+            const message = userInput.value.trim();
+            
+            if (message === '') {
+                return;
+            }
+
+            // Add user message to chat
+            addMessageToChat(message, 'user');
+            
+            // Clear input and show loading
+            userInput.value = '';
+            document.getElementById('loading').style.display = 'block';
+
+            // Send message to chatbot API
+            fetch('http://localhost:8000/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ question: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                addMessageToChat(data.answer, 'bot');
+                
+                // Add reference file link if available
+                if (data.reference_file) {
+                    addReferenceLink(data.reference_file);
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                console.error('Error:', error);
+                addMessageToChat('Sorry, I encountered an error. Please make sure the chatbot server is running on port 8000.', 'bot');
+            });
+        }
+
+        function addMessageToChat(message, sender) {
+            const chatContainer = document.getElementById('chat-container');
+            const messageDiv = document.createElement('div');
+            const senderName = sender === 'user' ? 'You' : 'VerzTec Assistant';
+            
+            messageDiv.className = `chat-message ${sender}-message`;
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <strong>${senderName}:</strong> ${message}
+                </div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function addReferenceLink(filename) {
+            const chatContainer = document.getElementById('chat-container');
+            const linkDiv = document.createElement('div');
+            
+            linkDiv.className = 'chat-message bot-message';
+            linkDiv.innerHTML = `
+                <div class="message-content">
+                    <small><i class="fa fa-file-pdf"></i> Reference: <a href="http://localhost:8000/pdfs/${filename}" target="_blank">${filename}</a></small>
+                </div>
+            `;
+            
+            chatContainer.appendChild(linkDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    </script>
 
     <!-- Scripts -->
     <script src="js/jquery-3.4.1.min.js"></script>

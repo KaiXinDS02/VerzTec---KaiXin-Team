@@ -2,111 +2,92 @@
 
 This directory contains the VerzTec chatbot that has been integrated from a separate repository using git subtree.
 
-## Overview
+## 🚀 Quick Start
 
-The chatbot is a FastAPI-based application that uses Ollama for language model inference and provides a RAG (Retrieval-Augmented Generation) system for answering questions based on VerzTec documents.
+### Method 1: Automatic Startup (Recommended)
 
-## Prerequisites
+1. **Double-click `start-application.bat`** in the root directory
+2. Wait for all services to start (about 30-60 seconds)
+3. Open your browser and go to **http://localhost:8080**
+4. Navigate to the **Chatbot** page to start chatting!
 
-1. **Python 3.8+** installed on your system
-2. **Ollama** installed and running locally
-3. **Git** for version control
+### Method 2: Manual Startup
 
-## Setup Instructions
+1. **Start the main website:**
+   ```bash
+   docker-compose up -d
+   ```
 
-### 1. Install Python Dependencies
+2. **Start the chatbot:**
+   ```bash
+   cd chatbot
+   pip install -r requirements.txt  # Only needed first time
+   python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+   ```
 
-Navigate to the chatbot directory and install the required packages:
+3. **Access the application:**
+   - Main Website: http://localhost:8080
+   - Chatbot API: http://localhost:8000
 
-```bash
-cd chatbot
-pip install -r requirements.txt
-```
+## 🛠️ Prerequisites
 
-### 2. Install and Setup Ollama
+1. **Docker Desktop** - Must be running
+2. **Python 3.8+** - For the chatbot
+3. **Ollama** - For AI language model (install from https://ollama.ai)
 
-1. Download and install Ollama from [https://ollama.ai](https://ollama.ai)
-2. Start the Ollama service
-3. Pull the required model (the chatbot will specify which model it needs)
+## 📋 Services Overview
 
-### 3. Run the Chatbot
+| Service | URL | Purpose |
+|---------|-----|---------|
+| Main Website | http://localhost:8080 | PHP web application |
+| Chatbot API | http://localhost:8000 | FastAPI chatbot backend |
+| OnlyOffice | http://localhost:8081 | Document server |
+| MySQL Database | localhost:3306 | Data storage |
 
-Start the FastAPI server:
+## 💬 Using the Chatbot
 
-```bash
-python main.py
-```
+1. Go to **http://localhost:8080**
+2. Click on **"Chatbot"** in the navigation menu
+3. Type your questions about VerzTec policies and procedures
+4. The AI will respond with relevant information and document references
 
-Or using uvicorn directly:
-
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-The chatbot will be available at `http://localhost:8000`
-
-## Features
-
-- **Document-based Q&A**: Answers questions based on VerzTec documents
-- **RAG System**: Uses vector search to find relevant information
-- **Personal Question Filtering**: Redirects personal questions appropriately
-- **File Serving**: Serves PDF documents and static files
-- **Chat History**: Maintains conversation context
-
-## Directory Structure
-
-```
-chatbot/
-├── main.py              # FastAPI application entry point
-├── requirements.txt     # Python dependencies
-├── chatbot/            # Core chatbot modules
-├── data/               # Document data for RAG
-├── models/             # Model-related files
-├── static/             # Static web assets
-└── question_log.txt    # Log of questions asked
-```
-
-## Integration Details
-
-This chatbot has been integrated using **git subtree**, which means:
-
-- ✅ It maintains its own directory structure
-- ✅ It doesn't conflict with existing project files
-- ✅ It can be updated independently
-- ✅ Team members get the full chatbot when they pull the repository
-
-## Updating the Chatbot
-
-If the original chatbot repository receives updates, you can pull them using:
-
-```bash
-git subtree pull --prefix=chatbot https://github.com/juliazhou1415/Verztec_Chatbot----Ollama----new-data.git main --squash
-```
-
-## Troubleshooting
+## 🔧 Troubleshooting
 
 ### Common Issues
 
-1. **Port already in use**: Change the port in the uvicorn command
-2. **Ollama not running**: Make sure Ollama service is started
-3. **Missing dependencies**: Run `pip install -r requirements.txt` again
-4. **Model not found**: Check if the required Ollama model is pulled
+**❌ "Connection refused" errors:**
+- Ensure Docker Desktop is running
+- Wait for all containers to fully start (30-60 seconds)
 
-### Logs
+**❌ Chatbot not responding:**
+- Check if the chatbot terminal shows "Uvicorn running on http://0.0.0.0:8000"
+- Ensure port 8000 is not used by another application
 
-Check `question_log.txt` for chatbot interaction logs.
+**❌ "ModuleNotFoundError":**
+- Run `pip install -r requirements.txt` in the chatbot directory
 
-## Team Workflow
+**❌ Docker containers fail to start:**
+- Check if ports 8080, 8081, or 3306 are already in use
+- Restart Docker Desktop
 
-1. **Pull latest changes**: `git pull origin dev`
-2. **Navigate to chatbot**: `cd chatbot`
-3. **Install dependencies**: `pip install -r requirements.txt`
-4. **Start chatbot**: `python main.py`
-5. **Access at**: `http://localhost:8000`
+### Port Conflicts
 
-## Support
+If you encounter port conflicts, you can modify the ports in `docker-compose.yml`:
 
-For chatbot-specific issues, refer to the original repository:
-https://github.com/juliazhou1415/Verztec_Chatbot----Ollama----new-data
+```yaml
+ports:
+  - "8080:80"    # Change 8080 to another port
+```
 
-For integration issues, contact the development team.
+## 🔄 Stopping the Application
+
+### Method 1: Quick Stop
+Double-click `stop-application.bat` in the root directory
+
+### Method 2: Manual Stop
+```bash
+# Stop Docker containers
+docker-compose down
+
+# Stop chatbot (Ctrl+C in the chatbot terminal)
+```

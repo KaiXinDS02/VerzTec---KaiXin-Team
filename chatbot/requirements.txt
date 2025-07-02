@@ -16,5 +16,5 @@ tqdm==4.67.1
 numpy
 #numpy == 2.2.5  (I change first to see if it works lol -kx)
 regex==2024.11.6
-uvicorn #I think it is needed for the server to run -kx
-rapidfuzz#This too
+uvicorn
+rapidfuzz
