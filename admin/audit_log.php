@@ -6,7 +6,7 @@ include __DIR__ . '/../connect.php';
 header('Content-Type: text/html; charset=utf-8');
 
 $message = "";
-
+//Hi
 // Fetch audit logs
 $auditLogs = [];
 $sql = "
