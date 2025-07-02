@@ -13,107 +13,170 @@
     <link rel="stylesheet" href="css/responsive.css">
 
     <style>
-      /* Body padding & background */
+      /* Body setup for full viewport usage */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+      }
+      
       body {
-        padding-top: 110px;
+        padding-top: 110px; /* Space for fixed header */
         background-color: #f2f3fa;
+        display: flex;
+        flex-direction: column;
       }
 
-      /* Chat section layout */
-      .chat-section .row {
-        align-items: stretch;
+      /* Chat section takes full remaining viewport */
+      .chat-section {
+        height: calc(100vh - 110px); /* Full viewport minus header */
+        padding: 20px 15px 20px 15px; /* Consistent padding on all sides */
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
       }
+      
+      .chat-section .container-fluid {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        max-width: none; /* Remove Bootstrap's max-width constraint */
+        padding: 0; /* Remove default container padding */
+      }
+      
+      .chat-section .row {
+        flex: 1;
+        margin: 0; /* Remove row margins */
+        height: 100%;
+      }
+      
+      .chat-section .col-lg-6 {
+        padding: 0 10px; /* Reduce column padding */
+      }
+
+      /* Avatar section */
       .chat-avatar {
         background: #e9ecef;
         border-radius: 8px;
         height: 100%;
-        /* ensure large placeholder */
+        min-height: 400px; /* Minimum height for better appearance */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: #6c757d;
       }
 
-      /* Chat panel */
+      /* Chat panel fills available space */
       .chat-panel {
         display: flex;
         flex-direction: column;
         height: 100%;
+        min-height: 400px; /* Minimum height for better appearance */
+        overflow: hidden;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       }
+      
       .chat-header {
         background: #fff;
         border-top-left-radius: 8px;
         border-top-right-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        padding: .75rem 1rem;
+        padding: 1rem;
+        flex-shrink: 0; /* Don't shrink the header */
       }
+      
       .chat-body {
-        flex: 1;
+        flex: 1; /* Take up all available space */
         overflow-y: auto;
         background: #fafbfc;
         border-left: 1px solid #dee2e6;
         border-right: 1px solid #dee2e6;
         padding: 1rem;
-        min-height: 400px;
-        max-height: 500px;
+        min-height: 250px; /* Ensure minimum scrollable area */
       }
+      
+      /* Message bubble styles */
       .chat-body .bot-initial {
         max-width: 80%;
         display: inline-block;
         background: #fff;
         border: 1px solid #ffc107;
         border-radius: 20px;
-        padding: .5rem .75rem;
+        padding: 0.75rem 1rem;
         margin-bottom: 1rem;
         color: #333;
       }
+      
       .chat-body .user-bubble {
         max-width: 80%;
         background: #ffc107;
         color: #333;
         border-radius: 20px;
-        padding: .5rem .75rem;
+        padding: 0.75rem 1rem;
         margin-bottom: 1rem;
         margin-left: auto;
         display: block;
         text-align: left;
         word-wrap: break-word;
       }
+      
       .chat-body .bot-bubble {
         max-width: 80%;
         display: block;
         background: #fff;
         border: 1px solid #ffc107;
         border-radius: 20px;
-        padding: .5rem .75rem;
+        padding: 0.75rem 1rem;
         margin-bottom: 1rem;
         margin-right: auto;
         color: #333;
         word-wrap: break-word;
       }
-
-      /* Input group */
+      
+      /* Chat input group */
       .chat-input-group {
         display: flex;
         align-items: center;
-        padding: .75rem 1rem;
+        padding: 1rem;
         background: #fff;
         border: 1px solid #dee2e6;
         border-bottom-left-radius: 8px;
         border-bottom-right-radius: 8px;
+        flex-shrink: 0; /* Don't shrink the input area */
       }
+      
       .chat-input-group input.form-control {
-        border: none;
+        border: 1px solid #dee2e6;
         box-shadow: none;
         border-radius: 24px;
-        padding-left: 1rem;
+        padding: 0.75rem 1rem;
+        flex: 1;
       }
+      
       .chat-input-group .btn-icon {
         border: none;
         background: transparent;
         font-size: 1.2rem;
         color: #333;
-        margin-left: .5rem;
+        margin-left: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: background-color 0.2s;
       }
+      
+      .chat-input-group .btn-icon:hover {
+        background-color: #f8f9fa;
+      }
+      
       .chat-input-group .btn-icon:focus {
         box-shadow: none;
+        outline: none;
       }
+    </style>
     </style>
 </head>
 <body>
@@ -161,7 +224,11 @@
         <!-- Left half for avatar -->
         <div class="col-lg-6 mb-4 mb-lg-0">
           <div class="chat-avatar h-100">
-            <!-- large placeholder -->
+            <div style="text-align: center;">
+              <div style="font-size: 4rem; margin-bottom: 1rem;">🤖</div>
+              <h3 style="color: #495057; margin-bottom: 0.5rem;">VerzTec AI Assistant</h3>
+              <p style="color: #6c757d; margin: 0;">Your intelligent workplace companion</p>
+            </div>
           </div>
         </div>
 
