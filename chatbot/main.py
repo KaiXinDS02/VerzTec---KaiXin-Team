@@ -6,6 +6,7 @@ import traceback
 from datetime import datetime
 from urllib.parse import quote
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -15,6 +16,16 @@ from chatbot.config import MAX_ANSWER_WORDS, PDF_DIR
 from rapidfuzz import fuzz
 
 app = FastAPI()
+
+# Add CORS middleware to allow frontend connections
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, replace with specific domains
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 qa_chain, vectorstore = load_chain()
 chat_history = []
 
