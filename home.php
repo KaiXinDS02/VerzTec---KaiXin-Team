@@ -1,9 +1,14 @@
 <?php
 session_start();
 include 'admin/auto_log_function.php';
-// Example: Set $_SESSION['role'] after login
+
+// Set $_SESSION['role'] after login
 if (!isset($_SESSION['role'])) {
     $_SESSION['role'] = 'USER';
+}
+
+if (!isset($_SESSION['username'])) {
+    $_SESSION['username'] = 'John Doe'; // fallback
 }
 ?> 
 
@@ -110,11 +115,11 @@ if (!isset($_SESSION['role'])) {
             <div class="sidebar-top">
               <figure><img src="images/ellipse.png" alt=""></figure>
               <div class="content">
-                <h3>John Doe</h3>
-                <span>Data Operations</span>
+                <h3><?= htmlspecialchars($_SESSION['username']) ?></h3>
+                <span><?= htmlspecialchars($_SESSION['department']) ?>/<?= htmlspecialchars($_SESSION['role']) ?></span>
                 <div class="d-flex align-items-center gap-2 justify-content-center pt-1">
                   <img src="images/location.svg" alt="">
-                  <span>Singapore</span>
+                  <span><?= htmlspecialchars($_SESSION['country']) ?></span>
                 </div>
               </div>
             </div>
@@ -131,7 +136,7 @@ if (!isset($_SESSION['role'])) {
         <!-- main area -->
         <div class="col-lg-9">
           <div class="right-content-wp">
-            <h2>Good Morning, John Doe!</h2>
+            <h2>Good Morning, <?= htmlspecialchars($_SESSION['username']) ?>!</h2>
             <div class="rc-content-box">
 
               <!-- SEARCH -->

@@ -338,7 +338,9 @@ function getFriendlyFileType($mimeType) {
               <li><a href="home.php">Home</a></li>
               <li><a href="chatbot.html">Chatbot</a></li>
               <li class="active"><a href="#">Files</a></li>
-              <li><a href="admin/users.php">Admin</a></li>
+              <?php if ($_SESSION['role'] !== 'USER'): ?>
+                <li><a href="admin/users.php">Admin</a></li>
+              <?php endif; ?>
             </ul>
           </div>
         </div>
