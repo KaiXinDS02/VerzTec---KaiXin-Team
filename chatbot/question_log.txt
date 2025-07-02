@@ -3054,3 +3054,44 @@ A: I'm so sorry to hear that you're going through this. It can be really tough a
 ---
 [❌ Rejected Personal] 2025-07-02T17:06:18.550060 - Q: why is my father being mean
 ---
+2025-07-02T23:57:02.654090 - Q: tell me about meeting etiquette
+A: Meeting etiquette is essential for maintaining professionalism and respect in our internal meetings as well as when interacting with clients and prospects. Here are some key points to note: When participating in internal meetings, it's crucial to show respect to the speakers by giving them your full attention during the session. Make sure to turn on your video and ensure good lighting before joining the meeting. Avoid doing other work or tasks while attending a meeting. Additionally, when presenting to prospects or clients, dress in Smart Casual attire and refrain from engaging in other activities such as typing away on your keyboard or phone. If you have a question, concern, or wish to speak up, please send a private message to the host instead of interrupting during the meeting. Before attending client/prospect meetings, it's recommended to arrive at least 10 minutes before the scheduled time. When waiting for clients, take seats in the opposite direction from the meeting room door and avoid sitting with your back facing the door, as this may be perceived as rude. Upon greeting the client, stand up, smile warmly, and extend a friendly hand to shake hands. Walk up to the client to pass your name card, rather than waiting for them to approach you or passing it over the meeting table. For presentations, ensure that the audio plug is connected to the projector/AV system, and inform the receptionist or office tea assistant about any technical requirements in advance. Also, confirm with the client if they have the necessary equipment and IT support available to assist with setup. Lastly, before starting your presentation, take a moment to thank the prospect/client for their time and introduce them to you....
+Source: 28_Verztec Digital Meeting Etiquette.pdf
+---
+2025-07-02T23:57:40.715158 - Q: tell me about meeting etiquette
+A: At Verztec, we place a strong emphasis on maintaining professional and respectful behavior during internal meetings. This includes giving our full attention to speakers, turning on our video and sound before joining the meeting, and ensuring good lighting and dressing in smart casual attire when presenting to prospects or clients.
+
+It's essential to refrain from doing other work-related tasks during these meetings, such as typing away on a keyboard or phone. If you have questions, concerns, or wish to contribute, please do so by sending a private message to the host.
+
+Additionally, we follow specific guidelines for client and prospect meetings, including:
+
+Arriving at least 10 minutes before the meeting time to show respect and punctuality
+Standing up and smiling warmly when greeting clients as they enter the meeting room
+Walking up to clients to shake hands and pass our name card with both hands
+Informing the receptionist or office tea assistant about technical requirements for laptop presentations, such as projector setup and audio connections
+
+Before starting a presentation, we always thank the prospect/client for their time and introduce them to us. By following these guidelines, we can maintain a professional and respectful atmosphere during our meetings, which is essential for building strong relationships with clients and prospects.
+Source: 28_Verztec Digital Meeting Etiquette.pdf
+---
+2025-07-02T23:57:51.075551 - Q: are you sure
+A: I don't have any context for what you're referring to. This conversation just started. Can you please provide more information or clarify your question? I'll do my best to help.
+---
+2025-07-02T23:59:41.327284 - Q: tell me about meeting etiquette
+A: As we prepare for our internal and external meetings at Verztec, it's essential to maintain a professional atmosphere. Here are some key points to keep in mind:
+
+Firstly, when participating in a meeting, give your full attention to the speakers and ensure you're visible by turning on your video and checking your audio and lighting beforehand.
+
+Additionally, dress professionally for client meetings, aiming for Smart Casual attire, especially when presenting to prospects or external parties. Refrain from doing other work-related tasks during meetings, such as typing away on your keyboard or phone.
+
+If you have a question, concern, or wish to speak, please message the host privately instead of interrupting the meeting. Taking notes will also help you remember key points and apply them in your work.
+
+For client/prospect meetings, it's crucial to arrive at least 10 minutes before the scheduled time to demonstrate punctuality and respect for their time. Upon arrival, greet clients warmly when they enter the meeting room, stand up, smile, and shake hands with both hands.
+
+When presenting, ensure the projector or AV system is set up correctly, and inform the client in advance if you'll require technical assistance. Before starting your presentation, thank the prospect/client for their time and introduce them to your colleagues as needed.
+
+By following these guidelines, we can maintain a professional and respectful atmosphere during our meetings, both internally and externally.
+Source: 28_Verztec Digital Meeting Etiquette.pdf
+---
+2025-07-02T23:59:45.205960 - Q: are you sure
+A: I don't have any context for what you're referring to. This conversation just started. Can you please provide more information or clarify your question? I'll do my best to help.
+---

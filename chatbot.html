@@ -70,11 +70,11 @@
 
       /* Chat panel fills available space */
       .chat-panel {
+        height: calc(100vh - 140px); /* Adjust height dynamically */
+        max-height: calc(100vh - 140px); /* Prevent overflow beyond viewport */
+        overflow: hidden; /* Prevent content overflow */
         display: flex;
         flex-direction: column;
-        height: 100%;
-        min-height: 400px; /* Minimum height for better appearance */
-        overflow: hidden;
         background: #fff;
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -90,13 +90,14 @@
       }
       
       .chat-body {
-        flex: 1; /* Take up all available space */
-        overflow-y: auto;
+        flex: 1; /* Take up remaining space */
+        overflow-y: auto; /* Enable vertical scrolling */
+        overflow-x: hidden; /* Prevent horizontal scrolling */
+        padding: 1rem;
         background: #fafbfc;
         border-left: 1px solid #dee2e6;
         border-right: 1px solid #dee2e6;
-        padding: 1rem;
-        min-height: 250px; /* Ensure minimum scrollable area */
+        box-sizing: border-box;
       }
       
       /* Message bubble styles */
@@ -137,6 +138,14 @@
         word-wrap: break-word;
       }
       
+      /* Fix text overflow issues */
+      .chat-body .bot-bubble,
+      .chat-body .user-bubble {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+      }
+
       /* Chat input group */
       .chat-input-group {
         display: flex;
@@ -173,6 +182,7 @@
         background-color: #ffc107;
         color: #fff;
         transform: scale(1.1);
+        border-radius: 50%; /* Make icons circular */
       }
       
       .chat-input-group .btn-icon:active {
@@ -183,6 +193,12 @@
       .chat-input-group .btn-icon:focus {
         box-shadow: none;
         outline: none;
+      }
+
+      /* Maintain consistent spacing between messages */
+      .chat-body .bot-bubble,
+      .chat-body .user-bubble {
+        margin-bottom: 1rem; /* Consistent spacing */
       }
     </style>
     </style>
