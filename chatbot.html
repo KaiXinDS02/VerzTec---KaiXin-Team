@@ -168,8 +168,8 @@
                 addMessageToChat(data.answer, 'bot');
                 
                 // Add reference file link if available
-                if (data.reference_file) {
-                    addReferenceLink(data.reference_file);
+                if (data.reference_file && data.reference_file.name) {
+                    addReferenceLink(data.reference_file.url, data.reference_file.name);
                 }
             })
             .catch(error => {
@@ -195,14 +195,14 @@
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        function addReferenceLink(filename) {
+        function addReferenceLink(url, filename) {
             const chatContainer = document.getElementById('chat-container');
             const linkDiv = document.createElement('div');
             
             linkDiv.className = 'chat-message bot-message';
             linkDiv.innerHTML = `
                 <div class="message-content">
-                    <small><i class="fa fa-file-pdf"></i> Reference: <a href="http://localhost:8000/pdfs/${filename}" target="_blank">${filename}</a></small>
+                    <small><i class="fa fa-file-pdf"></i> Reference: <a href="${url}" target="_blank">${filename}</a></small>
                 </div>
             `;
             
