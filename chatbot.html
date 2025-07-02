@@ -5,215 +5,300 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="keywords" content="">
-    <meta name="decription" content="">
-    <!-- Title -->
     <title>Verztec</title>
-    <!-- Fav Icon -->
-    <link rel="icon" href="images/favicon.ico">	
-    <!-- Include Bootstrap -->
+    <link rel="icon" href="images/favicon.ico">
     <link rel="stylesheet" href="css/bootstrap.css">
-    <!-- link font awesome -->
     <link rel="stylesheet" href="css/font-awesome.css">
-    <!-- Main StyleSheet -->
-    <link rel="stylesheet" href="style.css">	
-    <!-- Responsive CSS -->
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="css/responsive.css">
+
     <style>
-        /* Add padding to the body below the header */
-        body {
-            padding-top: 110px; /* Adjust based on your header height */
-            background-color: #f2f3fa;
-        }
+      /* Body padding & background */
+      body {
+        padding-top: 110px;
+        background-color: #f2f3fa;
+      }
+
+      /* Chat section layout */
+      .chat-section .row {
+        align-items: stretch;
+      }
+      .chat-avatar {
+        background: #e9ecef;
+        border-radius: 8px;
+        height: 100%;
+        /* ensure large placeholder */
+      }
+
+      /* Chat panel */
+      .chat-panel {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      .chat-header {
+        background: #fff;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: .75rem 1rem;
+      }
+      .chat-body {
+        flex: 1;
+        overflow-y: auto;
+        background: #fafbfc;
+        border-left: 1px solid #dee2e6;
+        border-right: 1px solid #dee2e6;
+        padding: 1rem;
+        min-height: 400px;
+        max-height: 500px;
+      }
+      .chat-body .bot-initial {
+        max-width: 80%;
+        display: inline-block;
+        background: #fff;
+        border: 1px solid #ffc107;
+        border-radius: 20px;
+        padding: .5rem .75rem;
+        margin-bottom: 1rem;
+        color: #333;
+      }
+      .chat-body .user-bubble {
+        max-width: 80%;
+        background: #ffc107;
+        color: #333;
+        border-radius: 20px;
+        padding: .5rem .75rem;
+        margin-bottom: 1rem;
+        margin-left: auto;
+        display: block;
+        text-align: left;
+        word-wrap: break-word;
+      }
+      .chat-body .bot-bubble {
+        max-width: 80%;
+        display: block;
+        background: #fff;
+        border: 1px solid #ffc107;
+        border-radius: 20px;
+        padding: .5rem .75rem;
+        margin-bottom: 1rem;
+        margin-right: auto;
+        color: #333;
+        word-wrap: break-word;
+      }
+
+      /* Input group */
+      .chat-input-group {
+        display: flex;
+        align-items: center;
+        padding: .75rem 1rem;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+      }
+      .chat-input-group input.form-control {
+        border: none;
+        box-shadow: none;
+        border-radius: 24px;
+        padding-left: 1rem;
+      }
+      .chat-input-group .btn-icon {
+        border: none;
+        background: transparent;
+        font-size: 1.2rem;
+        color: #333;
+        margin-left: .5rem;
+      }
+      .chat-input-group .btn-icon:focus {
+        box-shadow: none;
+      }
     </style>
 </head>
 <body>
 
-    <!-- page header area -->
-    <header class="header-area" style="position: fixed; top: 0; left: 0; width: 100%; z-index: 999; background: white;">
-        <div class="container-fluid">
-            <div class="row align-items-center">
-                <div class="col-xl-3 col-md-4 col-6">
-                    <div class="page-logo-wp">
-                        <a href="home.php">
-                            <img src="images/logo.png" alt="">
-                        </a>
-                    </div>
-                </div>
-                <div class="col-xl-6 col-md-5 order-3 order-md-2 d-flex justify-content-center justify-content-md-start">
-                    <div class="page-menu-wp">
-                        <ul>
-                            <li><a href="home.php">Home</a></li>
-                            <li class = "active"><a href="#">Chatbot</a></li>
-                            <li><a href="files.php">Files</a></li>
-                            <li><a href="admin/users.php">Admin</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-md-3 col-6 d-flex justify-content-end order-2 order-md-3">
-                    <div class="page-user-icon profile">
-                        <button>
-                            <img src="images/Profile-Icon.svg" alt="">
-                        </button>
-                        <div class="menu">
-                            <ul>
-                                <li><a href="#"><i class="fa-regular fa-user"></i><span>Profile</span></a></li>
-                                <li><a href="#"><i class="fa-regular fa-message-smile"></i><span>Inbox</span></a></li>
-                                <li><a href="#"><i class="fa-regular fa-gear"></i><span>Settings</span></a></li>
-                                <li><a href="#"><i class="fa-regular fa-square-question"></i><span>Help</span></a></li>
-                                <li><a href="login.php"><i class="fa-regular fa-right-from-bracket"></i><span>Sign Out</span></a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <!-- header (unchanged) -->
+  <header class="header-area" style="position: fixed; top:0; left:0; width:100%; z-index:999; background:white;">
+    <div class="container-fluid">
+      <div class="row align-items-center">
+        <div class="col-xl-3 col-md-4 col-6">
+          <a href="home.php" class="page-logo-wp"><img src="images/logo.png" alt=""></a>
         </div>
-    </header>
-    <!-- page header area -->
-
-    <!-- Chatbot Interface Section -->
-    <section class="py-4">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0"><i class="fa fa-robot me-2"></i>VerzTec AI Assistant</h5>
-                        </div>
-                        <div class="card-body">
-                            <div id="chat-container" style="height: 400px; overflow-y: auto; border: 1px solid #dee2e6; padding: 15px; background-color: #f8f9fa; margin-bottom: 20px;">
-                                <div class="chat-message bot-message">
-                                    <div class="message-content">
-                                        <strong>VerzTec Assistant:</strong> Hello! I'm here to help you with questions about VerzTec policies, procedures, and documents. How can I assist you today?
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="input-group">
-                                <input type="text" id="user-input" class="form-control" placeholder="Ask me anything about VerzTec..." onkeypress="handleKeyPress(event)">
-                                <button class="btn btn-primary" type="button" onclick="sendMessage()">
-                                    <i class="fa fa-paper-plane"></i> Send
-                                </button>
-                            </div>
-                            <div id="loading" class="text-center mt-3" style="display: none;">
-                                <i class="fa fa-spinner fa-spin"></i> Thinking...
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="col-xl-6 col-md-5 order-3 order-md-2 d-flex justify-content-center justify-content-md-start">
+          <div class="page-menu-wp">
+            <ul>
+              <li><a href="home.php">Home</a></li>
+              <li class="active"><a href="#">Chatbot</a></li>
+              <li><a href="files.php">Files</a></li>
+              <li><a href="admin/users.php">Admin</a></li>
+            </ul>
+          </div>
         </div>
-    </section>
+        <div class="col-md-3 col-6 d-flex justify-content-end order-2 order-md-3">
+          <div class="page-user-icon profile">
+            <button><img src="images/Profile-Icon.svg" alt=""></button>
+            <div class="menu">
+              <ul>
+                <li><a href="#"><i class="fa-regular fa-user"></i> Profile</a></li>
+                <li><a href="#"><i class="fa-regular fa-message-smile"></i> Inbox</a></li>
+                <li><a href="#"><i class="fa-regular fa-gear"></i> Settings</a></li>
+                <li><a href="#"><i class="fa-regular fa-square-question"></i> Help</a></li>
+                <li><a href="login.php"><i class="fa-regular fa-right-from-bracket"></i> Sign Out</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
 
-    <style>
-        .chat-message {
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 8px;
-        }
+  <!-- Chatbot Interface -->
+  <section class="chat-section py-4">
+    <div class="container-fluid">
+      <div class="row">
+
+        <!-- Left half for avatar -->
+        <div class="col-lg-6 mb-4 mb-lg-0">
+          <div class="chat-avatar h-100">
+            <!-- large placeholder -->
+          </div>
+        </div>
+
+        <!-- Right half for chat -->
+        <div class="col-lg-6 d-flex">
+          <div class="chat-panel w-100 shadow-sm rounded">
+
+            <div class="chat-header">
+              <h5 class="mb-0"><i class="fa fa-robot me-2"></i>VerzTec AI Assistant</h5>
+            </div>
+
+            <div id="chat-container" class="chat-body">
+              <div class="bot-initial">
+                <strong>VerzTec Assistant:</strong> Hello! I'm here to help you today. 😊
+              </div>
+            </div>
+
+            <div class="chat-input-group">
+              <input type="text"
+                     id="user-input"
+                     class="form-control"
+                     placeholder="Ask anything..."
+                     onkeypress="handleKeyPress(event)">
+              <button class="btn-icon" type="button" onclick="sendMessage()">
+                <i class="fa fa-paper-plane"></i>
+              </button>
+              <button class="btn-icon" type="button">
+                <i class="fa fa-microphone"></i>
+              </button>
+              <button class="btn-icon" type="button">
+                <i class="fa fa-plus"></i>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- All your existing scripts (unchanged) -->
+  <script>
+    function handleKeyPress(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    }
+
+    function sendMessage() {
+      const userInput = document.getElementById('user-input');
+      const message = userInput.value.trim();
+      
+      if (message === '') {
+        return;
+      }
+
+      // Add user message to chat
+      addMessageToChat(message, 'user');
+      
+      // Clear input and show loading
+      userInput.value = '';
+      showLoading();
+
+      // Send message to chatbot API
+      fetch('http://localhost:8000/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question: message })
+      })
+      .then(response => response.json())
+      .then(data => {
+        hideLoading();
+        addMessageToChat(data.answer, 'bot');
         
-        .user-message {
-            background-color: #e3f2fd;
-            margin-left: 20%;
-            text-align: right;
+        // Add reference file link if available
+        if (data.reference_file && data.reference_file.name) {
+          addReferenceLink(data.reference_file.url, data.reference_file.name);
         }
-        
-        .bot-message {
-            background-color: #ffffff;
-            margin-right: 20%;
-            border: 1px solid #dee2e6;
-        }
-        
-        .message-content {
-            word-wrap: break-word;
-        }
-        
-        #chat-container {
-            scroll-behavior: smooth;
-        }
-    </style>
+      })
+      .catch(error => {
+        hideLoading();
+        console.error('Error:', error);
+        addMessageToChat('Sorry, I encountered an error. Please make sure the chatbot server is running on port 8000.', 'bot');
+      });
+    }
 
-    <script>
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        }
+    function addMessageToChat(message, sender) {
+      const chatContainer = document.getElementById('chat-container');
+      const messageDiv = document.createElement('div');
+      
+      if (sender === 'user') {
+        messageDiv.className = 'user-bubble';
+        messageDiv.innerHTML = `<strong>You:</strong> ${message}`;
+      } else {
+        messageDiv.className = 'bot-bubble';
+        messageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${message}`;
+      }
+      
+      chatContainer.appendChild(messageDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
 
-        function sendMessage() {
-            const userInput = document.getElementById('user-input');
-            const message = userInput.value.trim();
-            
-            if (message === '') {
-                return;
-            }
+    function addReferenceLink(url, filename) {
+      const chatContainer = document.getElementById('chat-container');
+      const linkDiv = document.createElement('div');
+      
+      linkDiv.className = 'bot-bubble';
+      linkDiv.innerHTML = `
+        <small><i class="fa fa-file-pdf"></i> Reference: <a href="${url}" target="_blank" style="color: #0066cc; text-decoration: underline;">${filename}</a></small>
+      `;
+      
+      chatContainer.appendChild(linkDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
 
-            // Add user message to chat
-            addMessageToChat(message, 'user');
-            
-            // Clear input and show loading
-            userInput.value = '';
-            document.getElementById('loading').style.display = 'block';
+    function showLoading() {
+      const chatContainer = document.getElementById('chat-container');
+      const loadingDiv = document.createElement('div');
+      loadingDiv.id = 'loading-message';
+      loadingDiv.className = 'bot-bubble';
+      loadingDiv.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Thinking...';
+      chatContainer.appendChild(loadingDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
 
-            // Send message to chatbot API
-            fetch('http://localhost:8000/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ question: message })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('loading').style.display = 'none';
-                addMessageToChat(data.answer, 'bot');
-                
-                // Add reference file link if available
-                if (data.reference_file && data.reference_file.name) {
-                    addReferenceLink(data.reference_file.url, data.reference_file.name);
-                }
-            })
-            .catch(error => {
-                document.getElementById('loading').style.display = 'none';
-                console.error('Error:', error);
-                addMessageToChat('Sorry, I encountered an error. Please make sure the chatbot server is running on port 8000.', 'bot');
-            });
-        }
-
-        function addMessageToChat(message, sender) {
-            const chatContainer = document.getElementById('chat-container');
-            const messageDiv = document.createElement('div');
-            const senderName = sender === 'user' ? 'You' : 'VerzTec Assistant';
-            
-            messageDiv.className = `chat-message ${sender}-message`;
-            messageDiv.innerHTML = `
-                <div class="message-content">
-                    <strong>${senderName}:</strong> ${message}
-                </div>
-            `;
-            
-            chatContainer.appendChild(messageDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        function addReferenceLink(url, filename) {
-            const chatContainer = document.getElementById('chat-container');
-            const linkDiv = document.createElement('div');
-            
-            linkDiv.className = 'chat-message bot-message';
-            linkDiv.innerHTML = `
-                <div class="message-content">
-                    <small><i class="fa fa-file-pdf"></i> Reference: <a href="${url}" target="_blank">${filename}</a></small>
-                </div>
-            `;
-            
-            chatContainer.appendChild(linkDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-    </script>
-
-    <!-- Scripts -->
-    <script src="js/jquery-3.4.1.min.js"></script>
-    <script src="js/bootstrap.bundle.min.js"></script>
-    <script src="js/scripts.js"></script>
+    function hideLoading() {
+      const loadingMessage = document.getElementById('loading-message');
+      if (loadingMessage) {
+        loadingMessage.remove();
+      }
+    }
+  </script>
+  <script src="js/jquery-3.4.1.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/scripts.js"></script>
 </body>
 </html>
