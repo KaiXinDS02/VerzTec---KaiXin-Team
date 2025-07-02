@@ -754,8 +754,8 @@ $userCount = $res->fetch_assoc()['cnt'];
     <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css">
     <script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
 
-
-
+    <!-- Session Timeout -->
+    <script src="js/inactivity.js"></script>
 
 </body>
 </html>

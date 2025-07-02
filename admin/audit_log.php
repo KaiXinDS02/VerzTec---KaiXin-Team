@@ -385,5 +385,7 @@ if ($result && $result->num_rows) {
     });
 
   </script>
+  <!-- Session Timeout -->
+  <script src="js/inactivity.js"></script>
 </body>
 </html>

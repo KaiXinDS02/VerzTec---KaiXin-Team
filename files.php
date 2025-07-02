@@ -564,7 +564,7 @@ function getFriendlyFileType($mimeType) {
     </div>
   </div>
 
-  <!-- UPLOAD FILE MODAL (unchanged) -->
+  <!-- UPLOAD FILE MODAL -->
   <div class="modal fade" id="uploadFileModal" tabindex="-1" aria-labelledby="uploadFileModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg"><div class="modal-content">
       <div class="modal-header">
@@ -576,9 +576,9 @@ function getFriendlyFileType($mimeType) {
           <div class="border border-dashed rounded p-4 text-center"
                style="border:2px dashed #ccc;"
                ondrop="handleDrop(event)" ondragover="event.preventDefault()">
-            <p class="mb-2">Drag and drop a file here or</p>
-            <input type="file" id="fileInput" name="upload_file"
-                   class="form-control d-inline-block" style="width:auto;" required>
+            <p class="mb-2">Drag and drop your file(s) here or</p>
+            <input type="file" id="fileInput" name="upload_file[]"
+                   class="form-control d-inline-block" style="width:auto;" multiple required>
           </div>
           <hr class="my-4">
           <?php if($role==='ADMIN'): ?>
@@ -642,7 +642,7 @@ function getFriendlyFileType($mimeType) {
           <?php endif; ?>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Upload</button>
+          <button type="submit" class="btn btn-dark">Upload</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         </div>
       </form>
@@ -790,5 +790,8 @@ function getFriendlyFileType($mimeType) {
       }
     }
   </script>
+  
+  <!-- Session Timeout -->
+  <script src="js/inactivity.js"></script>
 </body>
 </html>

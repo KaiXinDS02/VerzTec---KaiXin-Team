@@ -2,15 +2,14 @@
 require __DIR__ . '/../connect.php';
 require __DIR__ . '/../admin/auto_log_function.php';
 
-
-$user_id   = $_SESSION['user_id'] ?? null;
-$user_role = $_SESSION['role'] ?? '';
-$user_dept = $_SESSION['department'] ?? null;
-$user_country = $_SESSION['country'] ?? null;
+$user_id      = $_SESSION['user_id']   ?? null;
+$user_role    = $_SESSION['role']      ?? '';
+$user_dept    = $_SESSION['department']?? null;
+$user_country = $_SESSION['country']   ?? null;
 
 $directory = __DIR__ . '/../files';
 
-// Friendly file type mapper
+// Map MIME types to simplified, friendly file types for classification
 function getFriendlyFileType($mimeType) {
     $map = [
         'application/pdf' => 'pdf',
@@ -30,127 +29,139 @@ function getFriendlyFileType($mimeType) {
     return $map[$mimeType] ?? 'other';
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
-    $uploadFile = $_FILES['upload_file'];
+// Main logic for processing multiple file uploads
+if ($_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_FILES['upload_files'])
+    && !empty($_FILES['upload_files']['name'][0])) {
 
-    if ($uploadFile['error'] === UPLOAD_ERR_OK) {
-        $originalName = basename($uploadFile['name']);
+    $f = $_FILES['upload_files'];
+    $fileCount = count($f['name']);
 
+    for ($i = 0; $i < $fileCount; $i++) {
+
+        // Skip any file that encountered an error during upload
+        if ($f['error'][$i] !== UPLOAD_ERR_OK) continue;
+
+        $originalName = basename($f['name'][$i]);
+
+        // Make sure the target directory exists
         if (!is_dir($directory)) mkdir($directory, 0755, true);
 
-        $targetPath = $directory . '/' . $originalName;
-        $relativePath = 'files/' . $originalName;
-
-        // Prevent overwrite by renaming
-        $pathInfo = pathinfo($originalName);
-        $filename = $pathInfo['filename'];
+        // Prepare the initial file path and set up renaming logic if a file already exists
+        $pathInfo  = pathinfo($originalName);
+        $filename  = $pathInfo['filename'];
         $extension = $pathInfo['extension'];
 
         $counter = 1;
-        $targetPath = $directory . '/' . $originalName;
-        $relativePath = 'files/' . $originalName;
+        $targetPath   = "$directory/$originalName";
+        $relativePath = "files/$originalName";
 
+        // Avoid overwriting files with the same name
         while (file_exists($targetPath)) {
-            $newName = $filename . "($counter)." . $extension;
-            $targetPath = $directory . '/' . $newName;
-            $relativePath = 'files/' . $newName;
-            $originalName = $newName;
+            $originalName = $filename . "($counter)." . $extension;
+            $targetPath   = "$directory/$originalName";
+            $relativePath = "files/$originalName";
             $counter++;
         }
 
+        // Move file to the target directory
+        if (!move_uploaded_file($f['tmp_name'][$i], $targetPath)) continue;
 
-        if (move_uploaded_file($uploadFile['tmp_name'], $targetPath)) {
-            $fileSizeKb = round(filesize($targetPath) / 1024);
-            $mimeType = mime_content_type($targetPath);
-            $fileType = getFriendlyFileType($mimeType);
+        // Get file details for database storage
+        $fileSizeKb = round(filesize($targetPath) / 1024);
+        $mimeType   = mime_content_type($targetPath);
+        $fileType   = getFriendlyFileType($mimeType);
 
-            $stmt = $conn->prepare("INSERT INTO files (user_id, filename, file_path, file_type, file_size) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("isssi", $user_id, $originalName, $relativePath, $fileType, $fileSizeKb);
+        // Insert the file record into the database
+        $stmt = $conn->prepare(
+            "INSERT INTO files (user_id, filename, file_path, file_type, file_size)
+             VALUES (?, ?, ?, ?, ?)"
+        );
+        $stmt->bind_param("isssi",
+            $user_id, $originalName, $relativePath, $fileType, $fileSizeKb);
 
-            if ($stmt->execute()) {
-                $file_id = $stmt->insert_id;
+        if (!$stmt->execute()) {
+            $stmt->close();
+            continue;
+        }
 
-                // --- Visibility Handling ---
-                if ($user_role === 'ADMIN') {
-                    $visibility = $_POST['visibility'] ?? 'all';
+        $file_id = $stmt->insert_id;
+        $stmt->close();
 
-                    if ($visibility === 'all') {
-                        $conn->query("INSERT INTO file_visibility (file_id, visibility_scope) VALUES ($file_id, 'ALL')");
-                    } else {
-                        // Handle DEPARTMENT restrictions
-                        if (!empty($_POST['departments'])) {
-                            $deptStmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope, category) VALUES (?, 'DEPARTMENT', ?)");
-                            foreach ($_POST['departments'] as $dept) {
-                                $dept = trim($dept);
-                                if ($dept !== '') {
-                                    $deptStmt->bind_param("is", $file_id, $dept);
-                                    $deptStmt->execute();
-                                }
-                            }
-                            $deptStmt->close();
-                        }
+        // Visibility logic for ADMIN users
+        if ($user_role === 'ADMIN') {
+            $visibility = $_POST['visibility'] ?? 'all';
 
-                        // Handle COUNTRY restrictions
-                        if (!empty($_POST['countries'])) {
-                            $countryStmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope, category) VALUES (?, 'COUNTRY', ?)");
-                            foreach ($_POST['countries'] as $country) {
-                                $country = trim($country);
-                                if ($country !== '') {
-                                    $countryStmt->bind_param("is", $file_id, $country);
-                                    $countryStmt->execute();
-                                }
-                            }
-                            $countryStmt->close();
-                        }
-                    }
-                }
-
-                elseif ($user_role === 'MANAGER') {
-                    $managerVis = $_POST['manager_visibility'] ?? 'department';
-
-                    if ($managerVis === 'department' && $user_dept) {
-                        $mgrDeptStmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope, category) VALUES (?, 'DEPARTMENT', ?)");
-                        $mgrDeptStmt->bind_param("is", $file_id, $user_dept);
-                        $mgrDeptStmt->execute();
-                        $mgrDeptStmt->close();
-                    }
-
-                    if ($managerVis === 'country' && $user_country) {
-                        $mgrCountryStmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope, category) VALUES (?, 'COUNTRY', ?)");
-                        $mgrCountryStmt->bind_param("is", $file_id, $user_country);
-                        $mgrCountryStmt->execute();
-                        $mgrCountryStmt->close();
-                    }
-                }
-                // Logging action
-                log_action(
-                    $conn,
-                    $user_id,
-                    'files',
-                    'add',
-                    "Uploaded file: $originalName ($fileType, $fileSizeKb KB)."
-                );
-
-                echo "Upload successful.";
+            if ($visibility === 'all') {
+                $conn->query("INSERT INTO file_visibility (file_id, visibility_scope)
+                              VALUES ($file_id, 'ALL')");
             } else {
-                echo "Database error: " . $stmt->error;
+                // Department-level restriction (if any were selected)
+                if (!empty($_POST['departments'])) {
+                    $dStmt = $conn->prepare(
+                        "INSERT INTO file_visibility
+                         (file_id, visibility_scope, category) VALUES (?, 'DEPARTMENT', ?)"
+                    );
+                    foreach ($_POST['departments'] as $d) {
+                        $d = trim($d);
+                        if ($d !== '') {
+                            $dStmt->bind_param("is", $file_id, $d);
+                            $dStmt->execute();
+                        }
+                    }
+                    $dStmt->close();
+                }
+
+                // Country-level restriction (if any were selected)
+                if (!empty($_POST['countries'])) {
+                    $cStmt = $conn->prepare(
+                        "INSERT INTO file_visibility
+                         (file_id, visibility_scope, category) VALUES (?, 'COUNTRY', ?)"
+                    );
+                    foreach ($_POST['countries'] as $c) {
+                        $c = trim($c);
+                        if ($c !== '') {
+                            $cStmt->bind_param("is", $file_id, $c);
+                            $cStmt->execute();
+                        }
+                    }
+                    $cStmt->close();
+                }
+            }
+        }
+
+        // Visibility logic for MANAGER users
+        elseif ($user_role === 'MANAGER') {
+            $mgrVis = $_POST['manager_visibility'] ?? 'department';
+
+            if ($mgrVis === 'department' && $user_dept) {
+                $mStmt = $conn->prepare(
+                    "INSERT INTO file_visibility
+                     (file_id, visibility_scope, category) VALUES (?, 'DEPARTMENT', ?)"
+                );
+                $mStmt->bind_param("is", $file_id, $user_dept);
+                $mStmt->execute();
+                $mStmt->close();
             }
 
-            $stmt->close();
-        } else {
-            echo "Failed to move uploaded file.";
+            if ($mgrVis === 'country' && $user_country) {
+                $mStmt = $conn->prepare(
+                    "INSERT INTO file_visibility
+                     (file_id, visibility_scope, category) VALUES (?, 'COUNTRY', ?)"
+                );
+                $mStmt->bind_param("is", $file_id, $user_country);
+                $mStmt->execute();
+                $mStmt->close();
+            }
         }
-    } else {
-        echo "Upload error: " . $uploadFile['error'];
-    }
-    // Success message
-    if (!headers_sent()) {
-        header("Location: ../files.php");
-        exit();
-    } else {
-        echo "<script>window.location.href = '../files.php';</script>";
-        exit();
+
+        // Log this upload action
+        log_action($conn, $user_id, 'files', 'add',
+                   "Uploaded file: $originalName ($fileType, $fileSizeKb KB).");
     }
 
+    // After processing all files, redirect to the files page
+    header("Location: ../files.php");
+    exit;
 }
 ?>
