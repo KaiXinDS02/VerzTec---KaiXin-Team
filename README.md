@@ -2,179 +2,104 @@
 
 A comprehensive web application with integrated AI chatbot for VerzTec document management and employee assistance.
 
-## 🚀 Quick Start
+# VerzTec Project - KaiXin Team
 
-### Easy Setup (Recommended)
-1. **Clone the repository:**
-   ```bash
-   git clone [your-repo-url]
-   cd VerzTec---KaiXin-Team
-   ```
+A comprehensive web application with integrated AI chatbot for VerzTec document management and employee assistance.
 
-2. **Start everything with one click:**
-   - Double-click `start-application.bat`
-   - Wait 30-60 seconds for all services to start
-   - Open http://localhost:8080
+## 🎯 New Team Member?
 
-3. **Stop everything:**
-   - Double-click `stop-application.bat`
+### 👋 **START HERE**: [GETTING_STARTED.md](GETTING_STARTED.md) 
+*3-step setup guide (20 minutes total)*
 
-## 📋 Project Structure
+### � **Need More Details?**: [SETUP_GUIDE.md](SETUP_GUIDE.md)
+*Complete from-scratch installation guide*
 
-```
-├── 📁 admin/                  # Admin panel files
-├── 📁 chatbot/                # AI Chatbot (FastAPI) - Git Subtree
-│   ├── main.py               # FastAPI server
-│   ├── requirements.txt      # Python dependencies
-│   ├── chatbot/             # Core modules
-│   ├── data/                # Training data
-│   └── static/              # Web assets
-├── 📁 css/                    # Stylesheets
-├── 📁 files/                  # Uploaded documents
-├── 📁 js/                     # JavaScript files
-├── 📁 Images/                 # Static images
-├── 📄 chatbot.html           # Chatbot web interface
-├── 📄 home.php               # Main homepage
-├── 📄 login.php              # User authentication
-├── 📄 docker-compose.yml     # Docker configuration
-├── 📄 start-application.bat  # Easy startup script
-└── 📄 stop-application.bat   # Easy stop script
-```
+### 🔧 **Having Issues?**: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+*Solutions for common problems*
 
-## 🛠️ Services & Ports
+---
 
-| Service | Port | Purpose | Status |
-|---------|------|---------|--------|
-| **Main Website** | 8080 | PHP Web App | 🐳 Docker |
-| **AI Chatbot** | 8000 | FastAPI Server | 🐍 Python |
-| **OnlyOffice** | 8081 | Document Editor | 🐳 Docker |
-| **MySQL Database** | 3306 | Data Storage | 🐳 Docker |
+## 🚀 Already Set Up?
 
-## 💬 Features
-
-### Main Website
-- ✅ User authentication and management
-- ✅ File upload and management
-- ✅ Document preview and editing
-- ✅ Admin panel with user controls
-- ✅ Announcement system
-
-### AI Chatbot
-- 🤖 RAG-based document Q&A
-- 📚 VerzTec policy and procedure knowledge
-- 🔍 Intelligent document search
-- 📄 PDF reference linking
-- 💬 Natural conversation interface
-
-## 🔧 Development Setup
-
-### Prerequisites
-- Docker Desktop (running)
-- Python 3.8+
-- Git
-
-### Manual Setup
-1. **Start Docker services:**
-   ```bash
-   docker-compose up -d
-   ```
-
-2. **Setup chatbot:**
-   ```bash
-   cd chatbot
-   pip install -r requirements.txt
-   python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
-   ```
-
-3. **Access services:**
-   - Website: http://localhost:8080
-   - Chatbot: http://localhost:8000
-   - OnlyOffice: http://localhost:8081
-
-## 🔄 Git Workflow
-
-### For Team Members
 ```bash
-# Get latest changes
+git pull origin dev          # Get latest changes
+start-application.bat        # Start everything
+```
+Open http://localhost:8080 and start using the application!
+
+### Quick Stop
+```bash
+stop-application.bat         # Stop all services
+```
+
+## � What You Get
+
+| Service | URL | Purpose |
+|---------|-----|---------|
+| **Main Website** | http://localhost:8080 | Employee portal, file management |
+| **AI Chatbot** | http://localhost:8080/chatbot.html | Ask questions about VerzTec policies |
+| **API Documentation** | http://localhost:8000/docs | Chatbot API reference |
+| **Document Editor** | http://localhost:8081 | OnlyOffice document server |
+
+## 💬 AI Chatbot Features
+
+- 🤖 **Smart Q&A**: Ask about VerzTec policies, procedures, and guidelines
+- � **Document Search**: Automatically finds relevant company documents
+- � **Reference Links**: Direct links to PDF sources
+- 💬 **Natural Conversation**: Chat naturally about work-related topics
+
+**Try asking:**
+- "What are the meeting etiquettes?"
+- "What are the pantry rules?"
+- "How do I request time off?"
+- "What's the clean desk policy?"
+
+## �️ For Developers
+
+### Project Structure
+```
+├── 📄 start-application.bat    # One-click startup
+├── 📄 SETUP_GUIDE.md          # Complete setup instructions
+├── 📄 TROUBLESHOOTING.md      # Problem solving guide
+├── 📁 chatbot/               # AI Backend (Python/FastAPI)
+├── 📁 admin/                 # Admin panel (PHP)
+├── 📄 chatbot.html           # Chat interface
+├── 📄 home.php               # Main website
+└── docker-compose.yml        # Service configuration
+```
+
+### Development Workflow
+```bash
+# Daily workflow
 git pull origin dev
+start-application.bat
 
-# Start application
-./start-application.bat  # Windows
-# or manually: docker-compose up -d && cd chatbot && python -m uvicorn main:app --reload
+# Make changes to code
+# Test your changes
 
-# Work on your features...
-
-# Commit and push
 git add .
 git commit -m "Your changes"
 git push origin dev
 ```
 
-### Updating the Chatbot (Maintainers only)
-```bash
-# Pull updates from the original chatbot repository
-git subtree pull --prefix=chatbot https://github.com/juliazhou1415/Verztec_Chatbot----Ollama----new-data.git main --squash
-```
+### Key Technologies
+- **Frontend**: HTML/CSS/JavaScript, PHP
+- **Backend**: FastAPI (Python), MySQL
+- **AI**: Ollama (llama3.2), LangChain, FAISS
+- **Infrastructure**: Docker, OnlyOffice
 
-## 📖 Usage Guide
+## 🆘 Need Help?
 
-### For End Users
-1. Go to http://localhost:8080
-2. Login with your credentials
-3. Navigate using the menu:
-   - **Home**: Dashboard and announcements
-   - **Chatbot**: AI assistant for questions
-   - **Files**: Document management
-   - **Admin**: User management (admin only)
-
-### For Developers
-1. **Website code**: Edit PHP files in the root directory
-2. **Chatbot code**: Edit Python files in the `chatbot/` directory
-3. **Styling**: Modify CSS files in the `css/` directory
-4. **Database**: Use phpMyAdmin or connect to localhost:3306
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**🔴 "Connection refused" when accessing website:**
-```bash
-# Check if Docker is running
-docker ps
-
-# Restart if needed
-docker-compose down
-docker-compose up -d
-```
-
-**🔴 Chatbot not responding:**
-```bash
-# Check chatbot status
-cd chatbot
-python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-**🔴 Port conflicts:**
-- Edit `docker-compose.yml` to change ports
-- Or stop conflicting services
-
-**🔴 Database connection issues:**
-- Wait for MySQL container to fully start (30-60 seconds)
-- Check logs: `docker-compose logs db`
-
-### Getting Help
-1. Check the logs: `docker-compose logs`
-2. Restart services: `./stop-application.bat` then `./start-application.bat`
-3. Contact the development team
+1. **Setup Issues**: Check [SETUP_GUIDE.md](SETUP_GUIDE.md)
+2. **Runtime Problems**: Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+3. **Still Stuck**: Contact the development team
 
 ## 🤝 Contributing
 
-1. Create a feature branch: `git checkout -b feature/your-feature`
-2. Make your changes
-3. Test locally using the startup scripts
-4. Commit: `git commit -m "Add your feature"`
-5. Push: `git push origin feature/your-feature`
-6. Create a Pull Request
+1. Read the [Setup Guide](SETUP_GUIDE.md) first
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Make your changes and test locally
+4. Submit a Pull Request
 
 ## 📝 License
 
@@ -182,4 +107,4 @@ This project is for VerzTec internal use only.
 
 ---
 
-**Need help?** Check the troubleshooting section above or contact the KaiXin development team.
+**🎉 Ready to get started? Check out the [Setup Guide](SETUP_GUIDE.md)!**

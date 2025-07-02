@@ -2946,3 +2946,35 @@ Taking notes is also helpful in remembering key points to apply in your work. Ad
 Before starting a presentation, thank the prospect/client for their time and introduce yourself. Also, inform the receptionist or office assistant about any technical requirements, such as projector setup, to ensure a smooth and successful meeting.
 Source: 28_Verztec Digital Meeting Etiquette.pdf
 ---
+2025-07-02T16:37:47.397628 - Q: What are some meeting etiquettes I should follow?
+A: To ensure a productive and respectful meeting experience, here are some key meeting etiquette points to keep in mind:
+
+Firstly, it's essential to give the speakers your full attention during the meeting session. This means turning on your video before joining, checking your audio and lighting, and avoiding other work tasks such as typing away on your keyboard or phone.
+
+If you have a question, concern, or wish to speak up, please do so by sending a private message to the host instead of interrupting or doing other work.
+
+Taking notes is also crucial, as it helps you remember key points to apply in your work.
+
+When attending client/prospect meetings, it's vital to arrive at least 10 minutes before the scheduled meeting time. Punctuality is paramount, and if you know you'll be late, please inform the client and apologize beforehand.
+
+Upon arrival, take a seat in the opposite direction from the meeting room door, and avoid sitting with your back facing the door as it may give the impression of being rude.
+
+When greeting clients, stand up, smile warmly, and have a friendly attitude. Avoid passing your name card over the table or waiting for the client to approach you; instead, proactively walk up to greet them and pass your name card with both hands.
+
+Additionally, if you're presenting via laptop, inform the receptionist or office tea assistant about the setup requirements in advance, such as the need for a projector, screen, and sound system. Make sure to also check that the audio plug is working correctly to ensure clear audio during the presentation.
+
+Finally, before starting your presentation, thank the prospect/client for their time, introduce them to you, and express gratitude for their consideration.
+
+By following these guidelines, you'll be well-equipped to navigate internal meetings with confidence and professionalism.
+Source: 28_Verztec Digital Meeting Etiquette.pdf
+---
+2025-07-02T16:39:29.609436 - Q: I have a physical meeting with a client later. what are some of the meeting etiquettes that i should take note of?
+A: For your upcoming meeting with a client, it's essential to follow certain basic meeting etiquette guidelines. First, arrive at least 10 minutes before the scheduled meeting time and apologize if you're running late by calling the client beforehand.
+
+When entering the meeting room, please take a seat in the opposite direction of the door, and avoid sitting with your back facing the door as it may be perceived as rude. Instead, stand up and smile warmly when the client arrives, and proactively approach them to shake hands and pass your name card with both hands.
+
+Additionally, inform the receptionist or office tea assistant about your presentation requirements, such as needing a projector, screen, or sound system, and arrange for their IT colleague to assist with setup. Also, mention this in your email to the client beforehand so they can be prepared.
+
+Before starting your presentation, take a moment to thank the client for their time and introduce them to you.
+Source: 11A_Basic Meeting Etiquette for Professionals.pdf
+---
