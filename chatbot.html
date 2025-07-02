@@ -165,11 +165,19 @@
         margin-left: 0.5rem;
         padding: 0.5rem;
         border-radius: 50%;
-        transition: background-color 0.2s;
+        transition: all 0.3s ease;
+        cursor: pointer;
       }
       
       .chat-input-group .btn-icon:hover {
-        background-color: #f8f9fa;
+        background-color: #ffc107;
+        color: #fff;
+        transform: scale(1.1);
+      }
+      
+      .chat-input-group .btn-icon:active {
+        transform: scale(0.95);
+        background-color: #e0a800;
       }
       
       .chat-input-group .btn-icon:focus {
