@@ -27,13 +27,13 @@ if (!isset($_SESSION['username'])) {
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="css/responsive.css">
   <style>
-    /* 1) Kill the old wrapper pill behind the input */
+    
     .rc-content-box .contents {
       background: transparent !important;
       padding: 0 !important;
     }
 
-    /* 2) Style the input itself as a full‐width pill */
+    
     .input-box {
       position: relative;
       margin-bottom: 1.5rem;
@@ -43,7 +43,7 @@ if (!isset($_SESSION['username'])) {
       padding: .75rem 1rem;         /* top/bottom and right padding */
       padding-left: 2rem;           /* push text past the icon */
       border-radius: 50px;
-      border: 1px solid #transparent;
+      border: 1px solid transparent;
       background:transparent;
       font-size: 1rem;
       color: #333;
@@ -57,6 +57,95 @@ if (!isset($_SESSION['username'])) {
       color: #999;
       font-size: 1.2rem;
       pointer-events: none;
+    }
+
+    /* === Your announcements === */
+    .announcements-wp {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-top: 1rem;
+      transition: box-shadow 0.3s ease;
+      height: 490px; /* Fixed height */
+      overflow-y: auto; /* Scroll if content overflows */
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .announcements-wp h3 {
+      font-size: 1.4rem; /* Slightly bigger */
+      margin: 0;
+      padding: 1rem 1.2rem;
+      color: #fff;
+      background-color: #81869E;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 1px solid #ddd;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .announcement {
+      border-bottom: 1px solid #eee;
+      padding: 1.2rem 1.2rem; 
+      flex-shrink: 0; 
+    }
+    .announcement:last-child {
+      border-bottom: none;
+    }
+
+    .announcement-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .announcement-header h4 {
+      font-size: 1.2rem; 
+      font-weight: 600;
+      color: #000;
+      margin: 0;
+      flex: 1;
+    }
+
+    .priority-btn {
+      border: none;
+      border-radius: 20px;
+      padding: 0.45rem 1.2rem; 
+      font-size: 1rem; 
+      font-weight: bold;
+      color: #fff;
+      cursor: default;
+      user-select: none;
+      white-space: nowrap;
+      margin-left: 1rem;
+      flex-shrink: 0;
+    }
+
+    .priority-high {
+      background-color: #d9534f;
+    }
+
+    .priority-medium {
+      background-color: #f0ad4e;
+    }
+
+    .priority-low {
+      background-color: #5bc0de;
+    }
+
+    .announcement p {
+      font-size: 1rem; 
+      color: #444;
+      margin: 0;
+      line-height: 1.5;
+      max-width: 100%;
+      white-space: normal;
     }
   </style>
 </head>
@@ -123,12 +212,39 @@ if (!isset($_SESSION['username'])) {
                 </div>
               </div>
             </div>
-            <div class="announcements-wp">
+
+            <!-- dynamic announcements card  -->
+            <div class="announcements-wp" onclick="window.location.href='admin/display_announcements.php'">
               <h3>Announcements</h3>
-              <div class="am-content">
-                <h4>Admin</h4>
-                <p>Attention! From Tuesday onward, there will no longer be food in the pantry!</p>
-              </div>
+              <?php
+              require_once 'connect.php';
+              $sql = "SELECT title, context, priority FROM announcements ORDER BY timestamp DESC LIMIT 3";
+              $result = $conn->query($sql);
+
+              if ($result && $result->num_rows > 0):
+                while ($row = $result->fetch_assoc()):
+                  $priority = strtolower($row['priority']);
+                  $priorityClass = match ($priority) {
+                    'high' => 'priority-high',
+                    'medium' => 'priority-medium',
+                    'low' => 'priority-low',
+                    default => 'priority-low',
+                  };
+              ?>
+                <div class="announcement">
+                  <div class="announcement-header">
+                    <h4><?= htmlspecialchars($row['title']) ?></h4>
+                    <button class="priority-btn <?= $priorityClass ?>"><?= ucfirst($priority) ?></button>
+                  </div>
+                  <p><?= mb_strimwidth(strip_tags($row['context']), 0, 120, '...') ?></p>
+                </div>
+              <?php
+                endwhile;
+              else:
+                echo "<p style='font-size: 1rem; padding: 1rem;'>No announcements found.</p>";
+              endif;
+              $conn->close();
+              ?>
             </div>
           </div>
         </div>
