@@ -194,7 +194,7 @@ if ($result && $result->num_rows) {
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link d-flex align-items-center" href="admin/announcements.html">
+              <a class="nav-link d-flex align-items-center" href="admin/add_announcements.php">
                 <i class="fa fa-bullhorn me-2"></i> Announcements
               </a>
             </li>
