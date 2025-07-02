@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       border: none;
       border-radius: 16px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      min-height: calc(100vh - 320px); /* Match sidebar height */
+      min-height: calc(100vh - 320px);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -182,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
 
       <!-- Main Content -->
-        <div class="col-md-10 d-flex justify-content-center align-items-start px-4 mt-3">
+      <div class="col-md-10 d-flex justify-content-center align-items-start px-4 mt-3">
         <div class="card w-100">
           <div class="card-header text-center">
             <h1 class="d-flex align-items-center justify-content-center gap-3 m-0" style="font-size: 1.8rem;">
@@ -213,7 +213,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </div>
               <div class="mb-3">
                 <label for="target_audience" class="form-label">Target Audience</label>
-                <input type="text" class="form-control" id="target_audience" name="target_audience" placeholder="e.g. all, users, admins" />
+                <select class="form-select" id="target_audience" name="target_audience" required>
+                  <option value="" disabled selected>Select audience</option>
+                  <option value="users">Users</option>
+                  <option value="managers">Managers</option>
+                  <option value="admins">Admins</option>
+                </select>
               </div>
               <div class="mb-4">
                 <label for="priority" class="form-label">Priority</label>
