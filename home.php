@@ -2,46 +2,40 @@
 session_start();
 include 'admin/auto_log_function.php';
 
-// Set $_SESSION['role'] after login
 if (!isset($_SESSION['role'])) {
     $_SESSION['role'] = 'USER';
 }
 
 if (!isset($_SESSION['username'])) {
-    $_SESSION['username'] = 'John Doe'; // fallback
+    $_SESSION['username'] = 'John Doe';
 }
 ?> 
 
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
-  <!-- Meta setup -->
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>Verztec</title>
   <link rel="icon" href="images/favicon.ico">
-  <!-- Bootstrap, FontAwesome, your CSS -->
   <link rel="stylesheet" href="css/bootstrap.css">
   <link rel="stylesheet" href="css/font-awesome.css">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="css/responsive.css">
   <style>
-    
     .rc-content-box .contents {
       background: transparent !important;
       padding: 0 !important;
     }
-
-    
     .input-box {
       position: relative;
       margin-bottom: 1.5rem;
     }
     .input-box input {
       width: 100%;
-      padding: .75rem 1rem;         /* top/bottom and right padding */
-      padding-left: 2rem;           /* push text past the icon */
+      padding: .75rem 1rem;
+      padding-left: 2rem;
       border-radius: 50px;
       border: 1px solid transparent;
       background:transparent;
@@ -58,24 +52,25 @@ if (!isset($_SESSION['username'])) {
       font-size: 1.2rem;
       pointer-events: none;
     }
-
-    /* === Your announcements === */
     .announcements-wp {
       background: #fff;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       margin-top: 1rem;
       transition: box-shadow 0.3s ease;
-      height: 490px; /* Fixed height */
-      overflow-y: auto; /* Scroll if content overflows */
-      cursor: pointer;
+      height: 490px;
+      overflow-y: auto;
       position: relative;
       display: flex;
       flex-direction: column;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
-
+    .announcements-wp::-webkit-scrollbar {
+      display: none;
+    }
     .announcements-wp h3 {
-      font-size: 1.4rem; /* Slightly bigger */
+      font-size: 1.4rem;
       margin: 0;
       padding: 1rem 1.2rem;
       color: #fff;
@@ -86,38 +81,33 @@ if (!isset($_SESSION['username'])) {
       top: 0;
       z-index: 1;
       user-select: none;
-      flex-shrink: 0;
     }
-
     .announcement {
       border-bottom: 1px solid #eee;
-      padding: 1.2rem 1.2rem; 
-      flex-shrink: 0; 
+      padding: 1.2rem 1.2rem;
+      flex-shrink: 0;
     }
     .announcement:last-child {
       border-bottom: none;
     }
-
     .announcement-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 0.5rem;
     }
-
     .announcement-header h4 {
-      font-size: 1.2rem; 
+      font-size: 1.2rem;
       font-weight: 600;
       color: #000;
       margin: 0;
       flex: 1;
     }
-
     .priority-btn {
       border: none;
       border-radius: 20px;
-      padding: 0.45rem 1.2rem; 
-      font-size: 1rem; 
+      padding: 0.45rem 1.2rem;
+      font-size: 1rem;
       font-weight: bold;
       color: #fff;
       cursor: default;
@@ -126,32 +116,24 @@ if (!isset($_SESSION['username'])) {
       margin-left: 1rem;
       flex-shrink: 0;
     }
-
-    .priority-high {
-      background-color: #d9534f;
-    }
-
-    .priority-medium {
-      background-color: #f0ad4e;
-    }
-
-    .priority-low {
-      background-color: #5bc0de;
-    }
-
+    .priority-high { background-color: #d9534f; }
+    .priority-medium { background-color: #f0ad4e; }
+    .priority-low { background-color: #5bc0de; }
     .announcement p {
-      font-size: 1rem; 
+      font-size: 1rem;
       color: #444;
       margin: 0;
       line-height: 1.5;
-      max-width: 100%;
       white-space: normal;
+    }
+    .read-more {
+      font-family: 'Gudea', sans-serif;
+      font-style: italic;
+      color: #2a4d9c;
     }
   </style>
 </head>
 <body>
-
-  <!-- page header area -->
   <header class="header-area">
     <div class="container-fluid">
       <div class="row align-items-center">
@@ -160,23 +142,19 @@ if (!isset($_SESSION['username'])) {
             <img src="images/logo.png" alt="Verztec">
           </a>
         </div>
-        <div class="col-xl-6 col-md-5 order-3 order-md-2
-                    d-flex justify-content-center
-                    justify-content-md-start">
+        <div class="col-xl-6 col-md-5 order-3 order-md-2 d-flex justify-content-center justify-content-md-start">
           <div class="page-menu-wp">
             <ul>
               <li class="active"><a href="#">Home</a></li>
               <li><a href="chatbot.html">Chatbot</a></li>
               <li><a href="files.php">Files</a></li>
               <?php if ($_SESSION['role'] !== 'USER'): ?>
-                <li><a href="admin/users.php">Admin</a></li>
+              <li><a href="admin/users.php">Admin</a></li>
               <?php endif; ?>
             </ul>
           </div>
         </div>
-        <div class="col-md-3 col-6
-                    d-flex justify-content-end
-                    order-2 order-md-3">
+        <div class="col-md-3 col-6 d-flex justify-content-end order-2 order-md-3">
           <div class="page-user-icon profile">
             <button><img src="images/Profile-Icon.svg" alt=""></button>
             <div class="menu">
@@ -193,12 +171,10 @@ if (!isset($_SESSION['username'])) {
       </div>
     </div>
   </header>
-  <!-- /page header area -->
 
   <main class="page-content-wp">
     <div class="container-fluid">
       <div class="row gap-x-40">
-        <!-- left sidebar -->
         <div class="col-lg-3">
           <div class="left-sidebar">
             <div class="sidebar-top">
@@ -213,59 +189,91 @@ if (!isset($_SESSION['username'])) {
               </div>
             </div>
 
-            <!-- dynamic announcements card  -->
-            <div class="announcements-wp" onclick="window.location.href='admin/display_announcements.php'">
+            <div class="announcements-wp">
               <h3>Announcements</h3>
               <?php
-              require_once 'connect.php';
-              $sql = "SELECT title, context, priority FROM announcements ORDER BY timestamp DESC LIMIT 3";
-              $result = $conn->query($sql);
+require_once 'connect.php';
+$sql = "SELECT title, context, priority, target_audience, timestamp FROM announcements ORDER BY 
+          CASE LOWER(priority)
+              WHEN 'high' THEN 1
+              WHEN 'medium' THEN 2
+              WHEN 'low' THEN 3
+              ELSE 4
+          END, timestamp DESC";
+$result = $conn->query($sql);
 
-              if ($result && $result->num_rows > 0):
-                while ($row = $result->fetch_assoc()):
-                  $priority = strtolower($row['priority']);
-                  $priorityClass = match ($priority) {
-                    'high' => 'priority-high',
-                    'medium' => 'priority-medium',
-                    'low' => 'priority-low',
-                    default => 'priority-low',
-                  };
-              ?>
-                <div class="announcement">
-                  <div class="announcement-header">
-                    <h4><?= htmlspecialchars($row['title']) ?></h4>
-                    <button class="priority-btn <?= $priorityClass ?>"><?= ucfirst($priority) ?></button>
-                  </div>
-                  <p><?= mb_strimwidth(strip_tags($row['context']), 0, 120, '...') ?></p>
-                </div>
-              <?php
-                endwhile;
-              else:
-                echo "<p style='font-size: 1rem; padding: 1rem;'>No announcements found.</p>";
-              endif;
-              $conn->close();
-              ?>
+if ($result && $result->num_rows > 0):
+  while ($row = $result->fetch_assoc()):
+    $priority = strtolower($row['priority']);
+    $priorityClass = 'priority-low';
+    if ($priority === 'high') $priorityClass = 'priority-high';
+    else if ($priority === 'medium') $priorityClass = 'priority-medium';
+
+    $shortContent = mb_strimwidth(strip_tags($row['context']), 0, 100, '...');
+    $safeFullContent = htmlspecialchars($row['context']);
+    $safeTitle = htmlspecialchars($row['title']);
+    $formattedDate = date('M d, Y h:i A', strtotime($row['timestamp']));
+    $targetAudience = htmlspecialchars($row['target_audience']);
+?>
+  <div class="announcement">
+    <div class="announcement-header">
+      <h4><?= $safeTitle ?></h4>
+      <button class="priority-btn <?= $priorityClass ?>"><?= ucfirst($priority) ?></button>
+    </div>
+    <p class="mb-1">Date: <?= $formattedDate ?></p>
+    <p>
+      <?= $shortContent ?>
+      <a href="#" class="read-more" 
+         data-bs-toggle="modal" 
+         data-bs-target="#announcementModal"
+         data-title="<?= $safeTitle ?>"
+         data-full="<?= $safeFullContent ?>"
+         data-priority="<?= ucfirst($priority) ?>"
+         data-audience="<?= $targetAudience ?>"
+         data-timestamp="<?= $formattedDate ?>">
+         Read More
+      </a>
+    </p>
+  </div>
+<?php endwhile; else:
+  echo "<p style='font-size: 1rem; padding: 1rem;'>No announcements found.</p>";
+endif;
+$conn->close();
+?>
             </div>
           </div>
-        </div>
+          
+          <!-- Modal with additional fields -->
+          <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header" style="background-color:#81869E; color:#fff; border-radius: 12px 12px 0 0;">
+                  <h5 class="modal-title" id="announcementModalLabel" style="font-family: 'Gudea', sans-serif; font-weight: normal;">Announcement</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="font-family: 'Open Sans', sans-serif; color:#000; line-height:1.6; font-size:1rem; padding: 1rem 1.5rem;">
+                  <h5 id="modalTitle"></h5>
+                  <p id="modalContent"></p>
+                  <hr>
+                  <p><strong>Target Audience:</strong> <span id="modalAudience"></span></p>
+                  <p><strong>Priority:</strong> <span id="modalPriority"></span></p>
+                  <p><strong>Posted:</strong> <span id="modalTimestamp"></span></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>  <!-- End of col-lg-3 -->
 
-        <!-- main area -->
         <div class="col-lg-9">
           <div class="right-content-wp">
             <h2>Good Morning, <?= htmlspecialchars($_SESSION['username']) ?>!</h2>
             <div class="rc-content-box">
-
-              <!-- SEARCH -->
               <div class="contents">
                 <div class="input-box">
                   <i class="fa fa-search search-icon"></i>
-                  <input id="activitySearch"
-                         type="text"
-                         placeholder="What are you looking for today?">
+                  <input id="activitySearch" type="text" placeholder="What are you looking for today?">
                 </div>
               </div>
-
-              <!-- ACTIVITY CARDS -->
               <div class="row g-x-4">
                 <div class="col-xl-4 col-lg-6">
                   <div class="single-acti-box">
@@ -297,20 +305,17 @@ if (!isset($_SESSION['username'])) {
                 </div>
                 <?php endif; ?>
               </div>
-
             </div>
           </div>
-        </div>
+        </div>  <!-- End of col-lg-9 -->
       </div>
     </div>
   </main>
 
-  <!-- scripts -->
   <script src="js/jquery-3.4.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/scripts.js"></script>
   <script>
-    // Client‐side filter
     (function(){
       const input = document.getElementById('activitySearch');
       input.addEventListener('input', function(){
@@ -321,9 +326,17 @@ if (!isset($_SESSION['username'])) {
         });
       });
     })();
-  </script>
 
-  <!-- Session Timeout -->
+    const modal = document.getElementById('announcementModal');
+    modal.addEventListener('show.bs.modal', function (event) {
+      const trigger = event.relatedTarget;
+      document.getElementById('modalTitle').textContent = trigger.getAttribute('data-title');
+      document.getElementById('modalContent').textContent = trigger.getAttribute('data-full');
+      document.getElementById('modalAudience').textContent = trigger.getAttribute('data-audience');
+      document.getElementById('modalPriority').textContent = trigger.getAttribute('data-priority');
+      document.getElementById('modalTimestamp').textContent = trigger.getAttribute('data-timestamp');
+    });
+  </script>
   <script src="js/inactivity.js"></script>
 </body>
 </html>
