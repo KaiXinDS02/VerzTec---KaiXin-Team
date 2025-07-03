@@ -55,18 +55,179 @@
         padding: 0 10px; /* Reduce column padding */
       }
 
-      /* Avatar section */
-      .chat-avatar {
-        background: #e9ecef;
+      /* Avatar container styles */
+      .avatar-container {
+        position: relative;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-radius: 8px;
         height: 100%;
-        min-height: 400px; /* Minimum height for better appearance */
+        min-height: 500px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      }
+      
+      .avatar-3d {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+      
+      .avatar-3d canvas {
+        border-radius: 8px;
+      }
+      
+      .avatar-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        z-index: 10;
+      }
+      
+      .avatar-controls {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        display: flex;
+        gap: 10px;
+        pointer-events: auto;
+      }
+      
+      .avatar-controls .btn {
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        font-size: 0.85rem;
+        padding: 5px 10px;
+        transition: all 0.3s ease;
+      }
+      
+      .avatar-controls .btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+      }
+      
+      .avatar-info {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        pointer-events: none;
+      }
+      
+      .avatar-name {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+        background: linear-gradient(45deg, #fff, #f0f0f0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      .avatar-status {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin: 0;
+      }
+      
+      /* Settings Modal */
+      .settings-modal {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.2rem;
-        color: #6c757d;
+        z-index: 100;
+        pointer-events: auto;
       }
+      
+      .settings-content {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      }
+      
+      .settings-content h4 {
+        margin-bottom: 20px;
+        color: #333;
+        text-align: center;
+      }
+      
+      .form-group {
+        margin-bottom: 20px;
+      }
+      
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #555;
+      }
+      
+      .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+      
+      .form-control:focus {
+        outline: none;
+        border-color: #ffc107;
+        box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.2);
+      }
+      
+      .modal-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 25px;
+      }
+      
+      .modal-actions .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s ease;
+      }
+      
+      .btn-primary {
+        background: #ffc107;
+        color: #333;
+      }
+      
+      .btn-primary:hover {
+        background: #e0a800;
+        transform: translateY(-1px);
+      }
+      
+      .btn-secondary {
+        background: #6c757d;
+        color: white;
+      }
+      
+      .btn-secondary:hover {
+        background: #545b62;
+        transform: translateY(-1px);
+      }
+
+      /* Chat avatar section (removed old styles) */
 
       /* Chat panel fills available space */
       .chat-panel {
@@ -245,13 +406,59 @@
     <div class="container-fluid">
       <div class="row">
 
-        <!-- Left half for avatar -->
+        <!-- Left half for 3D avatar -->
         <div class="col-lg-6 mb-4 mb-lg-0">
-          <div class="chat-avatar h-100">
-            <div style="text-align: center;">
-              <div style="font-size: 4rem; margin-bottom: 1rem;">🤖</div>
-              <h3 style="color: #495057; margin-bottom: 0.5rem;">VerzTec AI Assistant</h3>
-              <p style="color: #6c757d; margin: 0;">Your intelligent workplace companion</p>
+          <div class="avatar-container h-100">
+            <div id="avatar-3d" class="avatar-3d"></div>
+            <div class="avatar-overlay">
+              <div class="avatar-controls">
+                <button id="toggle-voice" class="btn btn-sm btn-outline-light">
+                  <i class="fa fa-volume-up"></i> Voice On
+                </button>
+              </div>
+              <div class="avatar-info">
+                <h3 class="avatar-name">VerzTec AI Assistant</h3>
+                <p class="avatar-status">Ready to help</p>
+              </div>
+            </div>
+            <!-- Settings Modal -->
+            <div id="avatar-settings-modal" class="settings-modal" style="display: none;">
+              <div class="settings-content">
+                <h4>Avatar Settings</h4>
+                <div class="form-group">
+                  <label for="elevenlabs-api-key">ElevenLabs API Key:</label>
+                  <input type="password" id="elevenlabs-api-key" class="form-control" 
+                         placeholder="Enter your ElevenLabs API key">
+                  <small class="form-text text-muted">Required for voice synthesis</small>
+                </div>
+                <div class="form-group">
+                  <label for="voice-selection">Voice:</label>
+                  <select id="voice-selection" class="form-control">
+                    <option value="pNInz6obpgDQGcFmaJgB">Adam</option>
+                    <option value="21m00Tcm4TlvDq8ikWAM">Rachel</option>
+                    <option value="AZnzlk1XvdvUeBnXmlld">Domi</option>
+                    <option value="EXAVITQu4vr4xnSDxMaL">Bella</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="avatar-url">Avatar URL (Ready Player Me):</label>
+                  <input type="url" id="avatar-url" class="form-control" 
+                         placeholder="assets/avatars/models/your-avatar.glb"
+                         value="assets/avatars/models/64f1a714fe61576b46f27ca2.glb">
+                  <small class="form-text text-muted">Optional: Path to custom avatar (local or Ready Player Me)</small>
+                </div>
+                <div class="form-group">
+                  <label for="animations-url">Animations URL:</label>
+                  <input type="url" id="animations-url" class="form-control" 
+                         placeholder="assets/avatars/models/animations.glb"
+                         value="assets/avatars/models/animations.glb">
+                  <small class="form-text text-muted">Optional: Path to animation file</small>
+                </div>
+                <div class="modal-actions">
+                  <button id="save-settings" class="btn btn-primary">Save</button>
+                  <button id="close-settings" class="btn btn-secondary">Close</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -295,14 +502,118 @@
   </section>
 
   <!-- All your existing scripts (unchanged) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
+  <script src="js/rhubarb-lipsync.js"></script>
+  <script src="js/ready-player-me-avatar.js"></script>
+  <script src="js/avatar-manager.js"></script>
   <script>
+    // Global variables
+    let avatarManager = null;
+    let isVoiceEnabled = true;
+    
+    // Initialize avatar when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeAvatar();
+      setupEventListeners();
+    });
+    
+    function initializeAvatar() {
+      const savedSettings = localStorage.getItem('verztec-avatar-settings');
+      const settings = savedSettings ? JSON.parse(savedSettings) : {};
+      
+      avatarManager = new AvatarManager('avatar-3d', {
+        elevenlabsApiKey: settings.elevenlabsApiKey || '',
+        voice: settings.voice || 'pNInz6obpgDQGcFmaJgB',
+        avatarUrl: settings.avatarUrl || 'assets/avatars/models/64f1a714fe61576b46f27ca2.glb',
+        animationsUrl: settings.animationsUrl || 'assets/avatars/models/animations.glb'
+      });
+      
+      // Update status when initialized
+      setTimeout(() => {
+        updateAvatarStatus('Ready to help');
+      }, 3000);
+    }
+    
+    function setupEventListeners() {
+      // Voice toggle
+      document.getElementById('toggle-voice').addEventListener('click', function() {
+        isVoiceEnabled = !isVoiceEnabled;
+        this.innerHTML = isVoiceEnabled ? 
+          '<i class="fa fa-volume-up"></i> Voice On' : 
+          '<i class="fa fa-volume-off"></i> Voice Off';
+        updateAvatarStatus(isVoiceEnabled ? 'Voice enabled' : 'Voice disabled');
+      });
+      
+      // Settings modal
+      document.getElementById('avatar-settings').addEventListener('click', function() {
+        document.getElementById('avatar-settings-modal').style.display = 'flex';
+        loadSavedSettings();
+      });
+      
+      document.getElementById('close-settings').addEventListener('click', function() {
+        document.getElementById('avatar-settings-modal').style.display = 'none';
+      });
+      
+      document.getElementById('save-settings').addEventListener('click', function() {
+        saveSettings();
+        document.getElementById('avatar-settings-modal').style.display = 'none';
+      });
+      
+      // Close modal on background click
+      document.getElementById('avatar-settings-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          this.style.display = 'none';
+        }
+      });
+    }
+    
+    function loadSavedSettings() {
+      const saved = localStorage.getItem('verztec-avatar-settings');
+      if (saved) {
+        const settings = JSON.parse(saved);
+        document.getElementById('elevenlabs-api-key').value = settings.elevenlabsApiKey || '';
+        document.getElementById('voice-selection').value = settings.voice || 'pNInz6obpgDQGcFmaJgB';
+        document.getElementById('avatar-url').value = settings.avatarUrl || 'assets/avatars/models/64f1a714fe61576b46f27ca2.glb';
+        document.getElementById('animations-url').value = settings.animationsUrl || 'assets/avatars/models/animations.glb';
+      }
+    }
+    
+    function saveSettings() {
+      const settings = {
+        elevenlabsApiKey: document.getElementById('elevenlabs-api-key').value,
+        voice: document.getElementById('voice-selection').value,
+        avatarUrl: document.getElementById('avatar-url').value
+      };
+      
+      localStorage.setItem('verztec-avatar-settings', JSON.stringify(settings));
+      
+      // Update avatar manager
+      if (avatarManager) {
+        avatarManager.setElevenlabsApiKey(settings.elevenlabsApiKey);
+        avatarManager.options.voice = settings.voice;
+        if (settings.avatarUrl && settings.avatarUrl !== avatarManager.options.avatarUrl) {
+          // Reload avatar with new URL
+          updateAvatarStatus('Loading new avatar...');
+          location.reload(); // Simple reload for now
+        }
+      }
+      
+      updateAvatarStatus('Settings saved');
+    }
+    
+    function updateAvatarStatus(status) {
+      document.querySelector('.avatar-status').textContent = status;
+    }
+
     function handleKeyPress(event) {
       if (event.key === 'Enter') {
         sendMessage();
       }
     }
 
-    function sendMessage() {
+    async function sendMessage() {
       const userInput = document.getElementById('user-input');
       const message = userInput.value.trim();
       
@@ -316,17 +627,20 @@
       // Clear input and show loading
       userInput.value = '';
       showLoading();
+      updateAvatarStatus('Thinking...');
 
       // Send message to chatbot API
-      fetch('http://localhost:8000/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ question: message })
-      })
-      .then(response => response.json())
-      .then(data => {
+      try {
+        const response = await fetch('http://localhost:8000/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ question: message })
+        });
+        
+        const data = await response.json();
+        
         hideLoading();
         addMessageToChat(data.answer, 'bot');
         
@@ -334,12 +648,36 @@
         if (data.reference_file && data.reference_file.name) {
           addReferenceLink(data.reference_file.url, data.reference_file.name);
         }
-      })
-      .catch(error => {
+        
+        // Speak the response if voice is enabled and avatar is ready
+        if (isVoiceEnabled && avatarManager && avatarManager.isInitialized) {
+          updateAvatarStatus('Speaking...');
+          try {
+            // Use enhanced streaming if text is long enough
+            const options = {
+              useStreaming: data.answer.length > 100,
+              onTextUpdate: (text) => {
+                // Could update UI with streaming text here if needed
+                console.log('Streaming text update:', text.length, 'characters');
+              }
+            };
+            
+            await avatarManager.speak(data.answer, options);
+            updateAvatarStatus('Ready to help');
+          } catch (error) {
+            console.error('Speech failed:', error);
+            updateAvatarStatus('Speech failed - check API key');
+          }
+        } else {
+          updateAvatarStatus('Ready to help');
+        }
+        
+      } catch (error) {
         hideLoading();
         console.error('Error:', error);
         addMessageToChat('Sorry, I encountered an error. Please make sure the chatbot server is running on port 8000.', 'bot');
-      });
+        updateAvatarStatus('Connection error');
+      }
     }
 
     function addMessageToChat(message, sender) {
