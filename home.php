@@ -24,14 +24,49 @@ if (!isset($_SESSION['username'])) {
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="css/responsive.css">
   <style>
+    /* Override main layout to fit viewport */
+    .page-content-wp {
+      padding-top: 160px !important;
+      padding-bottom: 20px !important;
+    }
+    
+    /* Profile picture positioning */
+    .sidebar-top {
+      margin-top: 20px !important;
+      padding: 20px !important;
+    }
+    
+    .right-content-wp h2 {
+      font-size: 40px !important;
+      font-weight: 400;
+      margin-bottom: 15px !important;
+    }
+    
+    .rc-content-box {
+      box-shadow: 0px 4px 4px 0px #B6BBDB40;
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 25px 20px !important;
+      margin-top: 15px !important;
+      min-height: auto !important;
+      height: calc(320px + 250px) !important;
+    }
+    
+    .rc-content-box .row {
+      margin-top: 20px;
+    }
+    
     .rc-content-box .contents {
       background: transparent !important;
       padding: 0 !important;
+      margin-bottom: 0 !important;
     }
+    
     .input-box {
       position: relative;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
+    
     .input-box input {
       width: 100%;
       padding: .75rem 1rem;
@@ -43,6 +78,7 @@ if (!isset($_SESSION['username'])) {
       color: #333;
       outline: none;
     }
+    
     .input-box .search-icon {
       position: absolute;
       top: 50%;
@@ -52,14 +88,15 @@ if (!isset($_SESSION['username'])) {
       font-size: 1.2rem;
       pointer-events: none;
     }
+    
     .announcements-wp {
       background: #fff;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       margin-top: 1rem;
       transition: box-shadow 0.3s ease;
-      height: 490px;
-      overflow: hidden; /* Hide overflow to prevent scrollbar */
+      height: 320px !important;
+      overflow: hidden;
       overflow-y: auto;
       position: relative;
       display: flex;
@@ -67,9 +104,11 @@ if (!isset($_SESSION['username'])) {
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+    
     .announcements-wp::-webkit-scrollbar {
       display: none;
     }
+    
     .announcements-wp h3 {
       font-size: 1.4rem;
       margin: 0;
@@ -83,17 +122,19 @@ if (!isset($_SESSION['username'])) {
       z-index: 1;
       user-select: none;
     }
+    
     .announcement {
       border-bottom: 1px solid #eee;
-      padding: 1.2rem 1.2rem;
+      padding: 1rem 1.2rem;
       flex-shrink: 0;
     }
+    
     .announcement:last-child {
       border-bottom: none;
-      border-radius: 0 0 8px 8px; /* rounded bottom corners */
-      background-color: #fff; /* ensure consistent bg */
-
+      border-radius: 0 0 8px 8px;
+      background-color: #fff;
     }
+    
     .announcement-header {
       display: flex;
       justify-content: space-between;
@@ -162,6 +203,51 @@ if (!isset($_SESSION['username'])) {
       margin: 1.75rem auto; /* centers the modal */
       padding-left: 1rem;
       padding-right: 1rem;
+    }
+
+    /* Additional responsive adjustments */
+    @media (max-height: 800px) {
+      .page-content-wp {
+        padding-top: 140px !important;
+        padding-bottom: 15px !important;
+      }
+      
+      .right-content-wp h2 {
+        font-size: 32px !important;
+        margin-bottom: 10px !important;
+      }
+      
+      .announcements-wp {
+        height: 280px !important;
+      }
+      
+      .rc-content-box {
+        height: calc(280px + 210px) !important;
+        padding: 20px 15px !important;
+        margin-top: 10px !important;
+      }
+    }
+    
+    @media (max-height: 700px) {
+      .page-content-wp {
+        padding-top: 120px !important;
+        padding-bottom: 10px !important;
+      }
+      
+      .right-content-wp h2 {
+        font-size: 28px !important;
+        margin-bottom: 8px !important;
+      }
+      
+      .announcements-wp {
+        height: 240px !important;
+      }
+      
+      .rc-content-box {
+        height: calc(240px + 170px) !important;
+        padding: 15px 10px !important;
+        margin-top: 8px !important;
+      }
     }
 
   </style>
@@ -306,37 +392,37 @@ $conn->close();
                   <i class="fa fa-search search-icon"></i>
                   <input id="activitySearch" type="text" placeholder="What are you looking for today?">
                 </div>
-              </div>
-              <div class="row g-x-4">
-                <div class="col-xl-4 col-lg-6">
-                  <div class="single-acti-box">
-                    <div class="d-flex align-items-center gap-2">
-                      <img src="images/tabler_message-chatbot-filled.svg" alt="">
-                      <p>AI Chat bot for all <br> your inquiries</p>
+                <div class="row g-x-4">
+                  <div class="col-xl-4 col-lg-6">
+                    <div class="single-acti-box">
+                      <div class="d-flex align-items-center gap-2">
+                        <img src="images/tabler_message-chatbot-filled.svg" alt="">
+                        <p>AI Chat bot for all <br> your inquiries</p>
+                      </div>
+                      <div class="text-end"><a href="chatbot.html">Go Now</a></div>
                     </div>
-                    <div class="text-end"><a href="chatbot.html">Go Now</a></div>
                   </div>
-                </div>
-                <div class="col-xl-4 col-lg-6">
-                  <div class="single-acti-box bg-green">
-                    <div class="d-flex align-items-center gap-2">
-                      <img src="images/mdi_files.svg" alt="">
-                      <p>Files and Policies</p>
+                  <div class="col-xl-4 col-lg-6">
+                    <div class="single-acti-box bg-green">
+                      <div class="d-flex align-items-center gap-2">
+                        <img src="images/mdi_files.svg" alt="">
+                        <p>Files and Policies</p>
+                      </div>
+                      <div class="text-end"><a href="files.php">Go Now</a></div>
                     </div>
-                    <div class="text-end"><a href="files.php">Go Now</a></div>
                   </div>
-                </div>
-                <?php if ($_SESSION['role'] !== 'USER'): ?>
-                <div class="col-xl-4 col-lg-6">
-                  <div class="single-acti-box" style="background:#FCBD33;">
-                    <div class="d-flex align-items-center gap-2">
-                      <img src="images/mdi_settings.svg" alt="">
-                      <p>Admin Page</p>
+                  <?php if ($_SESSION['role'] !== 'USER'): ?>
+                  <div class="col-xl-4 col-lg-6">
+                    <div class="single-acti-box" style="background:#FCBD33;">
+                      <div class="d-flex align-items-center gap-2">
+                        <img src="images/mdi_settings.svg" alt="">
+                        <p>Admin Page</p>
+                      </div>
+                      <div class="text-end"><a href="admin/users.php">Go Now</a></div>
                     </div>
-                    <div class="text-end"><a href="admin/users.php">Go Now</a></div>
                   </div>
+                  <?php endif; ?>
                 </div>
-                <?php endif; ?>
               </div>
             </div>
           </div>
