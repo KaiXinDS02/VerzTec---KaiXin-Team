@@ -153,7 +153,15 @@ if (!isset($_SESSION['username'])) {
     .modal-body {
       background-color: #fff; /* ensure white */
       padding: 1rem 1.5rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
       border-radius: 0; /* reset any inherited radius */
+    }
+    .modal-dialog {
+      max-width: 600px; /* or your preferred width */
+      margin: 1.75rem auto; /* centers the modal */
+      padding-left: 1rem;
+      padding-right: 1rem;
     }
 
   </style>
@@ -365,4 +373,5 @@ $conn->close();
   <script src="js/inactivity.js"></script>
 </body>
 </html>
+
 
