@@ -34,6 +34,7 @@ class AvatarManager {
     this.isSpeaking = false;
     this.isThinking = false;
     this.speechStartTime = 0;
+    this.speed = 1.0; // Speed multiplier for text typing and speech
     
     this.init();
   }
@@ -411,12 +412,15 @@ class AvatarManager {
   
   // Type text with a realistic typing effect, optionally synced to audio duration
   async typeText(text, onTextUpdate, customDelay = null) {
-    const defaultDelay = 10; // 2x faster: 10ms per character (was 20ms)
+    const defaultDelay = 10; // Base delay: 10ms per character
     let delay = customDelay || defaultDelay;
+    
+    // Apply speed multiplier (higher speed = lower delay)
+    delay = delay / this.speed;
     
     // If no custom delay is provided, use default
     if (customDelay === null) {
-      delay = defaultDelay;
+      delay = defaultDelay / this.speed;
     }
     
     let currentText = '';
@@ -558,13 +562,15 @@ class AvatarManager {
   }
   
   // Play audio with fallback approaches to ensure sound works
-  async playAudioOnly(audioUrl) {
+  async playAudioOnly(audioUrl, speedMultiplier = null) {
+    const currentSpeed = speedMultiplier || this.speed;
+    
     if (!this.audioElement) {
       console.error('Audio element not initialized');
       return;
     }
 
-    console.log('🎵 Starting audio playback for:', audioUrl);
+    console.log('🎵 Starting audio playback for:', audioUrl, 'at speed:', currentSpeed + 'x');
 
     try {
       // Method 1: Try with lipsync connection first
@@ -572,7 +578,7 @@ class AvatarManager {
         console.log('🎭 Attempting playback with lipsync...');
         
         try {
-          await this.playWithLipsync(audioUrl);
+          await this.playWithLipsync(audioUrl, currentSpeed);
           console.log('✅ Audio with lipsync completed successfully');
           return;
         } catch (lipsyncError) {
@@ -584,7 +590,7 @@ class AvatarManager {
       // Method 2: Try with simple audio element (no lipsync)
       console.log('🔊 Attempting simple audio playback...');
       try {
-        await this.playAudioDirect(audioUrl);
+        await this.playAudioDirect(audioUrl, currentSpeed);
         console.log('✅ Simple audio playback completed successfully');
         return;
       } catch (simpleError) {
@@ -593,7 +599,7 @@ class AvatarManager {
 
       // Method 3: Last resort - completely new audio element
       console.log('🆘 Attempting with new audio element...');
-      await this.playAudioNewElement(audioUrl);
+      await this.playAudioNewElement(audioUrl, currentSpeed);
       console.log('✅ New element audio playback completed successfully');
 
     } catch (error) {
@@ -605,7 +611,7 @@ class AvatarManager {
   }
 
   // Method 1: Play with lipsync connection
-  async playWithLipsync(audioUrl) {
+  async playWithLipsync(audioUrl, speedMultiplier = 1.0) {
     // Ensure audio context is running
     if (this.rhubarbLipsync.audioContext && this.rhubarbLipsync.audioContext.state === 'suspended') {
       console.log('Resuming audio context...');
@@ -616,6 +622,7 @@ class AvatarManager {
     this.audioElement.src = audioUrl;
     this.audioElement.volume = 1.0;
     this.audioElement.muted = false;
+    this.audioElement.playbackRate = speedMultiplier; // Apply speed control
     
     // Wait for audio to be ready
     await new Promise((resolve, reject) => {
@@ -662,7 +669,7 @@ class AvatarManager {
   }
 
   // Method 2: Play with direct audio element (no lipsync)
-  async playAudioDirect(audioUrl) {
+  async playAudioDirect(audioUrl, speedMultiplier = 1.0) {
     // Disconnect from lipsync temporarily
     if (this.audioConnectedToLipsync && this.rhubarbLipsync.audioSource) {
       try {
@@ -677,6 +684,7 @@ class AvatarManager {
     this.audioElement.src = audioUrl;
     this.audioElement.volume = 1.0;
     this.audioElement.muted = false;
+    this.audioElement.playbackRate = speedMultiplier; // Apply speed control
     
     // Wait for audio to be ready
     await new Promise((resolve, reject) => {
@@ -726,18 +734,19 @@ class AvatarManager {
   }
 
   // Method 3: Play with completely new audio element
-  async playAudioNewElement(audioUrl) {
+  async playAudioNewElement(audioUrl, speedMultiplier = 1.0) {
     const tempAudio = document.createElement('audio');
     tempAudio.crossOrigin = 'anonymous';
     tempAudio.volume = 1.0;
     tempAudio.muted = false;
+    tempAudio.playbackRate = speedMultiplier; // Apply speed control
     tempAudio.src = audioUrl;
     
     // Add to DOM temporarily
     tempAudio.style.display = 'none';
     document.body.appendChild(tempAudio);
     
-    console.log('🆕 New audio element created for playback');
+    console.log('🆕 New audio element created for playback at speed:', speedMultiplier + 'x');
     
     // Play the audio
     await tempAudio.play();
@@ -838,15 +847,18 @@ class AvatarManager {
     this.debugAvatarState();
   }
 
-  async speakWithTextStream(text, onTextUpdate = null) {
+  async speakWithTextStream(text, onTextUpdate = null, speedMultiplier = null) {
+    // Use provided speed or instance speed
+    const currentSpeed = speedMultiplier || this.speed;
+    
     // Debug avatar state
     this.debugAvatarState();
     
     if (!this.options.elevenlabsApiKey) {
       console.warn('ElevenLabs API key not provided, showing text only');
       if (onTextUpdate) {
-        // Stream the text letter by letter for typing effect with 2x faster speed
-        await this.typeText(text, onTextUpdate, 8); // 8ms per character (2x faster)
+        // Stream the text letter by letter for typing effect with speed control
+        await this.typeText(text, onTextUpdate, 8 / currentSpeed); // Apply speed to typing
       }
       return;
     }
@@ -913,11 +925,11 @@ class AvatarManager {
       console.log('🔊 Starting audio playback and precisely synchronized text typing...');
       
       // Create promises for both audio and text
-      const audioPromise = this.playAudioOnly(audioUrl);
+      const audioPromise = this.playAudioOnly(audioUrl, currentSpeed);
       const textPromise = onTextUpdate ? 
         (audioDuration > 0 ? 
-          this.typeTextWithPreciseAudioSync(text, onTextUpdate, audioDuration) :
-          this.typeTextWithAudioSync(text, onTextUpdate, audioDuration)
+          this.typeTextWithPreciseAudioSync(text, onTextUpdate, audioDuration / currentSpeed) :
+          this.typeTextWithAudioSync(text, onTextUpdate, audioDuration / currentSpeed)
         ) : 
         Promise.resolve();
       
@@ -936,8 +948,8 @@ class AvatarManager {
       
       // Show error to user if text display is available
       if (onTextUpdate) {
-        // Use faster typing speed for error display too
-        await this.typeText(text, onTextUpdate, 8); // 8ms per character (2x faster)
+        // Use speed-controlled typing for error display too
+        await this.typeText(text, onTextUpdate, 8 / currentSpeed);
       }
     }
   }
@@ -1405,6 +1417,11 @@ class AvatarManager {
   
   setElevenlabsApiKey(apiKey) {
     this.options.elevenlabsApiKey = apiKey;
+  }
+  
+  setSpeed(speed) {
+    this.speed = Math.max(0.5, Math.min(5.0, speed)); // Clamp between 0.5x and 5x
+    console.log('Avatar speed set to:', this.speed + 'x');
   }
   
   destroy() {
