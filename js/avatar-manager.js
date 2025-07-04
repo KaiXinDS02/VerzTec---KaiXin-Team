@@ -35,6 +35,7 @@ class AvatarManager {
     this.isThinking = false;
     this.speechStartTime = 0;
     this.speed = 1.0; // Speed multiplier for text typing and speech
+    this.voiceEnabled = true; // Voice enabled state
     
     this.init();
   }
@@ -632,7 +633,9 @@ class AvatarManager {
       
       this.audioElement.addEventListener('loadeddata', () => {
         clearTimeout(timeoutId);
-        console.log('🎵 Audio loaded for lipsync playback');
+        // Ensure playback rate is set after loading
+        this.audioElement.playbackRate = speedMultiplier;
+        console.log('🎵 Audio loaded for lipsync playback at speed:', this.audioElement.playbackRate + 'x');
         resolve();
       }, { once: true });
       
@@ -653,6 +656,12 @@ class AvatarManager {
     if (playPromise !== undefined) {
       await playPromise;
     }
+    
+    // Ensure playback rate is applied after play starts
+    setTimeout(() => {
+      this.audioElement.playbackRate = speedMultiplier;
+      console.log('🎵 Lipsync playback rate re-applied:', this.audioElement.playbackRate + 'x');
+    }, 100);
     
     // Wait for audio to finish
     await new Promise((resolve) => {
@@ -685,6 +694,7 @@ class AvatarManager {
     this.audioElement.volume = 1.0;
     this.audioElement.muted = false;
     this.audioElement.playbackRate = speedMultiplier; // Apply speed control
+    console.log('🎵 Audio playback rate set to:', this.audioElement.playbackRate);
     
     // Wait for audio to be ready
     await new Promise((resolve, reject) => {
@@ -694,7 +704,9 @@ class AvatarManager {
       
       this.audioElement.addEventListener('loadeddata', () => {
         clearTimeout(timeoutId);
-        console.log('🎵 Audio loaded for direct playback');
+        // Ensure playback rate is set after loading
+        this.audioElement.playbackRate = speedMultiplier;
+        console.log('🎵 Audio loaded for direct playback at final speed:', this.audioElement.playbackRate + 'x');
         resolve();
       }, { once: true });
       
@@ -711,6 +723,12 @@ class AvatarManager {
     if (playPromise !== undefined) {
       await playPromise;
     }
+    
+    // Ensure playback rate is applied after play starts (some browsers need this)
+    setTimeout(() => {
+      this.audioElement.playbackRate = speedMultiplier;
+      console.log('🎵 Playback rate re-applied after play start:', this.audioElement.playbackRate + 'x');
+    }, 100);
     
     console.log('🎵 Direct audio playback started');
     
@@ -746,11 +764,20 @@ class AvatarManager {
     tempAudio.style.display = 'none';
     document.body.appendChild(tempAudio);
     
-    console.log('🆕 New audio element created for playback at speed:', speedMultiplier + 'x');
+    console.log('🆕 New audio element created for playback');
+    console.log('🎵 Setting playback rate to:', speedMultiplier, 'type:', typeof speedMultiplier);
+    tempAudio.playbackRate = speedMultiplier;
+    console.log('🎵 Actual playback rate set:', tempAudio.playbackRate);
     
     // Play the audio
     await tempAudio.play();
     console.log('🎵 New element audio playing...');
+    
+    // Ensure playback rate is applied after play starts
+    setTimeout(() => {
+      tempAudio.playbackRate = speedMultiplier;
+      console.log('🎵 New element playback rate re-applied:', tempAudio.playbackRate + 'x');
+    }, 100);
     
     // Wait for completion
     await new Promise((resolve) => {
@@ -831,6 +858,12 @@ class AvatarManager {
   // Method to generate speech first, then play audio while text appears to be typing
   // Method to trigger thinking state immediately (for UI responsiveness)
   startThinking() {
+    // Only start thinking animation if voice is enabled
+    if (!this.isVoiceEnabled()) {
+      console.log('🤔 Voice disabled, skipping thinking animation');
+      return;
+    }
+    
     console.log('🤔 UI triggered thinking state immediately...');
     this.switchAnimation('thinking');
     this.isThinking = true;
@@ -850,6 +883,7 @@ class AvatarManager {
   async speakWithTextStream(text, onTextUpdate = null, speedMultiplier = null) {
     // Use provided speed or instance speed
     const currentSpeed = speedMultiplier || this.speed;
+    console.log('🎵 speakWithTextStream called with speedMultiplier:', speedMultiplier, 'using currentSpeed:', currentSpeed);
     
     // Debug avatar state
     this.debugAvatarState();
@@ -1420,8 +1454,18 @@ class AvatarManager {
   }
   
   setSpeed(speed) {
+    const oldSpeed = this.speed;
     this.speed = Math.max(0.5, Math.min(5.0, speed)); // Clamp between 0.5x and 5x
-    console.log('Avatar speed set to:', this.speed + 'x');
+    console.log('🎛️ Avatar speed changed from', oldSpeed + 'x', 'to:', this.speed + 'x');
+  }
+  
+  setVoiceEnabled(enabled) {
+    this.voiceEnabled = enabled;
+    console.log('🎙️ Avatar voice', enabled ? 'enabled' : 'disabled');
+  }
+  
+  isVoiceEnabled() {
+    return this.voiceEnabled !== false; // Default to true if not set
   }
   
   destroy() {

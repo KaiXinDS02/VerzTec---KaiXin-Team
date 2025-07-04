@@ -168,6 +168,63 @@
         background: #fff;
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+      }
+      
+      /* Chat panel expanded when avatar is hidden */
+      .chat-panel.expanded {
+        height: calc(100vh - 140px);
+        max-height: calc(100vh - 140px);
+      }
+      
+      /* Avatar container transition */
+      .avatar-container {
+        transition: all 0.3s ease;
+      }
+      
+      .avatar-container.hidden {
+        transform: translateX(-100%);
+        opacity: 0;
+      }
+      
+      /* Chat section adjustments when avatar is hidden */
+      .chat-section.avatar-hidden .col-lg-6:first-child {
+        width: 0;
+        padding: 0;
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
+      
+      .chat-section.avatar-hidden .col-lg-6:last-child {
+        width: 100%;
+        max-width: 100%;
+        flex: 0 0 100%;
+        transition: all 0.3s ease;
+      }
+      
+      /* Toggle avatar button in chat header */
+      .chat-header-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      
+      .chat-header-controls .btn-sm {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+      }
+      
+      .chat-header-controls .btn-outline-primary {
+        border-color: #ffc107;
+        color: #ffc107;
+      }
+      
+      .chat-header-controls .btn-outline-primary:hover {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #333;
       }
       
       .chat-header {
@@ -401,12 +458,12 @@
   </header>
 
   <!-- Chatbot Interface -->
-  <section class="chat-section py-4">
+  <section class="chat-section py-4" id="chat-section">
     <div class="container-fluid">
       <div class="row">
 
         <!-- Left half for 3D avatar -->
-        <div class="col-lg-6 mb-4 mb-lg-0">
+        <div class="col-lg-6 mb-4 mb-lg-0" id="avatar-column">
           <div class="avatar-container h-100">
             <div id="avatar-3d" class="avatar-3d"></div>
             <div class="avatar-overlay">
@@ -433,11 +490,27 @@
         </div>
 
         <!-- Right half for chat -->
-        <div class="col-lg-6 d-flex">
+        <div class="col-lg-6 d-flex" id="chat-column">
           <div class="chat-panel w-100 shadow-sm rounded">
 
             <div class="chat-header">
-              <h5 class="mb-0"><i class="fa fa-robot me-2"></i>VerzTec AI Assistant</h5>
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fa fa-robot me-2"></i>VerzTec AI Assistant</h5>
+                <div class="chat-header-controls">
+                  <button id="show-avatar" class="btn btn-sm btn-outline-primary" style="display: none;">
+                    <i class="fa fa-robot"></i> Show Avatar
+                  </button>
+                  <button id="chat-toggle-voice" class="btn btn-sm btn-outline-primary" style="display: none;">
+                    <i class="fa fa-volume-up"></i> Voice On
+                  </button>
+                  <div class="btn-group" role="group" id="chat-speed-controls" style="display: none;">
+                    <button class="btn btn-sm btn-outline-primary speed-btn active" data-speed="1">1x</button>
+                    <button class="btn btn-sm btn-outline-primary speed-btn" data-speed="1.5">1.5x</button>
+                    <button class="btn btn-sm btn-outline-primary speed-btn" data-speed="2">2x</button>
+                    <button class="btn btn-sm btn-outline-primary speed-btn" data-speed="3">3x</button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div id="chat-container" class="chat-body">
@@ -485,6 +558,7 @@
     // Global variables
     let avatarManager = null;
     let isVoiceEnabled = true;
+    let isAvatarEnabled = true;
     let currentSpeed = 1.0; // Speed multiplier for text and speech
     let isChatbotBusy = false; // Track if chatbot is currently processing/talking
     
@@ -500,6 +574,12 @@
     });
     
     function initializeAvatar() {
+      // Only initialize avatar if it's enabled
+      if (!isAvatarEnabled) {
+        console.log('Avatar disabled, skipping initialization');
+        return;
+      }
+      
       // Use fixed settings with API key and Bella voice
       avatarManager = new AvatarManager('avatar-3d', {
         elevenlabsApiKey: 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7',
@@ -514,6 +594,9 @@
           updateAvatarStatus('Ready to help');
           clearInterval(checkInitialization);
           console.log('Avatar manager initialized successfully');
+          
+          // Set initial voice state
+          avatarManager.setVoiceEnabled(isVoiceEnabled);
           
           // Test API key
           avatarManager.testApiKey().then(result => {
@@ -539,37 +622,161 @@
     }
     
     function setupEventListeners() {
-      // Voice toggle
-      document.getElementById('toggle-voice').addEventListener('click', function() {
-        isVoiceEnabled = !isVoiceEnabled;
-        this.innerHTML = isVoiceEnabled ? 
-          '<i class="fa fa-volume-up"></i> Voice On' : 
-          '<i class="fa fa-volume-off"></i> Voice Off';
-        updateAvatarStatus(isVoiceEnabled ? 'Voice enabled' : 'Voice disabled');
+      // Avatar toggle
+      document.getElementById('toggle-avatar').addEventListener('click', function() {
+        isAvatarEnabled = !isAvatarEnabled;
+        toggleAvatar();
       });
       
-      // Speed control buttons
+      // Show avatar button (in chat header)
+      document.getElementById('show-avatar').addEventListener('click', function() {
+        isAvatarEnabled = true;
+        toggleAvatar();
+      });
+      
+      // Voice toggle (main avatar controls)
+      document.getElementById('toggle-voice').addEventListener('click', function() {
+        isVoiceEnabled = !isVoiceEnabled;
+        updateVoiceButton(this);
+        updateAvatarStatus(isVoiceEnabled ? 'Voice enabled' : 'Voice disabled');
+        
+        // Update avatar manager voice state
+        if (avatarManager) {
+          avatarManager.setVoiceEnabled(isVoiceEnabled);
+        }
+      });
+      
+      // Voice toggle (chat header controls)
+      document.getElementById('chat-toggle-voice').addEventListener('click', function() {
+        isVoiceEnabled = !isVoiceEnabled;
+        updateVoiceButton(this);
+        updateAvatarStatus(isVoiceEnabled ? 'Voice enabled' : 'Voice disabled');
+        
+        // Also update the main avatar voice button
+        const mainVoiceButton = document.getElementById('toggle-voice');
+        updateVoiceButton(mainVoiceButton);
+        
+        // Update avatar manager voice state
+        if (avatarManager) {
+          avatarManager.setVoiceEnabled(isVoiceEnabled);
+        }
+      });
+      
+      // Speed control buttons (both sets)
       document.querySelectorAll('.speed-btn').forEach(button => {
         button.addEventListener('click', function() {
           // Don't change speed while chatbot is busy
           if (isChatbotBusy) return;
           
-          // Remove active class from all speed buttons
-          document.querySelectorAll('.speed-btn').forEach(btn => btn.classList.remove('active'));
+          // Find the parent container to update buttons within the same group
+          const parentContainer = this.closest('.btn-group');
+          const allSpeedButtons = parentContainer.querySelectorAll('.speed-btn');
+          
+          // Remove active class from all speed buttons in this group
+          allSpeedButtons.forEach(btn => btn.classList.remove('active'));
           
           // Add active class to clicked button
           this.classList.add('active');
           
           // Update speed
           currentSpeed = parseFloat(this.dataset.speed);
-          console.log('Speed changed to:', currentSpeed + 'x');
+          console.log('🎛️ Speed button clicked - Speed changed to:', currentSpeed + 'x');
           updateAvatarStatus(`Speed: ${currentSpeed}x`);
           
           // Update avatar manager speed if available
           if (avatarManager) {
+            console.log('🎛️ Calling avatarManager.setSpeed with:', currentSpeed);
             avatarManager.setSpeed(currentSpeed);
+          } else {
+            console.log('🎛️ avatarManager not available');
           }
+          
+          // Sync both speed control groups
+          syncSpeedButtons(currentSpeed);
         });
+      });
+    }
+    
+    function toggleAvatar() {
+      const chatSection = document.getElementById('chat-section');
+      const avatarColumn = document.getElementById('avatar-column');
+      const avatarContainer = document.querySelector('.avatar-container');
+      const chatPanel = document.querySelector('.chat-panel');
+      const showAvatarBtn = document.getElementById('show-avatar');
+      const chatVoiceBtn = document.getElementById('chat-toggle-voice');
+      const chatSpeedControls = document.getElementById('chat-speed-controls');
+      const toggleAvatarBtn = document.getElementById('toggle-avatar');
+      
+      if (isAvatarEnabled) {
+        // Show avatar
+        chatSection.classList.remove('avatar-hidden');
+        avatarContainer.classList.remove('hidden');
+        chatPanel.classList.remove('expanded');
+        
+        // Hide chat header controls
+        showAvatarBtn.style.display = 'none';
+        chatVoiceBtn.style.display = 'none';
+        chatSpeedControls.style.display = 'none';
+        
+        // Update avatar toggle button
+        toggleAvatarBtn.innerHTML = '<i class="fa fa-robot"></i> Avatar On';
+        
+        // Initialize avatar if not already done
+        if (!avatarManager) {
+          initializeAvatar();
+        } else if (avatarManager.isInitialized) {
+          // If avatar already exists, sync voice state
+          avatarManager.setVoiceEnabled(isVoiceEnabled);
+        }
+        
+        updateAvatarStatus('Avatar enabled');
+      } else {
+        // Hide avatar
+        chatSection.classList.add('avatar-hidden');
+        avatarContainer.classList.add('hidden');
+        chatPanel.classList.add('expanded');
+        
+        // Show chat header controls
+        showAvatarBtn.style.display = 'inline-block';
+        chatVoiceBtn.style.display = 'inline-block';
+        chatSpeedControls.style.display = 'inline-flex';
+        
+        // Update avatar toggle button
+        toggleAvatarBtn.innerHTML = '<i class="fa fa-robot"></i> Avatar Off';
+        
+        // Stop any avatar activities
+        if (avatarManager && avatarManager.isInitialized) {
+          avatarManager.stopThinking();
+          avatarManager.switchAnimation('idle');
+          avatarManager.isSpeaking = false;
+          avatarManager.isThinking = false;
+        }
+        
+        // Sync voice button state
+        updateVoiceButton(chatVoiceBtn);
+        
+        // Sync speed buttons
+        syncSpeedButtons(currentSpeed);
+        
+        updateAvatarStatus('Avatar disabled');
+      }
+    }
+    
+    function updateVoiceButton(button) {
+      if (isVoiceEnabled) {
+        button.innerHTML = '<i class="fa fa-volume-up"></i> Voice On';
+      } else {
+        button.innerHTML = '<i class="fa fa-volume-off"></i> Voice Off';
+      }
+    }
+    
+    function syncSpeedButtons(speed) {
+      // Update both avatar controls and chat header controls
+      document.querySelectorAll('.speed-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (parseFloat(btn.dataset.speed) === speed) {
+          btn.classList.add('active');
+        }
       });
     }
     
@@ -631,14 +838,20 @@
       console.log('🤔 Showing thinking animation immediately...');
       showThinking(); // Show thinking animation in chat immediately
       
-      // Trigger avatar thinking animation if avatar is ready
-      if (avatarManager && avatarManager.isInitialized) {
+      // Trigger avatar thinking animation only if avatar is ready AND voice is enabled
+      if (avatarManager && avatarManager.isInitialized && isVoiceEnabled && isAvatarEnabled) {
         console.log('🤔 Triggering avatar thinking animation...');
         avatarManager.startThinking();
         updateAvatarStatus('Thinking...');
       } else {
-        // Avatar not ready, but chat thinking animation is still shown
-        updateAvatarStatus('Processing...');
+        // Avatar not ready or voice disabled, but chat thinking animation is still shown
+        if (!isVoiceEnabled) {
+          updateAvatarStatus('Voice disabled - processing...');
+        } else if (!isAvatarEnabled) {
+          updateAvatarStatus('Avatar disabled - processing...');
+        } else {
+          updateAvatarStatus('Processing...');
+        }
       }
 
       // Send message to chatbot API
@@ -663,9 +876,9 @@
         }
         
         // Speak the response if voice is enabled and avatar is ready
-        if (isVoiceEnabled && avatarManager && avatarManager.isInitialized) {
+        if (isVoiceEnabled && isAvatarEnabled && avatarManager && avatarManager.isInitialized) {
           try {
-            console.log('Starting synchronized speech with faster letter-by-letter text streaming for:', data.answer.substring(0, 50) + '...');
+            console.log('Starting synchronized speech with speed:', currentSpeed + 'x', 'for text:', data.answer.substring(0, 50) + '...');
             
             // Variable to track if message box has been created
             let botMessageDiv = null;
@@ -725,14 +938,21 @@
             enableUserInput(); // Re-enable input after error
           }
         } else {
-          hideThinking(); // Hide thinking animation if avatar not ready
-          // Avatar not ready, just show text normally
+          hideThinking(); // Hide thinking animation if avatar not ready or voice disabled
+          // Voice disabled or avatar not ready, just show text normally
           addMessageToChat(data.answer, 'bot');
           // Add reference file after text is shown
           if (referenceFile) {
             addReferenceLink(referenceFile.url, referenceFile.name);
           }
-          updateAvatarStatus('Voice not available');
+          
+          if (!isVoiceEnabled) {
+            updateAvatarStatus('Voice disabled - text only');
+          } else if (!isAvatarEnabled) {
+            updateAvatarStatus('Avatar disabled - text only');
+          } else {
+            updateAvatarStatus('Voice not available');
+          }
           enableUserInput(); // Re-enable input when done
         }
         
@@ -744,7 +964,7 @@
         enableUserInput(); // Re-enable input after error
         
         // Reset avatar state on error
-        if (avatarManager && avatarManager.isInitialized) {
+        if (avatarManager && avatarManager.isInitialized && isVoiceEnabled && isAvatarEnabled) {
           avatarManager.stopThinking();
         }
       }
