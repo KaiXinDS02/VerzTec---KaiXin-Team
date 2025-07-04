@@ -159,13 +159,32 @@ $conn->close();
     #announcementTable td:nth-child(3),
     #announcementTable th:nth-child(4),
     #announcementTable td:nth-child(4) {
-    text-align: center;
+      text-align: left;
     }
     #announcementTable th:nth-child(4),
     #announcementTable td:nth-child(4) {
-    width: 180px;
-    text-align: center;
-    white-space: nowrap;
+      width: 180px;
+      text-align: left;
+      white-space: nowrap;
+    }
+    #announcementTable td:nth-child(5),
+    #announcementTable th:nth-child(5) {
+      min-width: 90px; /* or whatever width you want */
+      white-space: nowrap; /* so timestamp text stays on one line */
+    }
+    #announcementTable {
+      width: 100%;
+    }
+    #announcementTable td {
+      white-space: normal !important; /* allow wrapping */
+      word-break: normal; /* default behavior, no breaking inside words */
+      overflow-wrap: break-word; /* this helps wrapping at spaces if needed */
+    }
+    #announcementTable td:nth-child(2) { /* message column */
+      max-width: 400px; /* limit width */
+    }
+    #announcementTable td:nth-child(1) {
+      max-width: 150px; /* limit width for title */
     }
   </style>
 </head>
