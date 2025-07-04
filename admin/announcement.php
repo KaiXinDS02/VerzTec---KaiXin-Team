@@ -169,7 +169,7 @@ $conn->close();
     }
     #announcementTable td:nth-child(5),
     #announcementTable th:nth-child(5) {
-      min-width: 90px; /* or whatever width you want */
+      min-width: 80px; /* or whatever width you want */
       white-space: nowrap; /* so timestamp text stays on one line */
     }
     #announcementTable {
@@ -181,7 +181,7 @@ $conn->close();
       overflow-wrap: break-word; /* this helps wrapping at spaces if needed */
     }
     #announcementTable td:nth-child(2) { /* message column */
-      max-width: 400px; /* limit width */
+      max-width: 450px; /* limit width */
     }
     #announcementTable td:nth-child(1) {
       max-width: 150px; /* limit width for title */
