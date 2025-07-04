@@ -196,6 +196,73 @@ class ReadyPlayerMeAvatar {
     this.morphTargets = morphTargets;
     this.setupBlinking();
     this.setupIdleExpressions();
+    this.setupBreathingMouth();
+  }
+  
+  setupBreathingMouth() {
+    // Natural breathing mouth animation for idle and thinking states
+    let breathingInterval;
+    let currentBreathingCycle = 0;
+    
+    const breathe = () => {
+      // Only apply breathing animation during idle or thinking states (not speaking)
+      if (this.avatarManager && !this.avatarManager.isSpeaking) {
+        // Get mouth targets for breathing animation
+        const silTarget = this.morphTargets['viseme_sil'];
+        const aaTarget = this.morphTargets['viseme_aa'];
+        const jawTarget = this.morphTargets['jawOpen'] || this.morphTargets['JawOpen'];
+        
+        if (silTarget) {
+          currentBreathingCycle++;
+          
+          // Create a natural breathing pattern with cycles
+          const cyclePhase = currentBreathingCycle % 8;
+          
+          if (cyclePhase <= 2) {
+            // Inhale phase: very subtle mouth opening
+            const intensity = 0.03 + Math.sin(cyclePhase * Math.PI / 2) * 0.08; // 3-11%
+            this.lerpMorphTarget(silTarget, intensity, 0.015);
+            
+            if (jawTarget) {
+              this.lerpMorphTarget(jawTarget, intensity * 0.25, 0.015);
+            }
+          } else if (cyclePhase <= 4) {
+            // Hold breath phase: maintain slight opening
+            const intensity = 0.08 + Math.random() * 0.03; // 8-11%
+            this.lerpMorphTarget(silTarget, intensity, 0.01);
+            
+            if (jawTarget) {
+              this.lerpMorphTarget(jawTarget, intensity * 0.3, 0.01);
+            }
+          } else if (cyclePhase <= 6) {
+            // Exhale phase: gradual closing
+            const intensity = 0.08 - Math.sin((cyclePhase - 4) * Math.PI / 2) * 0.06; // 8% down to 2%
+            this.lerpMorphTarget(silTarget, intensity, 0.02);
+            
+            if (jawTarget) {
+              this.lerpMorphTarget(jawTarget, intensity * 0.2, 0.02);
+            }
+          } else {
+            // Rest phase: nearly closed but not completely
+            const intensity = 0.02 + Math.random() * 0.02; // 2-4%
+            this.lerpMorphTarget(silTarget, intensity, 0.025);
+            
+            if (jawTarget) {
+              this.lerpMorphTarget(jawTarget, intensity * 0.15, 0.025);
+            }
+          }
+        }
+      }
+      
+      // Schedule next breathing update - faster for smoother animation
+      const nextBreath = 800 + Math.random() * 400; // 0.8-1.2 seconds
+      breathingInterval = setTimeout(breathe, nextBreath);
+    };
+    
+    // Start breathing animation after a delay
+    setTimeout(breathe, 2000);
+    
+    this.breathingController = () => clearTimeout(breathingInterval);
   }
   
   setupBlinking() {
@@ -243,6 +310,13 @@ class ReadyPlayerMeAvatar {
     let currentExpression = null;
     
     const cycleExpressions = () => {
+      // Check if avatar is in thinking or speaking state and skip expression changes
+      if (this.avatarManager && (this.avatarManager.isThinking || this.avatarManager.isSpeaking)) {
+        // Don't change expressions during thinking or speaking
+        setTimeout(cycleExpressions, 2000); // Check again in 2 seconds
+        return;
+      }
+      
       if (currentExpression) {
         // Reset current expression
         const target = this.morphTargets[currentExpression];
@@ -251,30 +325,33 @@ class ReadyPlayerMeAvatar {
         }
       }
       
-      // Randomly choose new expression or stay neutral
-      if (Math.random() > 0.7) {
+      // Randomly choose new expression or stay neutral (only during idle)
+      if (Math.random() > 0.8) { // Less frequent expressions
         const availableExpressions = expressions.filter(expr => this.morphTargets[expr]);
         if (availableExpressions.length > 0) {
           currentExpression = availableExpressions[Math.floor(Math.random() * availableExpressions.length)];
           const target = this.morphTargets[currentExpression];
-          this.lerpMorphTarget(target, 0.2, 0.01);
+          this.lerpMorphTarget(target, 0.15, 0.008); // Reduced intensity and speed
         }
       } else {
         currentExpression = null;
       }
       
-      setTimeout(cycleExpressions, 3000 + Math.random() * 5000);
+      setTimeout(cycleExpressions, 4000 + Math.random() * 6000); // Longer intervals
     };
     
-    setTimeout(cycleExpressions, 5000);
+    setTimeout(cycleExpressions, 8000); // Start later to avoid conflicts
   }
   
   updateLipsync(viseme, intensity = 0.8) {
-    // Reset all viseme targets to 0 first
-    for (const [key, target] of Object.entries(this.morphTargets)) {
-      if (key.startsWith('viseme_')) {
-        if (target && target.mesh && target.index !== undefined) {
-          this.lerpMorphTarget(target, 0, 0.3);
+    // Only reset viseme targets when actively speaking or transitioning
+    if (this.avatarManager && this.avatarManager.isSpeaking) {
+      // Reset all viseme targets to 0 first for clean transitions during speech
+      for (const [key, target] of Object.entries(this.morphTargets)) {
+        if (key.startsWith('viseme_')) {
+          if (target && target.mesh && target.index !== undefined) {
+            this.lerpMorphTarget(target, 0, 0.5);
+          }
         }
       }
     }
@@ -283,13 +360,45 @@ class ReadyPlayerMeAvatar {
     const target = this.morphTargets[viseme];
     if (target && target.mesh && target.index !== undefined) {
       const finalIntensity = Math.max(0, Math.min(1, intensity * target.weight));
-      this.lerpMorphTarget(target, finalIntensity, 0.4);
       
-      // Add slight jaw movement for more natural speech
-      if (viseme === 'viseme_aa' || viseme === 'viseme_E' || viseme === 'viseme_O') {
-        const jawTarget = this.morphTargets['jawOpen'] || this.morphTargets['JawOpen'];
-        if (jawTarget) {
-          this.lerpMorphTarget(jawTarget, finalIntensity * 0.3, 0.4);
+      if (this.avatarManager && this.avatarManager.isSpeaking) {
+        // Active speech - use full intensity
+        this.lerpMorphTarget(target, finalIntensity, 0.6);
+        
+        // Add jaw movement for open mouth visemes during speech
+        if (viseme === 'viseme_aa' || viseme === 'viseme_E' || viseme === 'viseme_O') {
+          const jawTarget = this.morphTargets['jawOpen'] || this.morphTargets['JawOpen'];
+          if (jawTarget && intensity > 0.3) {
+            this.lerpMorphTarget(jawTarget, finalIntensity * 0.3, 0.6);
+          }
+        }
+      } else {
+        // Idle or thinking state - use gentler morphing that works with breathing
+        if (viseme === 'viseme_sil') {
+          // For silent viseme, don't force complete closure - let breathing animation handle it
+          const breathingIntensity = Math.max(0.02, finalIntensity * 0.3); // Minimum slight opening
+          this.lerpMorphTarget(target, breathingIntensity, 0.3);
+        } else {
+          // For other visemes in non-speaking states, apply very gently
+          this.lerpMorphTarget(target, finalIntensity * 0.4, 0.3);
+        }
+      }
+    }
+    
+    // Handle complete mouth reset only when explicitly transitioning to speaking
+    if (viseme === 'viseme_sil' && this.avatarManager && this.avatarManager.isSpeaking) {
+      // Reset jaw position for neutral state during speech
+      const jawTarget = this.morphTargets['jawOpen'] || this.morphTargets['JawOpen'];
+      if (jawTarget) {
+        this.lerpMorphTarget(jawTarget, 0, 0.5);
+      }
+      
+      // Reset other mouth morphs that might interfere during speech
+      const neutralMorphs = ['mouthOpen', 'mouthAh', 'mouthSmile', 'mouthFrown'];
+      for (const morphName of neutralMorphs) {
+        const morphTarget = this.morphTargets[morphName];
+        if (morphTarget) {
+          this.lerpMorphTarget(morphTarget, 0, 0.5);
         }
       }
     }
@@ -329,6 +438,9 @@ class ReadyPlayerMeAvatar {
   destroy() {
     if (this.blinkController) {
       this.blinkController();
+    }
+    if (this.breathingController) {
+      this.breathingController();
     }
   }
 }

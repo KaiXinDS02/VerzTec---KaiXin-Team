@@ -649,10 +649,18 @@
       // Add user message to chat
       addMessageToChat(message, 'user');
       
-      // Clear input and show loading
+      // Clear input
       userInput.value = '';
-      showLoading();
-      updateAvatarStatus('Thinking...');
+
+      // Immediately trigger thinking animation if avatar is ready
+      if (avatarManager && avatarManager.isInitialized) {
+        console.log('🤔 Triggering thinking animation immediately...');
+        avatarManager.startThinking();
+        updateAvatarStatus('Thinking...');
+      } else {
+        // Show loading indicator if avatar is not ready
+        showLoading();
+      }
 
       // Send message to chatbot API
       try {
@@ -666,44 +674,77 @@
         
         const data = await response.json();
         
+        // Hide loading if it was shown
         hideLoading();
         
-        // Add reference file link if available
+        // Store reference file info for later use (after text is complete)
+        let referenceFile = null;
         if (data.reference_file && data.reference_file.name) {
-          addReferenceLink(data.reference_file.url, data.reference_file.name);
+          referenceFile = {
+            url: data.reference_file.url,
+            name: data.reference_file.name
+          };
         }
         
         // Speak the response if voice is enabled and avatar is ready
         if (isVoiceEnabled && avatarManager && avatarManager.isInitialized) {
-          updateAvatarStatus('Speaking...');
-          
-          // Create placeholder for bot response
-          const botMessageDiv = document.createElement('div');
-          botMessageDiv.className = 'bot-bubble';
-          botMessageDiv.innerHTML = '<strong>VerzTec Assistant:</strong> ';
-          
-          const chatContainer = document.getElementById('chat-container');
-          chatContainer.appendChild(botMessageDiv);
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-          
           try {
-            console.log('Starting speech with text streaming for:', data.answer.substring(0, 50) + '...');
+            console.log('Starting synchronized speech with faster letter-by-letter text streaming for:', data.answer.substring(0, 50) + '...');
             
-            // Use the robust speakWithTextStream method
+            // Variable to track if message box has been created
+            let botMessageDiv = null;
+            let isFirstLetterReady = false;
+            
+            // Use the improved speakWithTextStream method with callback for when first letter is ready
             await avatarManager.speakWithTextStream(data.answer, (streamedText) => {
-              botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${streamedText}`;
-              chatContainer.scrollTop = chatContainer.scrollHeight;
+              // Check if this is the signal that first letter is ready (empty string)
+              if (streamedText === '' && !isFirstLetterReady) {
+                console.log('📝 First letter ready signal received, creating message box...');
+                botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'bot-bubble';
+                botMessageDiv.innerHTML = '<strong>VerzTec Assistant:</strong> ';
+                
+                const chatContainer = document.getElementById('chat-container');
+                chatContainer.appendChild(botMessageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                updateAvatarStatus('Speaking...');
+                isFirstLetterReady = true;
+                return; // Don't update content yet
+              }
+              
+              // Update the message content with streamed text (only after box is created)
+              if (botMessageDiv && streamedText.length > 0) {
+                botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${streamedText}`;
+                const chatContainer = document.getElementById('chat-container');
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+              }
             });
+            
+            // Now add reference file link after text is fully generated
+            if (referenceFile) {
+              console.log('📄 Adding reference file after text completion...');
+              addReferenceLink(referenceFile.url, referenceFile.name);
+            }
             
             updateAvatarStatus('Ready to help');
           } catch (error) {
             console.error('Speech failed:', error);
+            // If speech fails, show the text normally
+            addMessageToChat(data.answer, 'bot');
+            // Add reference file after text is shown
+            if (referenceFile) {
+              addReferenceLink(referenceFile.url, referenceFile.name);
+            }
             updateAvatarStatus('Speech failed, but text is shown');
-            // Text is already displayed, so no need to do anything else
           }
         } else {
           // Avatar not ready, just show text normally
           addMessageToChat(data.answer, 'bot');
+          // Add reference file after text is shown
+          if (referenceFile) {
+            addReferenceLink(referenceFile.url, referenceFile.name);
+          }
           updateAvatarStatus('Voice not available');
         }
         
@@ -712,6 +753,11 @@
         console.error('Error:', error);
         addMessageToChat('Sorry, I encountered an error. Please make sure the chatbot server is running on port 8000.', 'bot');
         updateAvatarStatus('Connection error');
+        
+        // Reset avatar state on error
+        if (avatarManager && avatarManager.isInitialized) {
+          avatarManager.stopThinking();
+        }
       }
     }
 

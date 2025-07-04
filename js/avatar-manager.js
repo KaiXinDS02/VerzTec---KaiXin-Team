@@ -318,19 +318,19 @@ class AvatarManager {
     const viseme = this.rhubarbLipsync.getCurrentViseme();
     const intensity = this.rhubarbLipsync.getCurrentIntensity();
     
-    // Apply lipsync morphs with proper intensity
+    // Apply lipsync morphs with proper intensity based on current state
     if (this.isSpeaking && intensity > 0.05) {
+      // Active speech - use rhubarb lipsync with full intensity
       this.readyPlayerMeController.updateLipsync(viseme, intensity * 0.8);
     } else if (this.isSpeaking) {
-      // Keep mouth slightly open during talking animation
+      // Speaking state but no active audio - keep mouth slightly open for talking animation
       this.readyPlayerMeController.updateLipsync('viseme_aa', 0.2);
     } else if (this.isThinking) {
-      // Let the thinking animation handle the expression - just keep mouth closed
-      this.readyPlayerMeController.updateLipsync('viseme_sil', 1.0);
-      // Don't override facial expressions when using actual thinking animation
+      // Thinking state - use gentle neutral position, let breathing animation handle subtle movements
+      this.readyPlayerMeController.updateLipsync('viseme_sil', 0.8);
     } else {
-      // Idle state - closed mouth, neutral expression
-      this.readyPlayerMeController.updateLipsync('viseme_sil', 1.0);
+      // Idle state - use gentle neutral position, let breathing animation handle movements
+      this.readyPlayerMeController.updateLipsync('viseme_sil', 0.6);
     }
   }
   
@@ -355,6 +355,9 @@ class AvatarManager {
         this.thinkingAction.setLoop(THREE.LoopRepeat);
         this.currentAnimation = 'thinking';
         console.log('Switched to actual thinking animation');
+        
+        // Allow breathing animation to handle mouth naturally
+        // Don't force immediate mouth reset - let breathing animation take over gradually
       } else if (this.idleAction) {
         // Fallback to idle animation if no thinking animation is available
         if (this.talkingAction) {
@@ -379,6 +382,13 @@ class AvatarManager {
       this.talkingAction.setLoop(THREE.LoopRepeat);
       this.currentAnimation = 'talking';
       console.log('Switched to talking animation');
+      
+      // Prepare mouth for speech with a gentle transition
+      if (this.readyPlayerMeController) {
+        setTimeout(() => {
+          this.readyPlayerMeController.updateLipsync('viseme_aa', 0.2);
+        }, 200); // Small delay to allow animation transition
+      }
     } else if (type === 'idle' && this.idleAction && this.currentAnimation !== 'idle') {
       // Stop other animations
       if (this.talkingAction) {
@@ -393,6 +403,9 @@ class AvatarManager {
       this.idleAction.setLoop(THREE.LoopRepeat);
       this.currentAnimation = 'idle';
       console.log('Switched to idle animation');
+      
+      // Allow breathing animation to handle mouth naturally
+      // Don't force immediate mouth reset - let breathing animation take over gradually
     }
   }
   
@@ -890,7 +903,13 @@ class AvatarManager {
       this.isSpeaking = true;
       this.speechStartTime = Date.now();
       
-      // Step 5: Start audio playback and synchronized text typing simultaneously
+      // Step 5: Signal that first letter is ready by calling the callback immediately
+      if (onTextUpdate) {
+        console.log('📝 Signaling first letter is ready...');
+        onTextUpdate(''); // Empty string signals that we're ready to start
+      }
+      
+      // Step 6: Start audio playback and synchronized text typing simultaneously
       console.log('🔊 Starting audio playback and precisely synchronized text typing...');
       
       // Create promises for both audio and text
