@@ -412,6 +412,9 @@
             <div id="avatar-3d" class="avatar-3d"></div>
             <div class="avatar-overlay">
               <div class="avatar-controls">
+                <button id="toggle-avatar" class="btn btn-sm btn-outline-light">
+                  <i class="fa fa-robot"></i> Avatar On
+                </button>
                 <button id="toggle-voice" class="btn btn-sm btn-outline-light">
                   <i class="fa fa-volume-up"></i> Voice On
                 </button>
@@ -520,20 +523,42 @@
     });
     
     function initializeAvatar() {
-      const savedSettings = localStorage.getItem('verztec-avatar-settings');
-      const settings = savedSettings ? JSON.parse(savedSettings) : {};
-      
+      // Use fixed settings with API key and Bella voice
       avatarManager = new AvatarManager('avatar-3d', {
-        elevenlabsApiKey: settings.elevenlabsApiKey || '',
-        voice: settings.voice || 'pNInz6obpgDQGcFmaJgB',
-        avatarUrl: settings.avatarUrl || 'assets/avatars/models/64f1a714fe61576b46f27ca2.glb',
-        animationsUrl: settings.animationsUrl || 'assets/avatars/models/animations.glb'
+        elevenlabsApiKey: 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7',
+        voice: 'EXAVITQu4vr4xnSDxMaL', // Bella voice
+        avatarUrl: 'assets/avatars/models/64f1a714fe61576b46f27ca2.glb',
+        animationsUrl: 'assets/avatars/models/animations.glb'
       });
       
-      // Update status when initialized
+      // Wait for avatar to be fully initialized
+      const checkInitialization = setInterval(() => {
+        if (avatarManager && avatarManager.isInitialized) {
+          updateAvatarStatus('Ready to help');
+          clearInterval(checkInitialization);
+          console.log('Avatar manager initialized successfully');
+          
+          // Test API key
+          avatarManager.testApiKey().then(result => {
+            if (result.success) {
+              console.log('ElevenLabs API key is working properly');
+              updateAvatarStatus('Ready to help - Voice enabled');
+            } else {
+              console.error('ElevenLabs API key test failed:', result.error);
+              updateAvatarStatus('Ready to help - Voice may have issues');
+            }
+          });
+        }
+      }, 500);
+      
+      // Timeout after 10 seconds
       setTimeout(() => {
-        updateAvatarStatus('Ready to help');
-      }, 3000);
+        clearInterval(checkInitialization);
+        if (!avatarManager || !avatarManager.isInitialized) {
+          updateAvatarStatus('Avatar failed to load');
+          console.error('Avatar initialization timeout');
+        }
+      }, 10000);
     }
     
     function setupEventListeners() {
@@ -642,7 +667,6 @@
         const data = await response.json();
         
         hideLoading();
-        addMessageToChat(data.answer, 'bot');
         
         // Add reference file link if available
         if (data.reference_file && data.reference_file.name) {
@@ -652,24 +676,35 @@
         // Speak the response if voice is enabled and avatar is ready
         if (isVoiceEnabled && avatarManager && avatarManager.isInitialized) {
           updateAvatarStatus('Speaking...');
+          
+          // Create placeholder for bot response
+          const botMessageDiv = document.createElement('div');
+          botMessageDiv.className = 'bot-bubble';
+          botMessageDiv.innerHTML = '<strong>VerzTec Assistant:</strong> ';
+          
+          const chatContainer = document.getElementById('chat-container');
+          chatContainer.appendChild(botMessageDiv);
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+          
           try {
-            // Use enhanced streaming if text is long enough
-            const options = {
-              useStreaming: data.answer.length > 100,
-              onTextUpdate: (text) => {
-                // Could update UI with streaming text here if needed
-                console.log('Streaming text update:', text.length, 'characters');
-              }
-            };
+            console.log('Starting speech with text streaming for:', data.answer.substring(0, 50) + '...');
             
-            await avatarManager.speak(data.answer, options);
+            // Use the robust speakWithTextStream method
+            await avatarManager.speakWithTextStream(data.answer, (streamedText) => {
+              botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${streamedText}`;
+              chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+            
             updateAvatarStatus('Ready to help');
           } catch (error) {
             console.error('Speech failed:', error);
-            updateAvatarStatus('Speech failed - check API key');
+            updateAvatarStatus('Speech failed, but text is shown');
+            // Text is already displayed, so no need to do anything else
           }
         } else {
-          updateAvatarStatus('Ready to help');
+          // Avatar not ready, just show text normally
+          addMessageToChat(data.answer, 'bot');
+          updateAvatarStatus('Voice not available');
         }
         
       } catch (error) {

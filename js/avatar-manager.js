@@ -8,7 +8,7 @@ class AvatarManager {
       avatarUrl: options.avatarUrl || 'assets/avatars/models/64f1a714fe61576b46f27ca2.glb',
       animationsUrl: options.animationsUrl || 'assets/avatars/models/animations.glb',
       elevenlabsApiKey: options.elevenlabsApiKey || 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7',
-      voice: options.voice || 'pNInz6obpgDQGcFmaJgB', // Default Adam voice
+      voice: options.voice || 'EXAVITQu4vr4xnSDxMaL', // Bella voice
       ...options
     };
     
@@ -599,6 +599,146 @@ class AvatarManager {
     }
   }
   
+  // Method to start speaking immediately and stream text in sync
+  async speakWithTextStream(text, onTextUpdate = null) {
+    if (!this.options.elevenlabsApiKey) {
+      console.warn('ElevenLabs API key not provided, showing text only');
+      if (onTextUpdate) {
+        onTextUpdate(text);
+      }
+      return;
+    }
+
+    // Always show text immediately as fallback
+    if (onTextUpdate) {
+      onTextUpdate(text);
+    }
+
+    try {
+      // Start talking animation immediately
+      this.switchAnimation('talking');
+      
+      console.log('Generating speech for:', text.substring(0, 50) + '...');
+      console.log('Using voice:', this.options.voice);
+      
+      // Generate speech audio
+      const audioBlob = await this.generateSpeech(text);
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      // Start playing audio
+      this.audioElement.src = audioUrl;
+      
+      // Wait for audio to be ready
+      await new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          reject(new Error('Audio load timeout'));
+        }, 5000);
+        
+        this.audioElement.addEventListener('loadeddata', () => {
+          clearTimeout(timeoutId);
+          resolve();
+        });
+        this.audioElement.addEventListener('error', (e) => {
+          clearTimeout(timeoutId);
+          reject(e);
+        });
+        this.audioElement.load();
+      });
+      
+      // Play the audio
+      const playPromise = this.audioElement.play();
+      if (playPromise !== undefined) {
+        await playPromise;
+      }
+      
+      // Initialize lipsync
+      this.rhubarbLipsync.reset();
+      this.rhubarbLipsync.loadAudio(audioUrl);
+      this.rhubarbLipsync.start();
+      
+      // Wait for audio to finish
+      await new Promise((resolve) => {
+        this.audioElement.addEventListener('ended', resolve);
+      });
+      
+      // Clean up
+      this.switchAnimation('idle');
+      URL.revokeObjectURL(audioUrl);
+      
+    } catch (error) {
+      console.error('Speech failed, but text is already displayed:', error);
+      this.switchAnimation('idle');
+      // Don't rethrow - text is already shown
+    }
+  }
+
+  // Test the ElevenLabs API key
+  async testApiKey() {
+    if (!this.options.elevenlabsApiKey) {
+      return { success: false, error: 'No API key provided' };
+    }
+    
+    try {
+      const response = await fetch('https://api.elevenlabs.io/v1/voices', {
+        method: 'GET',
+        headers: {
+          'xi-api-key': this.options.elevenlabsApiKey
+        }
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        return { success: false, error: `API key test failed: ${response.status} - ${errorText}` };
+      }
+      
+      const data = await response.json();
+      console.log('API key test successful. Available voices:', data.voices.length);
+      return { success: true, voices: data.voices };
+      
+    } catch (error) {
+      return { success: false, error: `API key test error: ${error.message}` };
+    }
+  }
+
+  async generateSpeech(text) {
+    try {
+      console.log('Generating speech for:', text.substring(0, 50) + '...');
+      console.log('Using voice:', this.options.voice);
+      console.log('API key present:', this.options.elevenlabsApiKey ? 'Yes' : 'No');
+      
+      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${this.options.voice}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'audio/mpeg',
+          'Content-Type': 'application/json',
+          'xi-api-key': this.options.elevenlabsApiKey
+        },
+        body: JSON.stringify({
+          text: text,
+          model_id: 'eleven_monolingual_v1',
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.75
+          }
+        })
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('ElevenLabs API error:', response.status, errorText);
+        throw new Error(`ElevenLabs API error: ${response.status} - ${errorText}`);
+      }
+      
+      const audioBlob = await response.blob();
+      console.log('Speech generated successfully, blob size:', audioBlob.size);
+      return audioBlob;
+      
+    } catch (error) {
+      console.error('Speech generation failed:', error);
+      throw error;
+    }
+  }
+
   // Helper method to create a text stream from static text
   async* createTextStream(text, chunkSize = 20) {
     for (let i = 0; i < text.length; i += chunkSize) {
@@ -607,32 +747,7 @@ class AvatarManager {
       await new Promise(resolve => setTimeout(resolve, 50));
     }
   }
-  
-  async generateSpeech(text) {
-    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${this.options.voice}`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'audio/mpeg',
-        'Content-Type': 'application/json',
-        'xi-api-key': this.options.elevenlabsApiKey
-      },
-      body: JSON.stringify({
-        text: text,
-        model_id: 'eleven_monolingual_v1',
-        voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.75
-        }
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`ElevenLabs API error: ${response.status}`);
-    }
-    
-    return await response.blob();
-  }
-  
+
   switchAnimation(type) {
     if (!this.mixer) return;
     
@@ -688,6 +803,8 @@ class AvatarManager {
       this.audioElement.src = '';
     }
   }
+
+  // ...existing code...
 }
 
 // Export for global use
