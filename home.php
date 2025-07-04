@@ -234,7 +234,7 @@ if ($result && $result->num_rows > 0):
     if ($priority === 'high') $priorityClass = 'priority-high';
     else if ($priority === 'medium') $priorityClass = 'priority-medium';
 
-    $shortContent = mb_strimwidth(strip_tags($row['context']), 0, 100, '...');
+    $shortContent = mb_strimwidth(strip_tags($row['context']), 0, 70, '...');
     $safeFullContent = htmlspecialchars($row['context']);
     $safeTitle = htmlspecialchars($row['title']);
     $formattedDate = date('M d, Y h:i A', strtotime($row['timestamp']));
