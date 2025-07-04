@@ -177,6 +177,8 @@
                         <button onclick="speak('Welcome to VerzTec!')" class="btn btn-success">Welcome</button>
                         <button onclick="speak('How can I assist you today?')" class="btn btn-success">Assist</button>
                         <button onclick="speak('The weather is beautiful today.')" class="btn btn-success">Weather</button>
+                        <button onclick="testSpeechDebug()" class="btn btn-warning">Debug Test</button>
+                        <button onclick="testSimpleAudio()" class="btn btn-info">🔊 Test Audio</button>
                     </div>
                 </div>
             </div>
@@ -324,6 +326,47 @@
         
         function updateAvatarStatus(message) {
             document.getElementById('avatar-status').textContent = message;
+        }
+        
+        function testSpeechDebug() {
+            if (!avatarManager) {
+                alert('Avatar not initialized');
+                return;
+            }
+            
+            updateStatus('Running debug test...');
+            
+            // First test audio playback capabilities
+            avatarManager.testAudioPlayback()
+                .then(() => {
+                    console.log('Audio test completed, now testing speech...');
+                    return avatarManager.testSpeechSimple("Hello, this is a debugging test of the speech system");
+                })
+                .then(() => {
+                    updateStatus('Debug test completed - check console for details');
+                })
+                .catch(error => {
+                    updateStatus('Debug test failed: ' + error.message);
+                    console.error('Debug test error:', error);
+                });
+        }
+        
+        function testSimpleAudio() {
+            if (!avatarManager) {
+                alert('Avatar not initialized');
+                return;
+            }
+            
+            updateStatus('Testing simple audio...');
+            
+            avatarManager.testSimpleAudio()
+                .then(() => {
+                    updateStatus('Simple audio test completed successfully');
+                })
+                .catch(error => {
+                    updateStatus('Simple audio test failed: ' + error.message);
+                    console.error('Simple audio test error:', error);
+                });
         }
         
         // Voice selection change handler

@@ -3275,3 +3275,84 @@ Additionally, before starting your presentation, take a moment to thank the pros
 By following these guidelines, we can create a productive and respectful environment for our internal and external meetings, ultimately enhancing our relationships with clients and delivering high-quality services.
 Source: Follow Ups_Importance.pdf
 ---
+2025-07-04T21:10:32.707328 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T21:12:03.866206 - Q: hi
+A: How can I assist you today?
+---
+2025-07-04T21:12:09.493753 - Q: hi
+A: How can I assist you today?
+---
+2025-07-04T21:12:26.472990 - Q: hi
+A: How can I assist you today?
+---
+2025-07-04T21:15:35.012856 - Q: hi
+A: How can I assist you today?
+---
+2025-07-04T21:16:07.996495 - Q: hi
+A: How can I assist you today?
+---
+2025-07-04T21:17:07.329801 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T21:17:25.904452 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T21:20:26.764576 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T21:20:40.902195 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T21:21:09.991386 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T21:37:21.976928 - Q: hello
+A: Hello! It's nice to meet you. Is there something I can help you with or would you like to chat?
+---
+2025-07-04T21:41:05.346478 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T22:04:38.158061 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T22:04:57.946225 - Q: tell me about verztec's meeting etiquette
+A: At Verztec, we prioritize building strong relationships with our customers and ensuring effective communication. When it comes to meetings, there are several key elements to consider.
+
+Firstly, it's essential to start the call on a professional note by using an appropriate greeting that includes our company name. You should also introduce yourself, including your job title and department, to personalize the interaction. Additionally, ask how you can assist the caller to set the tone for the conversation.
+
+During the call, it's crucial to maintain focus and attention on the speaker, as well as ensure that your video is turned on to indicate your presence in the meeting. This includes checking your audio and visual equipment beforehand to avoid any technical issues.
+
+When presenting to prospects or clients, we encourage dressing in Smart Casual attire to create a professional atmosphere. It's also essential to refrain from multitasking, such as typing away on your keyboard or phone, to maintain engagement with the caller.
+
+If you have questions, concerns, or need to contribute to the conversation, please don't hesitate to send a private message to the host. Taking notes during the meeting is also beneficial to ensure that you can recall key points and apply them in your work.
+
+By following these guidelines, we aim to establish a positive and productive tone for our internal meetings, which will ultimately benefit our customers and enhance our services at Verztec.
+Source: Follow Ups_Importance.pdf
+---
+2025-07-04T22:05:15.689459 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T22:06:31.829820 - Q: tell me about verztec's in-person meeting etiquette
+A: At Verztec, we place a strong emphasis on maintaining a professional and respectful demeanor during in-person meetings. This includes respecting our colleagues and clients by giving them full attention during the meeting session.
+
+It's essential to turn on your video and ensure that you have good lighting and sound before joining an internal meeting. When presenting to prospects or external parties, we encourage smart casual attire.
+
+During the meeting, please refrain from doing other work tasks such as typing away on your keyboard or phone. If you have a question, concern, or wish to speak, kindly mention it in a private message to the host.
+
+Additionally, it's crucial to take notes so that you can remember key points for future reference. When introducing yourself, please be proactive and walk up to greet clients with a handshake, passing your name card with both hands. 
+
+Before starting a presentation, we recommend informing the receptionist or office tea assistant to get assistance from their IT colleague to set up the projector/AV system, if necessary. Make sure to inform clients earlier in the email that our corporate presentations will require the use of a projector/screen/sound, and ask them to have their IT guy standby to assist with setup if needed.
+
+By following these guidelines, we can ensure a productive and respectful in-person meeting environment at Verztec.
+Source: Follow Ups_Importance.pdf
+---
+[❌ Rejected Personal] 2025-07-04T22:08:51.598348 - Q: i love you!
+---
+2025-07-04T22:09:29.473873 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T22:09:34.094002 - Q: hello
+A: Hello! How can I assist you today?
+---

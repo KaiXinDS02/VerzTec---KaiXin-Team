@@ -57,16 +57,108 @@ class RhubarbLipsync {
   
   // Connect audio element for real-time analysis
   connectAudio(audioElement) {
-    if (!this.audioContext || !audioElement) return;
+    if (!this.audioContext || !audioElement) {
+      console.warn('Cannot connect audio: missing audio context or element');
+      return false;
+    }
     
     try {
-      const source = this.audioContext.createMediaElementSource(audioElement);
-      source.connect(this.analyser);
-      this.analyser.connect(this.audioContext.destination);
-      console.log('Audio connected to Rhubarb lipsync analyzer');
+      // Disconnect previous source if exists
+      if (this.audioSource) {
+        try {
+          this.audioSource.disconnect();
+          console.log('Previous audio source disconnected');
+        } catch (e) {
+          console.warn('Could not disconnect previous audio source:', e);
+        }
+      }
+      
+      // Create media element source
+      this.audioSource = this.audioContext.createMediaElementSource(audioElement);
+      
+      // Connect to analyzer for lipsync
+      this.audioSource.connect(this.analyser);
+      
+      // CRITICAL: Also connect to destination so audio actually plays!
+      this.audioSource.connect(this.audioContext.destination);
+      
+      // Set up real-time analysis
+      this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+      
+      console.log('✅ Audio connected to Rhubarb lipsync analyzer AND audio output');
+      return true;
     } catch (error) {
-      console.warn('Audio already connected or connection failed:', error);
+      console.error('❌ Audio connection failed:', error);
+      
+      // If we get a DOMException about already being connected, that's actually OK
+      if (error.name === 'InvalidStateError' && error.message.includes('already connected')) {
+        console.log('⚠️ Audio element already connected to Web Audio API - this is expected');
+        return true;
+      }
+      
+      return false;
     }
+  }
+  
+  // Load audio for lipsync analysis
+  async loadAudio(audioUrl) {
+    if (!this.audioContext) {
+      console.error('Audio context not initialized');
+      return;
+    }
+
+    try {
+      // Fetch audio data
+      const response = await fetch(audioUrl);
+      const arrayBuffer = await response.arrayBuffer();
+      
+      // Decode audio
+      this.audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+      
+      // Generate viseme data
+      this.visemeData = await this.generateVisemeData(this.audioBuffer);
+      
+      console.log('Audio loaded and analyzed for lipsync, viseme data points:', this.visemeData.length);
+      
+    } catch (error) {
+      console.error('Failed to load audio for lipsync:', error);
+      // Fallback to basic analysis
+      this.visemeData = [];
+    }
+  }
+
+  // Start lipsync playback
+  start() {
+    this.isPlaying = true;
+    this.currentTime = 0;
+    this.startTime = Date.now();
+    console.log('Lipsync started');
+  }
+
+  // Stop lipsync playback
+  stop() {
+    this.isPlaying = false;
+    this.currentViseme = 'X';
+    console.log('Lipsync stopped');
+  }
+
+  // Reset lipsync state
+  reset() {
+    this.isPlaying = false;
+    this.currentTime = 0;
+    this.currentViseme = 'X';
+    this.visemeData = [];
+    console.log('Lipsync reset');
+  }
+
+  // Update current time and get appropriate viseme
+  update(deltaTime) {
+    if (!this.isPlaying) return;
+    
+    this.currentTime += deltaTime;
+    
+    // Use real-time audio analysis instead of pre-computed viseme data
+    this.processAudio(this.currentTime);
   }
   
   // Generate viseme data from audio using Rhubarb-like algorithm
@@ -183,7 +275,10 @@ class RhubarbLipsync {
   
   // Real-time processing for live audio
   processAudio(currentTime) {
-    if (!this.audioContext || !this.analyser) return this.currentViseme;
+    if (!this.audioContext || !this.analyser) {
+      console.warn('Audio context or analyser not available for lipsync');
+      return this.currentViseme;
+    }
     
     const bufferLength = this.analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
@@ -191,6 +286,11 @@ class RhubarbLipsync {
     
     // Calculate average volume
     const average = dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
+    
+    // Debug logging (throttled)
+    if (Math.random() < 0.01) { // Log only 1% of the time
+      console.log('Audio analysis - Average volume:', average, 'Current viseme:', this.currentViseme);
+    }
     
     if (average < 5) {
       this.currentViseme = 'X'; // Silence

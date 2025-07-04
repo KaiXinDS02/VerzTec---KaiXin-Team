@@ -270,17 +270,28 @@ class ReadyPlayerMeAvatar {
   }
   
   updateLipsync(viseme, intensity = 0.8) {
-    // Reset all viseme targets
+    // Reset all viseme targets to 0 first
     for (const [key, target] of Object.entries(this.morphTargets)) {
       if (key.startsWith('viseme_')) {
-        this.lerpMorphTarget(target, 0, 0.2);
+        if (target && target.mesh && target.index !== undefined) {
+          this.lerpMorphTarget(target, 0, 0.3);
+        }
       }
     }
     
-    // Apply current viseme
+    // Apply current viseme with smooth transition
     const target = this.morphTargets[viseme];
-    if (target) {
-      this.lerpMorphTarget(target, intensity * target.weight, 0.2);
+    if (target && target.mesh && target.index !== undefined) {
+      const finalIntensity = Math.max(0, Math.min(1, intensity * target.weight));
+      this.lerpMorphTarget(target, finalIntensity, 0.4);
+      
+      // Add slight jaw movement for more natural speech
+      if (viseme === 'viseme_aa' || viseme === 'viseme_E' || viseme === 'viseme_O') {
+        const jawTarget = this.morphTargets['jawOpen'] || this.morphTargets['JawOpen'];
+        if (jawTarget) {
+          this.lerpMorphTarget(jawTarget, finalIntensity * 0.3, 0.4);
+        }
+      }
     }
   }
   

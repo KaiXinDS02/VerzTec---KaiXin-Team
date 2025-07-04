@@ -677,19 +677,21 @@
         if (isVoiceEnabled && avatarManager && avatarManager.isInitialized) {
           updateAvatarStatus('Speaking...');
           
-          // Create placeholder for bot response
-          const botMessageDiv = document.createElement('div');
-          botMessageDiv.className = 'bot-bubble';
-          botMessageDiv.innerHTML = '<strong>VerzTec Assistant:</strong> ';
-          
-          const chatContainer = document.getElementById('chat-container');
-          chatContainer.appendChild(botMessageDiv);
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-          
           try {
-            console.log('Starting speech with text streaming for:', data.answer.substring(0, 50) + '...');
+            console.log('Starting synchronized speech with text streaming for:', data.answer.substring(0, 50) + '...');
             
-            // Use the robust speakWithTextStream method
+            // Create placeholder for bot response
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'bot-bubble';
+            botMessageDiv.innerHTML = '<strong>VerzTec Assistant:</strong> ';
+            
+            const chatContainer = document.getElementById('chat-container');
+            chatContainer.appendChild(botMessageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            updateAvatarStatus('Speaking...');
+            
+            // Use the improved speakWithTextStream method
             await avatarManager.speakWithTextStream(data.answer, (streamedText) => {
               botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${streamedText}`;
               chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -699,7 +701,6 @@
           } catch (error) {
             console.error('Speech failed:', error);
             updateAvatarStatus('Speech failed, but text is shown');
-            // Text is already displayed, so no need to do anything else
           }
         } else {
           // Avatar not ready, just show text normally
