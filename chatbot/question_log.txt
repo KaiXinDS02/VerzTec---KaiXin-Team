@@ -3356,3 +3356,93 @@ A: Hello! How can I assist you today?
 2025-07-04T22:09:34.094002 - Q: hello
 A: Hello! How can I assist you today?
 ---
+2025-07-04T22:12:02.327686 - Q: hello
+A: Hello! It's nice to meet you. Is there something I can help you with or would you like to chat?
+---
+2025-07-04T22:12:27.526751 - Q: tell me about verztec's meeting etiquette
+A: At Verztec, we believe it's essential to establish a good rapport with our clients and colleagues through effective communication. When it comes to meetings, here are some key points to keep in mind:
+
+Firstly, it's crucial to respect the speakers during a meeting session. This means giving your full attention to the conversation and avoiding distractions.
+
+Before joining an internal meeting, make sure to turn on your video, check your audio and lighting, and dress professionally (Smart Casual for presentations with prospects or clients).
+
+During the meeting, please refrain from doing other work tasks, such as typing away on your keyboard or phone. If you have a question or concern, it's best to mention it in a private message to the host.
+
+Additionally, taking notes is essential so that you can remember key points and apply them in your work.
+
+By following these guidelines, we aim to create a productive and respectful meeting environment that fosters open communication and collaboration.
+Source: Follow Ups_Importance.pdf
+---
+2025-07-04T22:14:03.596697 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T22:14:09.130096 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T22:14:26.635712 - Q: hello
+A: Hello! It's nice to meet you. Is there something I can help you with or would you like to chat?
+---
+2025-07-04T22:14:59.356755 - Q: hi
+A: Hello! It seems like we're starting a call. Before we begin, I'd like to start by introducing myself and our company. My name is [Name], and I'm an HR Assistant at Verztec. How can I assist you today?
+Source: 8_Basic Telephone Skills.pdf
+---
+2025-07-04T22:16:39.983110 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T22:16:45.777840 - Q: hi
+A: How can I assist you today?
+---
+2025-07-04T22:16:56.669234 - Q: hi
+A: How can I assist you today?
+---
+2025-07-04T22:17:45.523088 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T22:18:11.923150 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T22:19:53.573543 - Q: tell me about verztec
+A: I couldn't find any information on "Verztec." It's possible that it's a misspelling or a term that is not widely recognized. Can you please provide more context or clarify what Verztec refers to?
+
+If you meant to ask about "Verzwulf" or another term, I'd be happy to try and help. Alternatively, if you have any specific information or details about Verztec, I may be able to provide a more accurate answer.
+
+However, I did find that there is a company called Verzweiflung (German for "despair"), but it's not well-known outside of Germany.
+---
+2025-07-04T22:21:06.609104 - Q: tell me about my annual leave policy
+A: As a Verztec employee, it's essential to understand our annual leave policy to plan your time off effectively. Firstly, please note that we require advance notice for any leave application. If you're unable to attend the Year End Staff Appreciation and Christmas Lunch due to valid reasons, such as maternity or paternity leave, holiday period, or being sick (with a Medical Certificate), you must apply one day's annual leave in advance. For birthday leave, it's recommended that you utilize your Annual Leave on your birthday month or actual birthday. New staff under probation can apply for leave after 2 months from their join date to avoid disrupting their training program. To ensure a smooth work experience, please clear all your leave by the end of your anniversary year to avoid forfeiting your Annual/Off days. It's also important to space out your leave and check with your department manager/supervisor to avoid clashing with team members. We take into account "No Pay Leave" taken in calculating employee's bonus, so please try to limit it to 7 days or less per year. Excessive sick leave (more than 50%) can affect your annual appraisal and bonus. As for our leave policy, full-time employees are entitled to the following number of leave days: * 0-3 years: 14 days * 1-5 years: 16 days * 6-10 years: 18 days * More than 10 years: 25 days It's also worth noting that we only allow a maximum of 4 days Annual Leave to be carried forward on a case-by-case basis, so please try to clear as much leave as possible before expiry. Additionally, if you apply for advanced leave on September 15th, it will be utilized under the new employment year's annual leave entitlement....
+Source: leave policy.docx
+---
+2025-07-04T22:26:53.950799 - Q: tell me about leave policy
+A: The leave policy at Verztec is quite detailed and has several key points to consider. Firstly, all leave must be supported by a valid reason and approved by a supervisor or manager before submission via e-Leave. It's also essential to inform your manager of your leave dates in advance. There are specific guidelines for different types of leave. For example, half-day leave is only applicable from 9am-1pm (AM) or 2pm-6pm (PM). The minimum period to apply for leave is half a day, which is equivalent to five days. During the probationary period, typically the first three months, no paid sick leave or unpaid leave will be allowed. If an employee takes unpaid leave after payroll processing, it will be deducted in the next month's pay. For other leaves, such as vacation or personal matters, employees are required to submit their applications at least one week in advance for approval. For leave requests of one week or above, it's recommended to apply three months in advance to ensure capacity planning and avoid conflicts with team members' leave dates. Leave is applied on a first-come, first-served basis, which means that if no one in the team is taking leave on specified dates, you'll have the first opportunity for approval. However, if there are already team members taking leave on those dates, your chances of getting approved may be lower, especially if there's a wide date span of overlaps. Unused leave will be forfeited, and employees can only carry forward up to four days of annual leave in a year. It's essential to plan your leave utilization properly and inform your team manager about it in advance....
+Source: leave policy.docx
+---
+2025-07-04T22:32:53.561612 - Q: tell me about leave policy
+A: At Verztec, our leave policy is designed to ensure that all employees take their leave in a way that supports the company's capacity planning and budgeting. Here are some key points to note: Firstly, all leave must be supported with a valid reason, and employees must inform their supervisor or manager of their leave date(s) before applying via e-Leave. When it comes to paid leave and sick leave during the probationary period (usually 3 months), no paid leave is allowed. However, unpaid leave taken after payroll is processed will be deducted in the next month's pay. For regular leave applications, employees must submit their request at least one week in advance for approval. For leave applications of one week or above, it's recommended to apply three months (or earlier) in advance to avoid conflicts with other team members' leave dates. Leave is applied on a first-come, first-served basis, which means that if no one in the team is taking leave on specified dates, you'll have the first approval opportunity. However, if there are multiple team members taking leave on the same dates, you may face competition and will be given a 50/50 chance of having your leave approved. It's also important to note that unused leave will not be encashable due to budgeting reasons. In fact, unused leave will be forfeited. However, employees can carry forward up to four days' annual leave in a year. Additionally, festive holidays are subject to specific rules: only Chinese New Year Eve and December 31st will be half-day for all staff, except when these fall on weekends. On those occasions, there will be no half-day off....
+Source: leave policy.docx
+---
+2025-07-04T22:33:28.872260 - Q: tell me about leave policy
+A: At Verztec, our company leave policy is designed to ensure that all leave applications are supported by a valid reason and submitted in advance for approval. All employees must inform their supervisor or manager of their leave dates before applying via e-Leave. There are some key guidelines to be aware of: * Half-day leave is available from 9am-1pm (AM) or 2pm-6pm (PM). * The minimum period to apply for leave is half a day, which is equivalent to five working days. * During the probationary period (usually the first three months), no paid sick leave or vacation time will be allowed. Any unpaid leave taken after payroll processing will be deducted in the next month's pay. For all leave applications, including vacation and personal matters, it's essential to submit a valid reason and apply at least one week in advance for approval. However, if you're taking leave of seven days or more, please apply three months (or earlier) in advance to ensure capacity planning can take place. Leave is applied on a first-come, first-served basis, so it's crucial to plan your leave utilization carefully and inform your team manager about any changes in advance. If there are multiple staff members taking leave on the same dates, you may have a 50/50 chance of getting approval, especially if there are overlapping date spans. It's also important to note that unused leave will be forfeited, and due to budgetary reasons, we cannot offer encashment for leave anymore. You can carry forward up to four days of annual leave per year, but it's essential to plan your leave utilization properly and inform your team manager about any changes in advance. Additionally, during the Year End Staff Appreciation and Christmas Lunch periods, there will be compulsory attendance....
+Source: leave policy.docx
+---
+2025-07-04T22:33:45.442713 - Q: tell me abput leave policy
+A: At Verztec, our company leave policy is designed to ensure that all leave applications are supported with a valid reason and submitted in advance. Here's an overview of the key points: All employees must inform their supervisor or manager before applying for leave via e-Leave, and they must also specify the reason for their absence. There are some specific guidelines to note: half-day leave is only applicable from 9am-1pm (AM) or 2pm-6pm (PM), and minimum leave application duration is a full day. During the probationary period (usually first three months), no paid sick leave is allowed, but unpaid leave taken after payroll processing will be deducted in the next month's pay. For all employees, it's recommended to submit leave applications at least one week in advance for approval, with more advanced notice required for longer periods of leave. Leave is applied on a first-come, first-served basis, and unused leave will be forfeited. Additionally, there are some specific rules around birthday leave: employees must use their available birthday leave days during their birthday month or actual birthday. New staff under probation can apply for birthday leave after two months from their join date to avoid disrupting their training program. It's also important to note that leave encashment is no longer allowed at any level, and unused leave will be forfeited. Employees are encouraged to plan their leave utilization properly and inform their team manager in advance to avoid clashing with other team members. Finally, it's worth mentioning the leave days policy for full-time employees: 14 days for those with 0-3 years of service, 16 days for those with 4-5 years, 18 days for those with 6-10 years, and 25 days for those with more than 10 years of service....
+Source: leave policy.docx
+---
+2025-07-04T22:34:28.684655 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T22:36:49.192274 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-04T22:37:05.947254 - Q: tell me about verztec's meeting policies
+A: Verztec has a meeting policy that is closely tied to its overall communication strategy. As an expert in giving sound advice, it's essential to position yourself as knowledgeable when discussing services with customers.
+
+In terms of meeting policies, Verztec encourages face-to-face meetings, such as over coffee or lunch, or inviting clients to the office, to build personal relationships and establish trust. These interactions also provide opportunities to discuss family, hobbies, and other aspects of a client's life.
+
+Additionally, Verztec utilizes various communication tools, including email messages, thank-you notes, phone calls, faxes, and snail mail, to maintain consistent quality communication with clients. This approach allows for a personal touch and helps to show appreciation for customers' support on special occasions, such as anniversaries.
+
+Regarding meeting policies specifically, there isn't a detailed outline provided in the document. However, it's worth noting that Verztec has established procedures for various aspects of its operations, including new employee orientations, departmental meetings, and contract agreements with customers. These processes are designed to ensure quality control and effective communication within the organization.
+
+If you have any further questions or would like more information on Verztec's meeting policies, please feel free to ask.
+Source: Follow Ups_Importance.pdf
+---

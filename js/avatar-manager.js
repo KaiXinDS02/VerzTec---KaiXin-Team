@@ -27,10 +27,12 @@ class AvatarManager {
     // Animation state
     this.idleAction = null;
     this.talkingAction = null;
+    this.thinkingAction = null;
     this.currentAnimation = null;
     
     // Speech state
     this.isSpeaking = false;
+    this.isThinking = false;
     this.speechStartTime = 0;
     
     this.init();
@@ -155,12 +157,19 @@ class AvatarManager {
           const action = this.mixer.clipAction(clip);
           const clipName = clip.name.toLowerCase();
           
+          console.log(`Found animation clip: "${clip.name}" (${clipName})`);
+          
           if (clipName.includes('idle')) {
             this.idleAction = action;
             console.log('Found idle animation:', clip.name);
           } else if (clipName.includes('talk') || clipName.includes('speaking')) {
             this.talkingAction = action;
             console.log('Found talking animation:', clip.name);
+          } else if (clipName.includes('think') || clipName.includes('pondering') || 
+                     clipName.includes('contemplat') || clipName.includes('reflect') ||
+                     clipName.includes('consider') || clipName.includes('pause')) {
+            this.thinkingAction = action;
+            console.log('Found thinking animation:', clip.name);
           }
         });
         
@@ -170,6 +179,12 @@ class AvatarManager {
           this.currentAnimation = 'idle';
           console.log('Started idle animation');
         }
+        
+        // Log available animations
+        console.log('Animation Status:');
+        console.log('- Idle animation:', this.idleAction ? 'Available' : 'Not found');
+        console.log('- Talking animation:', this.talkingAction ? 'Available' : 'Not found');
+        console.log('- Thinking animation:', this.thinkingAction ? 'Available' : 'Not found');
       }
       
       // Setup Ready Player Me controller
@@ -309,8 +324,12 @@ class AvatarManager {
     } else if (this.isSpeaking) {
       // Keep mouth slightly open during talking animation
       this.readyPlayerMeController.updateLipsync('viseme_aa', 0.2);
+    } else if (this.isThinking) {
+      // Let the thinking animation handle the expression - just keep mouth closed
+      this.readyPlayerMeController.updateLipsync('viseme_sil', 1.0);
+      // Don't override facial expressions when using actual thinking animation
     } else {
-      // Idle state - closed mouth
+      // Idle state - closed mouth, neutral expression
       this.readyPlayerMeController.updateLipsync('viseme_sil', 1.0);
     }
   }
@@ -320,18 +339,56 @@ class AvatarManager {
     
     console.log(`Switching animation to: ${type}`);
     
-    if (type === 'talking' && this.talkingAction && this.currentAnimation !== 'talking') {
+    if (type === 'thinking' && this.currentAnimation !== 'thinking') {
+      // Use actual thinking animation if available, otherwise fall back to idle
+      if (this.thinkingAction) {
+        // Stop other animations
+        if (this.talkingAction) {
+          this.talkingAction.fadeOut(0.3);
+        }
+        if (this.idleAction) {
+          this.idleAction.fadeOut(0.3);
+        }
+        
+        // Start thinking animation
+        this.thinkingAction.reset().fadeIn(0.3).play();
+        this.thinkingAction.setLoop(THREE.LoopRepeat);
+        this.currentAnimation = 'thinking';
+        console.log('Switched to actual thinking animation');
+      } else if (this.idleAction) {
+        // Fallback to idle animation if no thinking animation is available
+        if (this.talkingAction) {
+          this.talkingAction.fadeOut(0.3);
+        }
+        this.idleAction.reset().fadeIn(0.3).play();
+        this.idleAction.setLoop(THREE.LoopRepeat);
+        this.currentAnimation = 'thinking';
+        console.log('Switched to thinking animation (using idle as fallback)');
+      }
+    } else if (type === 'talking' && this.talkingAction && this.currentAnimation !== 'talking') {
+      // Stop other animations
       if (this.idleAction) {
         this.idleAction.fadeOut(0.3);
       }
+      if (this.thinkingAction) {
+        this.thinkingAction.fadeOut(0.3);
+      }
+      
+      // Start talking animation
       this.talkingAction.reset().fadeIn(0.3).play();
       this.talkingAction.setLoop(THREE.LoopRepeat);
       this.currentAnimation = 'talking';
       console.log('Switched to talking animation');
     } else if (type === 'idle' && this.idleAction && this.currentAnimation !== 'idle') {
+      // Stop other animations
       if (this.talkingAction) {
         this.talkingAction.fadeOut(0.3);
       }
+      if (this.thinkingAction) {
+        this.thinkingAction.fadeOut(0.3);
+      }
+      
+      // Start idle animation
       this.idleAction.reset().fadeIn(0.3).play();
       this.idleAction.setLoop(THREE.LoopRepeat);
       this.currentAnimation = 'idle';
@@ -339,12 +396,81 @@ class AvatarManager {
     }
   }
   
-  // Type text with a realistic typing effect
-  async typeText(text, onTextUpdate, delay = 30) {
+  // Type text with a realistic typing effect, optionally synced to audio duration
+  async typeText(text, onTextUpdate, customDelay = null) {
+    const defaultDelay = 10; // 2x faster: 10ms per character (was 20ms)
+    let delay = customDelay || defaultDelay;
+    
+    // If no custom delay is provided, use default
+    if (customDelay === null) {
+      delay = defaultDelay;
+    }
+    
     let currentText = '';
     for (let i = 0; i < text.length; i++) {
       currentText += text[i];
       onTextUpdate(currentText);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  // Type text synchronized with audio duration
+  async typeTextWithAudioSync(text, onTextUpdate, audioDuration) {
+    if (!audioDuration || audioDuration <= 0) {
+      // Fallback to faster letter-by-letter typing
+      return this.typeText(text, onTextUpdate, 8); // 8ms per character (2x faster)
+    }
+    
+    // Calculate delay per character to match audio duration
+    const totalCharacters = text.length;
+    const delayPerCharacter = Math.max(4, (audioDuration * 1000) / totalCharacters); // Min 4ms per character (2x faster)
+    
+    console.log(`⌨️ Letter-by-letter typing: ${totalCharacters} characters over ${audioDuration}s (${delayPerCharacter.toFixed(1)}ms per char)`);
+    
+    let currentText = '';
+    for (let i = 0; i < text.length; i++) {
+      currentText += text[i];
+      onTextUpdate(currentText);
+      await new Promise(resolve => setTimeout(resolve, delayPerCharacter));
+    }
+  }
+  
+  // Letter-by-letter text typing that syncs with audio (2x faster)
+  async typeTextWithPreciseAudioSync(text, onTextUpdate, audioDuration) {
+    if (!audioDuration || audioDuration <= 0) {
+      return this.typeText(text, onTextUpdate, 8); // Faster fallback: 8ms per character
+    }
+    
+    // Use letter-by-letter approach instead of word-by-word for more precise control
+    const totalCharacters = text.length;
+    const baseDelayPerCharacter = Math.max(4, (audioDuration * 1000) / totalCharacters); // Min 4ms per character (2x faster)
+    
+    console.log(`🎯 Letter-by-letter sync: ${totalCharacters} characters over ${audioDuration}s (${baseDelayPerCharacter.toFixed(1)}ms per char)`);
+    
+    let currentText = '';
+    
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      currentText += char;
+      
+      // Update display
+      onTextUpdate(currentText);
+      
+      // Calculate delay for this character with variations for natural feel
+      let delay = baseDelayPerCharacter;
+      
+      // Add slight variations for natural typing rhythm
+      if (char === ' ') {
+        delay = delay * 0.5; // Spaces are quicker
+      } else if (char.match(/[.,!?;:]/)) {
+        delay = delay * 0.8; // Punctuation slightly quicker
+      } else if (char.match(/[aeiouAEIOU]/)) {
+        delay = delay * 0.9; // Vowels slightly quicker
+      }
+      
+      // Add subtle random variation (±10%)
+      delay = delay * (0.9 + Math.random() * 0.2);
+      
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
@@ -513,6 +639,7 @@ class AvatarManager {
       this.audioElement.addEventListener('ended', () => {
         setTimeout(() => {
           this.isSpeaking = false;
+          this.isThinking = false;
           this.switchAnimation('idle');
           this.rhubarbLipsync.stop();
           resolve();
@@ -571,6 +698,7 @@ class AvatarManager {
       this.audioElement.addEventListener('ended', () => {
         setTimeout(() => {
           this.isSpeaking = false;
+          this.isThinking = false;
           this.switchAnimation('idle');
           
           // Reconnect to lipsync if it was connected before
@@ -610,6 +738,7 @@ class AvatarManager {
         
         setTimeout(() => {
           this.isSpeaking = false;
+          this.isThinking = false;
           this.switchAnimation('idle');
           resolve();
         }, 300);
@@ -677,7 +806,25 @@ class AvatarManager {
     }
   }
   
-  // Method to start speaking immediately and stream text in sync
+  // Method to generate speech first, then play audio while text appears to be typing
+  // Method to trigger thinking state immediately (for UI responsiveness)
+  startThinking() {
+    console.log('🤔 UI triggered thinking state immediately...');
+    this.switchAnimation('thinking');
+    this.isThinking = true;
+    this.isSpeaking = false;
+    this.debugAvatarState();
+  }
+  
+  // Method to stop thinking and return to idle
+  stopThinking() {
+    console.log('🛑 Stopping thinking state...');
+    this.switchAnimation('idle');
+    this.isThinking = false;
+    this.isSpeaking = false;
+    this.debugAvatarState();
+  }
+
   async speakWithTextStream(text, onTextUpdate = null) {
     // Debug avatar state
     this.debugAvatarState();
@@ -685,45 +832,203 @@ class AvatarManager {
     if (!this.options.elevenlabsApiKey) {
       console.warn('ElevenLabs API key not provided, showing text only');
       if (onTextUpdate) {
-        // Stream the text letter by letter for typing effect
+        // Stream the text letter by letter for typing effect with 2x faster speed
+        await this.typeText(text, onTextUpdate, 8); // 8ms per character (2x faster)
+      }
+      return;
+    }
+
+    try {
+      // Step 1: Note that thinking should already be triggered by the UI,
+      // but ensure we're in thinking state if not already
+      if (!this.isThinking) {
+        console.log('🤔 Entering thinking state...');
+        this.switchAnimation('thinking');
+        this.isThinking = true;
+        this.isSpeaking = false;
+      }
+      
+      // Step 2: Generate speech audio first (this takes time, avatar should be thinking)
+      console.log('🎤 Generating speech for:', text.substring(0, 50) + '...');
+      const audioBlob = await this.generateSpeech(text);
+      console.log('🎵 Audio generated, blob size:', audioBlob.size);
+      
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      // Step 3: Get audio duration by creating a temporary audio element
+      let audioDuration = 0;
+      try {
+        const tempAudio = document.createElement('audio');
+        tempAudio.src = audioUrl;
+        
+        await new Promise((resolve, reject) => {
+          const timeoutId = setTimeout(() => {
+            reject(new Error('Metadata load timeout'));
+          }, 5000);
+          
+          tempAudio.addEventListener('loadedmetadata', () => {
+            clearTimeout(timeoutId);
+            audioDuration = tempAudio.duration;
+            console.log('🎵 Audio duration:', audioDuration + 's');
+            resolve();
+          });
+          tempAudio.addEventListener('error', (e) => {
+            clearTimeout(timeoutId);
+            console.warn('Could not get audio metadata:', e);
+            resolve(); // Continue without duration info
+          });
+          tempAudio.load();
+        });
+      } catch (error) {
+        console.warn('Could not get audio duration:', error);
+      }
+      
+      // Step 4: Transition from thinking to speaking
+      console.log('🎭 Transitioning from thinking to speaking...');
+      this.isThinking = false;
+      this.switchAnimation('talking');
+      this.isSpeaking = true;
+      this.speechStartTime = Date.now();
+      
+      // Step 5: Start audio playback and synchronized text typing simultaneously
+      console.log('🔊 Starting audio playback and precisely synchronized text typing...');
+      
+      // Create promises for both audio and text
+      const audioPromise = this.playAudioOnly(audioUrl);
+      const textPromise = onTextUpdate ? 
+        (audioDuration > 0 ? 
+          this.typeTextWithPreciseAudioSync(text, onTextUpdate, audioDuration) :
+          this.typeTextWithAudioSync(text, onTextUpdate, audioDuration)
+        ) : 
+        Promise.resolve();
+      
+      // Wait for both to complete
+      await Promise.all([audioPromise, textPromise]);
+      
+      // Clean up
+      URL.revokeObjectURL(audioUrl);
+      console.log('✅ Speech and synchronized text typing completed successfully');
+      
+    } catch (error) {
+      console.error('❌ Speech failed:', error);
+      this.switchAnimation('idle');
+      this.isSpeaking = false;
+      this.isThinking = false;
+      
+      // Show error to user if text display is available
+      if (onTextUpdate) {
+        // Use faster typing speed for error display too
+        await this.typeText(text, onTextUpdate, 8); // 8ms per character (2x faster)
+      }
+    }
+  }
+  
+  // Alternative method that shows generating status, then plays audio with typing effect
+  async speakWithTextStreamAndStatus(text, onTextUpdate = null, onStatusUpdate = null) {
+    // Debug avatar state
+    this.debugAvatarState();
+    
+    if (!this.options.elevenlabsApiKey) {
+      console.warn('ElevenLabs API key not provided, showing text only');
+      if (onTextUpdate) {
         await this.typeText(text, onTextUpdate);
       }
       return;
     }
 
     try {
-      // Start talking animation immediately
-      console.log('🎭 Starting talking animation...');
-      this.switchAnimation('talking');
-      this.isSpeaking = true;
-      this.speechStartTime = Date.now();
+      // Step 1: Show thinking status and enter thinking animation
+      if (onStatusUpdate) {
+        onStatusUpdate('Thinking...');
+      }
       
-      // Start generating speech audio
+      console.log('🤔 Entering thinking state...');
+      this.switchAnimation('thinking');
+      this.isThinking = true;
+      this.isSpeaking = false;
+      
+      // Step 2: Generate speech audio first
       console.log('🎤 Generating speech for:', text.substring(0, 50) + '...');
-      const audioPromise = this.generateSpeech(text);
+      if (onStatusUpdate) {
+        onStatusUpdate('Generating speech...');
+      }
       
-      // Start displaying text with typing effect in parallel
-      const textPromise = onTextUpdate ? this.typeText(text, onTextUpdate) : Promise.resolve();
-      
-      // Wait for both audio generation and text display to complete
-      console.log('⏳ Waiting for audio generation and text display...');
-      const [audioBlob] = await Promise.all([audioPromise, textPromise]);
+      const audioBlob = await this.generateSpeech(text);
       console.log('🎵 Audio generated, blob size:', audioBlob.size);
       
       const audioUrl = URL.createObjectURL(audioBlob);
       
-      // Try to play audio with our robust method
-      console.log('🔊 Playing audio with multiple fallback methods...');
-      await this.playAudioOnly(audioUrl);
+      // Step 3: Get audio duration
+      let audioDuration = 0;
+      try {
+        const tempAudio = document.createElement('audio');
+        tempAudio.src = audioUrl;
+        
+        await new Promise((resolve, reject) => {
+          const timeoutId = setTimeout(() => {
+            reject(new Error('Metadata load timeout'));
+          }, 5000);
+          
+          tempAudio.addEventListener('loadedmetadata', () => {
+            clearTimeout(timeoutId);
+            audioDuration = tempAudio.duration;
+            console.log('🎵 Audio duration:', audioDuration + 's');
+            resolve();
+          });
+          tempAudio.addEventListener('error', (e) => {
+            clearTimeout(timeoutId);
+            console.warn('Could not get audio metadata:', e);
+            resolve(); // Continue without duration info
+          });
+          tempAudio.load();
+        });
+      } catch (error) {
+        console.warn('Could not get audio duration:', error);
+      }
+      
+      // Step 4: Update status to speaking and transition animation
+      if (onStatusUpdate) {
+        onStatusUpdate('Speaking...');
+      }
+      
+      console.log('🎭 Transitioning from thinking to speaking...');
+      this.isThinking = false;
+      this.switchAnimation('talking');
+      this.isSpeaking = true;
+      this.speechStartTime = Date.now();
+      
+      // Step 5: Start audio playback and synchronized text typing
+      console.log('🔊 Starting audio playback and precisely synchronized text typing...');
+      
+      const audioPromise = this.playAudioOnly(audioUrl);
+      const textPromise = onTextUpdate ? 
+        (audioDuration > 0 ? 
+          this.typeTextWithPreciseAudioSync(text, onTextUpdate, audioDuration) :
+          this.typeTextWithAudioSync(text, onTextUpdate, audioDuration)
+        ) : 
+        Promise.resolve();
+      
+      // Wait for both to complete
+      await Promise.all([audioPromise, textPromise]);
+      
+      // Step 6: Update status to ready
+      if (onStatusUpdate) {
+        onStatusUpdate('Ready');
+      }
       
       // Clean up
       URL.revokeObjectURL(audioUrl);
-      console.log('✅ Speech completed successfully');
+      console.log('✅ Speech with status updates completed successfully');
       
     } catch (error) {
       console.error('❌ Speech failed:', error);
       this.switchAnimation('idle');
       this.isSpeaking = false;
+      this.isThinking = false;
+      
+      if (onStatusUpdate) {
+        onStatusUpdate('Error: ' + error.message);
+      }
       
       // Show error to user if text display is available
       if (onTextUpdate) {
@@ -1021,6 +1326,55 @@ class AvatarManager {
     }
   }
 
+  // Test the new audio-first, then type approach
+  async testNewSpeechFlow(text = "Hello! This is a test of the new speech flow where audio is generated first, then played while text appears to be typing.") {
+    console.log('=== Testing New Speech Flow ===');
+    
+    // Create a temporary div to show the text
+    const testDiv = document.createElement('div');
+    testDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 14px;
+      max-width: 400px;
+      z-index: 10000;
+    `;
+    testDiv.innerHTML = '<strong>Status:</strong> Starting test...';
+    document.body.appendChild(testDiv);
+    
+    try {
+      await this.speakWithTextStreamAndStatus(text, 
+        (streamedText) => {
+          testDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${streamedText}`;
+        },
+        (status) => {
+          testDiv.innerHTML = `<strong>Status:</strong> ${status}`;
+        }
+      );
+      
+      // Show completion message
+      setTimeout(() => {
+        testDiv.innerHTML = '<strong>Status:</strong> Test completed successfully!';
+        setTimeout(() => {
+          document.body.removeChild(testDiv);
+        }, 2000);
+      }, 1000);
+      
+    } catch (error) {
+      console.error('New speech flow test failed:', error);
+      testDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+      setTimeout(() => {
+        document.body.removeChild(testDiv);
+      }, 3000);
+    }
+  }
+
   onWindowResize() {
     const width = this.container.clientWidth;
     const height = this.container.clientHeight;
@@ -1085,8 +1439,10 @@ class AvatarManager {
     console.log('API key (first 10 chars):', this.options.elevenlabsApiKey ? this.options.elevenlabsApiKey.substring(0, 10) + '...' : 'None');
     console.log('Current animation:', this.currentAnimation);
     console.log('Is speaking:', this.isSpeaking);
+    console.log('Is thinking:', this.isThinking);
     console.log('Has talking action:', !!this.talkingAction);
     console.log('Has idle action:', !!this.idleAction);
+    console.log('Has thinking action:', !!this.thinkingAction);
     console.log('Has lipsync:', !!this.rhubarbLipsync);
     console.log('Has Ready Player Me controller:', !!this.readyPlayerMeController);
     console.log('Morph targets found:', Object.keys(this.morphTargets).length);
