@@ -361,6 +361,49 @@
       .chat-body .user-bubble {
         margin-bottom: 1rem; /* Consistent spacing */
       }
+      
+      /* Thinking animation styles */
+      .thinking-animation {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-left: 8px;
+      }
+      
+      .thinking-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background-color: #ffc107;
+        border-radius: 50%;
+        opacity: 0.4;
+        transition: all 0.2s ease;
+        font-size: 6px;
+        line-height: 1;
+        box-shadow: 0 0 3px rgba(255, 193, 7, 0.3);
+      }
+      
+      .thinking-dot.active {
+        opacity: 1;
+        transform: scale(1.3);
+        background-color: #e0a800;
+        box-shadow: 0 0 8px rgba(255, 193, 7, 0.6);
+      }
+      
+      @keyframes thinking-pulse {
+        0% {
+          opacity: 0.4;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.3);
+        }
+        100% {
+          opacity: 0.4;
+          transform: scale(1);
+        }
+      }
     </style>
     </style>
 </head>
@@ -522,6 +565,11 @@
       setupEventListeners();
     });
     
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', function() {
+      stopThinkingAnimation();
+    });
+    
     function initializeAvatar() {
       // Use fixed settings with API key and Bella voice
       avatarManager = new AvatarManager('avatar-3d', {
@@ -657,6 +705,7 @@
         console.log('🤔 Triggering thinking animation immediately...');
         avatarManager.startThinking();
         updateAvatarStatus('Thinking...');
+        showThinking(); // Show thinking animation in chat
       } else {
         // Show loading indicator if avatar is not ready
         showLoading();
@@ -676,6 +725,7 @@
         
         // Hide loading if it was shown
         hideLoading();
+        hideThinking(); // Hide thinking animation
         
         // Store reference file info for later use (after text is complete)
         let referenceFile = null;
@@ -700,6 +750,8 @@
               // Check if this is the signal that first letter is ready (empty string)
               if (streamedText === '' && !isFirstLetterReady) {
                 console.log('📝 First letter ready signal received, creating message box...');
+                hideThinking(); // Hide thinking animation when first letter is ready
+                
                 botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'bot-bubble';
                 botMessageDiv.innerHTML = '<strong>VerzTec Assistant:</strong> ';
@@ -730,6 +782,7 @@
             updateAvatarStatus('Ready to help');
           } catch (error) {
             console.error('Speech failed:', error);
+            hideThinking(); // Hide thinking animation on error
             // If speech fails, show the text normally
             addMessageToChat(data.answer, 'bot');
             // Add reference file after text is shown
@@ -739,6 +792,7 @@
             updateAvatarStatus('Speech failed, but text is shown');
           }
         } else {
+          hideThinking(); // Hide thinking animation if avatar not ready
           // Avatar not ready, just show text normally
           addMessageToChat(data.answer, 'bot');
           // Add reference file after text is shown
@@ -750,6 +804,7 @@
         
       } catch (error) {
         hideLoading();
+        hideThinking(); // Hide thinking animation on error
         console.error('Error:', error);
         addMessageToChat('Sorry, I encountered an error. Please make sure the chatbot server is running on port 8000.', 'bot');
         updateAvatarStatus('Connection error');
@@ -804,6 +859,63 @@
       const loadingMessage = document.getElementById('loading-message');
       if (loadingMessage) {
         loadingMessage.remove();
+      }
+    }
+
+    function showThinking() {
+      const chatContainer = document.getElementById('chat-container');
+      const thinkingDiv = document.createElement('div');
+      thinkingDiv.id = 'thinking-message';
+      thinkingDiv.className = 'bot-bubble';
+      thinkingDiv.innerHTML = `
+        <div style="display: flex; align-items: center;">
+          <strong>VerzTec Assistant:</strong>&nbsp;<span style="color: #666; font-style: italic;">thinking</span>
+          <div class="thinking-animation">
+            <span class="thinking-dot">●</span>
+            <span class="thinking-dot">●</span>
+            <span class="thinking-dot">●</span>
+          </div>
+        </div>
+      `;
+      chatContainer.appendChild(thinkingDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      
+      // Start the thinking animation
+      startThinkingAnimation();
+    }
+
+    function hideThinking() {
+      const thinkingMessage = document.getElementById('thinking-message');
+      if (thinkingMessage) {
+        thinkingMessage.remove();
+      }
+      stopThinkingAnimation();
+    }
+
+    let thinkingAnimationInterval;
+
+    function startThinkingAnimation() {
+      let dotIndex = 0;
+      thinkingAnimationInterval = setInterval(() => {
+        const dots = document.querySelectorAll('.thinking-dot');
+        if (dots.length > 0) {
+          // Reset all dots
+          dots.forEach(dot => {
+            dot.classList.remove('active');
+          });
+          
+          // Activate current dot
+          dots[dotIndex].classList.add('active');
+          
+          dotIndex = (dotIndex + 1) % dots.length;
+        }
+      }, 350); // Slightly faster for more responsive feel
+    }
+
+    function stopThinkingAnimation() {
+      if (thinkingAnimationInterval) {
+        clearInterval(thinkingAnimationInterval);
+        thinkingAnimationInterval = null;
       }
     }
   </script>
