@@ -91,6 +91,7 @@
         top: 15px;
         right: 15px;
         display: flex;
+        flex-direction: column;
         gap: 10px;
         pointer-events: auto;
       }
@@ -98,6 +99,117 @@
       .avatar-controls .btn {
         backdrop-filter: blur(10px);
         background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+      }
+      
+      .avatar-controls .btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+      
+      /* Volume control styles */
+      .volume-control {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        padding: 6px 10px;
+        color: white;
+        font-size: 0.8rem;
+      }
+      
+      .volume-slider {
+        width: 80px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 2px;
+        outline: none;
+        margin: 0;
+        appearance: none;
+      }
+      
+      .volume-slider::-webkit-slider-thumb {
+        appearance: none;
+        width: 14px;
+        height: 14px;
+        background: white;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+      
+      .volume-slider::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
+        background: white;
+        border-radius: 50%;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+      
+      /* Background color options */
+      .background-controls {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        pointer-events: auto;
+      }
+      
+      .background-label {
+        color: white;
+        font-size: 0.8rem;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        margin-bottom: 5px;
+      }
+      
+      .background-options {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .background-option {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+      
+      .background-option:hover {
+        border-color: rgba(255, 255, 255, 0.8);
+        transform: scale(1.1);
+      }
+      
+      .background-option.active {
+        border-color: white;
+        border-width: 3px;
+      }
+      
+      .background-option.active::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 0.8rem;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+      }
         border: 1px solid rgba(255, 255, 255, 0.2);
         color: white;
         font-size: 0.85rem;
@@ -476,7 +588,46 @@
           <div class="avatar-container h-100">
             <div id="avatar-3d" class="avatar-3d"></div>
             <div class="avatar-overlay">
+              <div class="background-controls">
+                <div class="background-label">Background</div>
+                <div class="background-options">
+                  <div class="background-option active" 
+                       data-bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                       style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
+                       title="Purple Gradient"></div>
+                  <div class="background-option" 
+                       data-bg="linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)"
+                       style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);"
+                       title="Red Gradient"></div>
+                  <div class="background-option" 
+                       data-bg="linear-gradient(135deg, #0abde3 0%, #006ba6 100%)"
+                       style="background: linear-gradient(135deg, #0abde3 0%, #006ba6 100%);"
+                       title="Blue Gradient"></div>
+                  <div class="background-option" 
+                       data-bg="linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%)"
+                       style="background: linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%);"
+                       title="Green Gradient"></div>
+                  <div class="background-option" 
+                       data-bg="linear-gradient(135deg, #feca57 0%, #ff9ff3 100%)"
+                       style="background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);"
+                       title="Yellow Pink Gradient"></div>
+                  <div class="background-option" 
+                       data-bg="linear-gradient(135deg, #2c2c54 0%, #40407a 100%)"
+                       style="background: linear-gradient(135deg, #2c2c54 0%, #40407a 100%);"
+                       title="Dark Purple"></div>
+                </div>
+              </div>
               <div class="avatar-controls">
+                <div class="volume-control">
+                  <i class="fa fa-volume-down" style="font-size: 0.8rem;"></i>
+                  <input type="range" id="avatar-volume-slider" class="volume-slider" 
+                         min="0" max="100" value="100" step="1">
+                  <i class="fa fa-volume-up" style="font-size: 0.8rem;"></i>
+                  <span id="avatar-volume-display" style="font-size: 0.8rem; min-width: 25px;">100%</span>
+                </div>
+                <button id="avatar-mute-btn" class="btn btn-sm btn-outline-light">
+                  <i class="fa fa-volume-up"></i>
+                </button>
                 <button id="toggle-avatar" class="btn btn-sm btn-outline-light">
                   <i class="fa fa-robot"></i> Avatar On
                 </button>
@@ -594,7 +745,8 @@
         elevenlabsApiKey: 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7',
         voice: 'EXAVITQu4vr4xnSDxMaL', // Bella voice
         avatarUrl: 'assets/avatars/models/64f1a714fe61576b46f27ca2.glb',
-        animationsUrl: 'assets/avatars/models/animations.glb'
+        animationsUrl: 'assets/avatars/models/animations.glb',
+        volume: 1.0 // Initialize with full volume
       });
       
       // Wait for avatar to be fully initialized
@@ -606,6 +758,11 @@
           
           // Set initial voice state
           avatarManager.setVoiceEnabled(isVoiceEnabled);
+          
+          // Sync volume slider with avatar manager
+          const currentVolume = avatarManager.getVolume();
+          document.getElementById('avatar-volume-slider').value = currentVolume * 100;
+          document.getElementById('avatar-volume-display').textContent = Math.round(currentVolume * 100) + '%';
           
           // Test API key
           avatarManager.testApiKey().then(result => {
@@ -641,6 +798,80 @@
       document.getElementById('show-avatar').addEventListener('click', function() {
         isAvatarEnabled = true;
         toggleAvatar();
+      });
+      
+      // Volume control functionality
+      let isMuted = false;
+      let previousVolume = 1.0;
+      
+      document.getElementById('avatar-volume-slider').addEventListener('input', function() {
+        const volume = this.value / 100;
+        setAvatarVolume(volume);
+        document.getElementById('avatar-volume-display').textContent = this.value + '%';
+        
+        // Update mute button state
+        if (volume === 0) {
+          isMuted = true;
+          updateAvatarMuteButton();
+        } else if (isMuted) {
+          isMuted = false;
+          updateAvatarMuteButton();
+        }
+      });
+      
+      document.getElementById('avatar-mute-btn').addEventListener('click', function() {
+        const volumeSlider = document.getElementById('avatar-volume-slider');
+        const volumeDisplay = document.getElementById('avatar-volume-display');
+        
+        if (isMuted) {
+          // Unmute - restore previous volume
+          const restoreVolume = previousVolume > 0 ? previousVolume : 0.5;
+          volumeSlider.value = restoreVolume * 100;
+          volumeDisplay.textContent = Math.round(restoreVolume * 100) + '%';
+          setAvatarVolume(restoreVolume);
+          isMuted = false;
+        } else {
+          // Mute - store current volume and set to 0
+          previousVolume = volumeSlider.value / 100;
+          volumeSlider.value = 0;
+          volumeDisplay.textContent = '0%';
+          setAvatarVolume(0);
+          isMuted = true;
+        }
+        
+        updateAvatarMuteButton();
+        updateAvatarStatus(isMuted ? 'Audio muted' : 'Audio unmuted');
+      });
+      
+      function updateAvatarMuteButton() {
+        const muteBtn = document.getElementById('avatar-mute-btn');
+        if (isMuted) {
+          muteBtn.innerHTML = '<i class="fa fa-volume-off"></i>';
+          muteBtn.classList.add('btn-danger');
+          muteBtn.classList.remove('btn-outline-light');
+        } else {
+          muteBtn.innerHTML = '<i class="fa fa-volume-up"></i>';
+          muteBtn.classList.remove('btn-danger');
+          muteBtn.classList.add('btn-outline-light');
+        }
+      }
+      
+      // Background color change functionality
+      document.querySelectorAll('.background-option').forEach(option => {
+        option.addEventListener('click', function() {
+          // Remove active class from all options
+          document.querySelectorAll('.background-option').forEach(opt => opt.classList.remove('active'));
+          
+          // Add active class to clicked option
+          this.classList.add('active');
+          
+          // Change background
+          const newBg = this.dataset.bg;
+          const avatarContainer = document.querySelector('.avatar-container');
+          avatarContainer.style.background = newBg;
+          
+          updateAvatarStatus('Background changed');
+        });
       });
       
       // Voice toggle (main avatar controls)
@@ -791,6 +1022,18 @@
     
     function updateAvatarStatus(status) {
       document.querySelector('.avatar-status').textContent = status;
+    }
+    
+    function setAvatarVolume(volume) {
+      if (avatarManager) {
+        avatarManager.setVolume(volume);
+      } else {
+        // Fallback for when avatar manager isn't initialized yet
+        const audioElements = document.querySelectorAll('audio');
+        audioElements.forEach(audio => {
+          audio.volume = volume;
+        });
+      }
     }
     
     function disableUserInput() {
