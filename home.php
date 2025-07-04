@@ -59,6 +59,7 @@ if (!isset($_SESSION['username'])) {
       margin-top: 1rem;
       transition: box-shadow 0.3s ease;
       height: 490px;
+      overflow: hidden; /* Hide overflow to prevent scrollbar */
       overflow-y: auto;
       position: relative;
       display: flex;
@@ -89,6 +90,9 @@ if (!isset($_SESSION['username'])) {
     }
     .announcement:last-child {
       border-bottom: none;
+      border-radius: 0 0 8px 8px; /* rounded bottom corners */
+      background-color: #fff; /* ensure consistent bg */
+
     }
     .announcement-header {
       display: flex;
@@ -131,6 +135,27 @@ if (!isset($_SESSION['username'])) {
       font-style: italic;
       color: #2a4d9c;
     }
+    .modal-content {
+      border-radius: 12px; /* match your header's 12px */
+      background-color: #fff; /* white background for modal content */
+      overflow: hidden; /* clip overflow to avoid white corner issues */
+      border: none !important;
+      box-shadow: none !important;
+    }
+    /* Modal header with rounded top corners */
+    .modal-header {
+      background-color: #81869E; /* match header color */
+      color: #fff;
+      border-radius: 12px 12px 0 0;
+      border-bottom: none; /* remove border if any */
+    }
+    /* Modal body should have no extra border radius, full width */
+    .modal-body {
+      background-color: #fff; /* ensure white */
+      padding: 1rem 1.5rem;
+      border-radius: 0; /* reset any inherited radius */
+    }
+
   </style>
 </head>
 <body>
