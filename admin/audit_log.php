@@ -90,25 +90,11 @@ if ($result && $result->num_rows) {
       transform: translateY(-50%);
       color: #999;
     }
-    .filter-dropdown .dropdown-toggle {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      color: #333;
-    }
     .filter-dropdown .dropdown-toggle::after {
       margin-left: .5em;
-      border-top: .3em solid #333;
+      border-top: .3em solid #fff;
       border-right: .3em solid transparent;
       border-left: .3em solid transparent;
-    }
-    .filter-dropdown .dropdown-toggle:hover {
-      background: #000;
-      color: #fff;
-      border-color: #000;
-    }
-    .filter-dropdown .dropdown-toggle:hover::after {
-      border-top-color: #fff;
     }
     .table-container {
       background: #fff;
@@ -219,43 +205,46 @@ if ($result && $result->num_rows) {
             <input type="text" id="tableSearch" placeholder="Search log">
           </div>
           
-          <!-- Category Filter -->
-          <div class="dropdown filter-dropdown me-2">
-            <button 
-              class="btn dropdown-toggle" 
-              id="categoryFilterBtn" 
-              data-bs-toggle="dropdown" 
-              aria-expanded="false"
-            >
-              Category: All
-            </button>
-            <div 
-              class="dropdown-menu p-3" 
-              id="categoryFilterMenu"
-              aria-labelledby="categoryFilterBtn"
-              style="max-height:300px; overflow-y:auto;"
-            >
-              <!-- dynamically filled -->
+          <!-- Filter Buttons Group -->
+          <div class="d-flex gap-2">
+            <!-- Category Filter -->
+            <div class="dropdown filter-dropdown">
+              <button 
+                class="btn btn-dark dropdown-toggle" 
+                id="categoryFilterBtn" 
+                data-bs-toggle="dropdown" 
+                aria-expanded="false"
+              >
+                Category: All
+              </button>
+              <div 
+                class="dropdown-menu p-3" 
+                id="categoryFilterMenu"
+                aria-labelledby="categoryFilterBtn"
+                style="max-height:300px; overflow-y:auto;"
+              >
+                <!-- dynamically filled -->
+              </div>
             </div>
-          </div>
 
-          <!-- Action Filter -->
-          <div class="dropdown filter-dropdown">
-            <button 
-              class="btn dropdown-toggle" 
-              id="actionFilterBtn" 
-              data-bs-toggle="dropdown" 
-              aria-expanded="false"
-            >
-              Action: All
-            </button>
-            <div 
-              class="dropdown-menu p-3" 
-              id="actionFilterMenu"
-              aria-labelledby="actionFilterBtn"
-              style="max-height:300px; overflow-y:auto;"
-            >
-              <!-- dynamically filled -->
+            <!-- Action Filter -->
+            <div class="dropdown filter-dropdown">
+              <button 
+                class="btn btn-dark dropdown-toggle" 
+                id="actionFilterBtn" 
+                data-bs-toggle="dropdown" 
+                aria-expanded="false"
+              >
+                Action: All
+              </button>
+              <div 
+                class="dropdown-menu p-3" 
+                id="actionFilterMenu"
+                aria-labelledby="actionFilterBtn"
+                style="max-height:300px; overflow-y:auto;"
+              >
+                <!-- dynamically filled -->
+              </div>
             </div>
           </div>
         </div>
