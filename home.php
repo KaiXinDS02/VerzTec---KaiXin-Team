@@ -9,6 +9,29 @@ if (!isset($_SESSION['role'])) {
 if (!isset($_SESSION['username'])) {
     $_SESSION['username'] = 'John Doe';
 }
+
+// Function to get greeting based on time
+function getGreeting() {
+    $hour = date('H'); // Get current hour in 24-hour format
+    
+    if ($hour >= 5 && $hour < 12) {
+        return 'Good Morning';
+    } elseif ($hour >= 12 && $hour < 17) {
+        return 'Good Afternoon';
+    } elseif ($hour >= 17 && $hour < 22) {
+        return 'Good Evening';
+    } else {
+        return 'Good Night';
+    }
+}
+
+// Function to capitalize each word in a name
+function capitalizeName($name) {
+    return ucwords(strtolower(trim($name)));
+}
+
+$greeting = getGreeting();
+$capitalizedName = capitalizeName($_SESSION['username']);
 ?> 
 
 <!DOCTYPE html>
@@ -26,7 +49,7 @@ if (!isset($_SESSION['username'])) {
   <style>
     /* Override main layout to fit viewport */
     .page-content-wp {
-      padding-top: 160px !important;
+      padding-top: 170px !important;
       padding-bottom: 20px !important;
     }
     
@@ -38,7 +61,7 @@ if (!isset($_SESSION['username'])) {
     
     .right-content-wp h2 {
       font-size: 40px !important;
-      font-weight: 400;
+      font-weight: 500 !important;
       margin-bottom: 15px !important;
     }
     
@@ -208,7 +231,7 @@ if (!isset($_SESSION['username'])) {
     /* Additional responsive adjustments */
     @media (max-height: 800px) {
       .page-content-wp {
-        padding-top: 140px !important;
+        padding-top: 150px !important;
         padding-bottom: 15px !important;
       }
       
@@ -230,7 +253,7 @@ if (!isset($_SESSION['username'])) {
     
     @media (max-height: 700px) {
       .page-content-wp {
-        padding-top: 120px !important;
+        padding-top: 130px !important;
         padding-bottom: 10px !important;
       }
       
@@ -385,7 +408,7 @@ $conn->close();
 
         <div class="col-lg-9">
           <div class="right-content-wp">
-            <h2>Good Morning, <?= htmlspecialchars($_SESSION['username']) ?>!</h2>
+            <h2><?= $greeting ?>, <?= htmlspecialchars($capitalizedName) ?>!</h2>
             <div class="rc-content-box">
               <div class="contents">
                 <div class="input-box">
