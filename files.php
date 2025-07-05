@@ -12,7 +12,7 @@ $directory = 'files';
 // Determine user context
 $user_id = $_SESSION['user_id'] ?? 1;
 $role    = $_SESSION['role']    ?? '';
-$dept    = $_SESSION['department'] ?? 'Your Department';
+$dept = $_SESSION['department'] ?? 'Your Department';
 $country = $_SESSION['country'] ?? 'Your Country';
 
 // Fetch unique departments
@@ -40,16 +40,20 @@ if($role==='ADMIN'){
 }
 elseif($role==='MANAGER'){
   $stmt = $conn->prepare("
-    SELECT DISTINCT f.*
-    FROM files f
-    JOIN file_visibility v ON f.id=v.file_id
-    WHERE v.visibility_scope='ALL'
-      OR (v.visibility_scope='COUNTRY' AND v.category=?)
-    ORDER BY f.uploaded_at DESC
-  ");
-  $stmt->bind_param("s",$country);
+        SELECT DISTINCT f.*
+        FROM   file_visibility v
+        JOIN   files f ON f.id = v.file_id
+        WHERE  v.visibility_scope = 'ALL'
+           OR (v.visibility_scope = 'COUNTRY'
+               AND v.category = ?)
+           OR (v.visibility_scope = 'DEPARTMENT'
+               AND v.category = ?)
+        ORDER  BY f.uploaded_at DESC
+    ");
+    $stmt->bind_param("ss", $country, $dept);   // $country & $department from session
 }
 else {
+  
   $stmt = $conn->prepare("
     SELECT DISTINCT f.*
     FROM files f
@@ -62,31 +66,42 @@ else {
   $stmt->bind_param("ss",$country,$dept);
 }
 $stmt->execute();
+
+
 $files = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Load visibility meta
+// Build visibility metadata for display
 $fileVisibilities = [];
-foreach($files as $f){
-  $vs = $conn->prepare("
-    SELECT visibility_scope, category
-    FROM file_visibility
-    WHERE file_id=?
-  ");
-  $vs->bind_param("i",$f['id']);
-  $vs->execute();
-  $res = $vs->get_result();
-  $fileVisibilities[$f['id']] = ['ALL'=>false,'DEPARTMENT'=>[],'COUNTRY'=>[]];
-  while($row=$res->fetch_assoc()){
-    if($row['visibility_scope']==='ALL'){
-      $fileVisibilities[$f['id']]['ALL']=true;
-    } elseif($row['visibility_scope']==='DEPARTMENT'){
-      $fileVisibilities[$f['id']]['DEPARTMENT'][]=$row['category'];
-    } else {
-      $fileVisibilities[$f['id']]['COUNTRY'][]=$row['category'];
+if (!empty($files)) {
+    $fileIds = array_column($files, 'id');
+    $placeholders = str_repeat('?,', count($fileIds) - 1) . '?';
+    
+    $visQuery = $conn->prepare("
+        SELECT file_id, visibility_scope, category
+        FROM file_visibility
+        WHERE file_id IN ($placeholders)
+    ");
+    $visQuery->bind_param(str_repeat('i', count($fileIds)), ...$fileIds);
+    $visQuery->execute();
+    $visResult = $visQuery->get_result();
+    
+    while ($row = $visResult->fetch_assoc()) {
+        $fid = $row['file_id'];
+        $scope = $row['visibility_scope'];
+        $category = $row['category'];
+        
+        if (!isset($fileVisibilities[$fid])) {
+            $fileVisibilities[$fid] = ['ALL' => false, 'DEPARTMENT' => [], 'COUNTRY' => []];
+        }
+        
+        if ($scope === 'ALL') {
+            $fileVisibilities[$fid]['ALL'] = true;
+        } else {
+            $fileVisibilities[$fid][$scope][] = $category;
+        }
     }
-  }
-  $vs->close();
+    $visQuery->close();
 }
 
 // Fetch username 
@@ -182,10 +197,6 @@ function getFriendlyFileType($mimeType) {
       $check->close();
   }
 
-  $role = $_SESSION['role'] ?? '';
-  $country = $_SESSION['country'] ?? '';
-  $department = $_SESSION['department'] ?? '';
-
   if ($role === 'ADMIN') {
       $stmt = $conn->prepare("
           SELECT f.*
@@ -194,31 +205,44 @@ function getFriendlyFileType($mimeType) {
       ");
   } elseif ($role === 'MANAGER') {
       $stmt = $conn->prepare("
-          SELECT DISTINCT f.*
-          FROM files f
-          JOIN file_visibility v ON f.id = v.file_id
-          WHERE v.visibility_scope = 'ALL'
-            OR (v.visibility_scope = 'COUNTRY' AND v.category = ?)
-          ORDER BY f.uploaded_at DESC
-      ");
-      $stmt->bind_param("s", $country);
+        SELECT DISTINCT f.*
+        FROM   files f
+        JOIN   file_visibility v ON f.id = v.file_id
+        WHERE  v.visibility_scope = 'ALL'
+           OR (v.visibility_scope = 'COUNTRY'    AND v.category = ?)
+           OR (v.visibility_scope = 'DEPARTMENT' AND v.category = ?)
+        ORDER  BY f.uploaded_at DESC
+    ");
+    $stmt->bind_param("ss", $country, $dept);
   } else { // USER
       $stmt = $conn->prepare("
-          SELECT DISTINCT f.*
-          FROM files f
-          JOIN file_visibility v1 ON f.id = v1.file_id
-          LEFT JOIN file_visibility v2 ON f.id = v2.file_id
-          WHERE v1.visibility_scope = 'ALL'
-            OR (v1.visibility_scope = 'COUNTRY' AND v1.category = ?)
-            OR (v2.visibility_scope = 'DEPARTMENT' AND v2.category = ?)
-          GROUP BY f.id
-          HAVING 
-              SUM(v1.visibility_scope = 'ALL') > 0 OR 
-              (SUM(v1.visibility_scope = 'COUNTRY' AND v1.category = ?) > 0 AND SUM(v2.visibility_scope = 'DEPARTMENT' AND v2.category = ?) > 0)
-          ORDER BY f.uploaded_at DESC
-      ");
-      $stmt->bind_param("ssss", $country, $department, $country, $department);
+        SELECT DISTINCT f.*
+        FROM   files f
+        JOIN   file_visibility v ON f.id = v.file_id
+        WHERE  v.visibility_scope = 'ALL'
+           OR (v.visibility_scope = 'COUNTRY'    AND v.category = ?)
+           OR (v.visibility_scope = 'DEPARTMENT' AND v.category = ?)
+        ORDER  BY f.uploaded_at DESC
+    ");
+    $stmt->bind_param("ss", $country, $dept);
   }
+
+  // Build a map: $vis[$file_id]['DEPARTMENT'] = [..], $vis[$file_id]['COUNTRY'] = [..], $vis[$file_id]['ALL'] = true/false
+  $vis = [];
+  $q = $conn->query("SELECT file_id, visibility_scope, category
+                    FROM file_visibility
+                    WHERE file_id IN (" . implode(',', array_column($files,'id')) . ")");
+  while ($row = $q->fetch_assoc()) {
+    $fid  = $row['file_id'];
+    $type = $row['visibility_scope'];
+    $cat  = $row['category'];          // NULL if scope = ALL
+    if ($type === 'ALL') {
+        $vis[$fid]['ALL'] = true;
+    } else {
+        $vis[$fid][$type][] = $cat;    // collect departments / countries
+    }
+  }
+
 
   $stmt->execute();
   $result = $stmt->get_result();
@@ -399,6 +423,7 @@ function getFriendlyFileType($mimeType) {
               <tr>
                 <th>Filename</th>
                 <th>Modified At (UTC +8)</th>
+                <th>Visbility</th>  
                 <th>Type</th>
                 <th>Size (kb)</th>
                 <th></th>
@@ -410,6 +435,50 @@ function getFriendlyFileType($mimeType) {
                 $dt->setTimezone(new DateTimeZone('Asia/Singapore'));
                 $icon = getIconClass($file['file_type']);
                 $color= getIconColor($file['file_type']);
+
+                $fileId = $file['id'];
+                $visibilityText = 'ALL';  // default
+
+                // Check if visibility is not "ALL"
+                if (!empty($fileVisibilities[$fileId])) {
+                  if (!empty($fileVisibilities[$fileId]['ALL'])) {
+                      $visibilityText = 'ALL';
+                  } elseif (!empty($fileVisibilities[$fileId]['DEPARTMENT'])) {
+                      $visibilityText = 'DEPT - ' . implode(', ', $fileVisibilities[$fileId]['DEPARTMENT']);
+                  } elseif (!empty($fileVisibilities[$fileId]['COUNTRY'])) {
+                      // Assuming only one country for this
+                      $country = $fileVisibilities[$fileId]['COUNTRY'][0] ?? '-';
+                      $visibilityText = 'COUNTRY - ' . $country;
+                  } else {
+                      $visibilityText = '-';
+                  }
+              }
+              
+
+              // Determine editing/deleting permission 
+              $canManage = false;
+              $fileVisibility = $fileVisibilities[$fileId] ?? ['ALL' => false, 'DEPARTMENT' => [], 'COUNTRY' => []];
+
+              if ($role === 'ADMIN') {
+                    $canManage = true;
+
+              } elseif ($role === 'MANAGER') {
+                  // normalise strings
+                  $deptList    = array_map(fn($d) => strtoupper(trim($d)), $fileVisibility['DEPARTMENT']);
+                  $countryList = array_map(fn($c) => strtoupper(trim($c)), $fileVisibility['COUNTRY']);
+                  $dept        = strtoupper(trim($dept));
+                  $country     = strtoupper(trim($country));
+
+                  // 1) file restricted to exactly THIS department
+                  if (count($deptList) === 1 && $deptList[0] === $dept) {
+                      $canManage = true;
+                  }
+                  // 2) file restricted to exactly THIS country and no departments
+                  elseif (empty($deptList) && count($countryList) === 1 && $countryList[0] === $country) {
+                      $canManage = true;
+                  }
+              }
+ 
               ?>
                 <tr>
                   <td>
@@ -417,6 +486,7 @@ function getFriendlyFileType($mimeType) {
                     <?= htmlspecialchars($file['filename']) ?>
                   </td>
                   <td><?= $dt->format('Y-m-d H:i:s') ?></td>
+                  <td><?= htmlspecialchars($visibilityText) ?></td>
                   <td><?= htmlspecialchars($file['file_type']) ?></td>
                   <td><?= htmlspecialchars($file['file_size']) ?></td>
                   <td>
@@ -433,11 +503,10 @@ function getFriendlyFileType($mimeType) {
                         </li>
                         <li>
                           <a class="dropdown-item"
-                             href="/file_download.php?file_id=<?= $file
-['id'] ?>"
+                             href="/file_download.php?file_id=<?= $file['id'] ?>"
                              download>Download</a>
                         </li>
-                        <?php if(in_array($role,['MANAGER','ADMIN'])): ?>
+                        <?php if ($canManage==true): ?>
                           <li class="dropdown-submenu">
                             <a class="dropdown-item dropdown-toggle" href="#">Edit</a>
                             <ul class="dropdown-menu">
@@ -473,7 +542,8 @@ function getFriendlyFileType($mimeType) {
                     </div>
                   </td>
                 </tr>
-                <!-- VISIBILITY MODAL (exactly as in your original code) -->
+    
+                <!-- EDIT VISIBILITY MODAL -->
                 <div class="modal fade" id="editVisibilityModal<?= $file['id'] ?>" tabindex="-1" aria-labelledby="editVisibilityModalLabel<?= $file['id'] ?>" aria-hidden="true">
                   <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -486,65 +556,65 @@ function getFriendlyFileType($mimeType) {
                           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                          <?php $fv = $fileVisibilities[$file['id']]; ?>
-                          <?php if($role==='ADMIN'): ?>
+                          <?php $fv = $fileVisibilities[$file['id']] ?? ['ALL' => true]; ?>
+                          <?php if($role === 'ADMIN'): ?>
                             <div class="mb-3">
                               <label class="form-label fw-bold">Visibility</label><br>
                               <div class="form-check form-check-inline">
-                                <input class="form-check-input visibility-radio" type="radio" name="visibility" id="vAll<?= $file['id'] ?>" value="all" <?= $fv['ALL']?'checked':''?>>
+                                <input class="form-check-input visibility-radio" type="radio" name="visibility" id="vAll<?= $file['id'] ?>" value="all" <?= !empty($fv['ALL']) ? 'checked' : '' ?>>
                                 <label class="form-check-label" for="vAll<?= $file['id'] ?>">All</label>
                               </div>
                               <div class="form-check form-check-inline">
-                                <input class="form-check-input visibility-radio" type="radio" name="visibility" id="vRest<?= $file['id'] ?>" value="restricted" <?= !$fv['ALL']?'checked':''?>>
+                                <input class="form-check-input visibility-radio" type="radio" name="visibility" id="vRest<?= $file['id'] ?>" value="restricted" <?= empty($fv['ALL']) ? 'checked' : '' ?>>
                                 <label class="form-check-label" for="vRest<?= $file['id'] ?>">Restricted</label>
                               </div>
                             </div>
-                            <div id="editRestrictionOptions<?= $file['id'] ?>" class="<?= $fv['ALL']?'d-none':''?>">
+
+                            <div id="editRestrictionOptions<?= $file['id'] ?>" class="<?= !empty($fv['ALL']) ? 'd-none' : '' ?>">
                               <div class="mb-3">
-                                <label class="form-label fw-bold">Restrict By</label><br>
-                                <div class="form-check form-check-inline">
-                                  <input class="form-check-input restrict-toggle" type="checkbox" id="rDept<?= $file['id'] ?>" value="department" data-file-id="<?= $file['id'] ?>" <?= !empty($fv['DEPARTMENT'])?'checked':''?>>
-                                  <label class="form-check-label" for="rDept<?= $file['id'] ?>">Department</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                  <input class="form-check-input restrict-toggle" type="checkbox" id="rCountry<?= $file['id'] ?>" value="country" data-file-id="<?= $file['id'] ?>" <?= !empty($fv['COUNTRY'])?'checked':''?>>
-                                  <label class="form-check-label" for="rCountry<?= $file['id'] ?>">Country</label>
-                                </div>
-                              </div>
-                              <div class="mb-3 <?= empty($fv['DEPARTMENT'])?'d-none':''?>" id="deptDiv<?= $file['id'] ?>">
-                                <label class="form-label">Select Departments</label>
+                                <label class="form-label fw-bold">Restrict By Department(s)</label>
                                 <?php foreach($departments as $d): ?>
                                   <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="departments[]" value="<?= htmlspecialchars($d) ?>" id="dept<?= $file['id'].md5($d) ?>" <?= in_array($d,$fv['DEPARTMENT'])?'checked':''?>>
-                                    <label class="form-check-label" for="dept<?= $file['id'].md5($d) ?>"><?= htmlspecialchars($d) ?></label>
-                                  </div>
-                                <?php endforeach; ?>
-                              </div>
-                              <div class="mb-3 <?= empty($fv['COUNTRY'])?'d-none':''?>" id="countryDiv<?= $file['id'] ?>">
-                                <label class="form-label">Select Countries</label>
-                                <?php foreach($countries as $c): ?>
-                                  <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="countries[]" value="<?= htmlspecialchars($c) ?>" id="ctry<?= $file['id'].md5($c) ?>" <?= in_array($c,$fv['COUNTRY'])?'checked':''?>>
-                                    <label class="form-check-label" for="ctry<?= $file['id'].md5($c) ?>"><?= htmlspecialchars($c) ?></label>
+                                    <input
+                                      class="form-check-input"
+                                      type="checkbox"
+                                      name="departments[]"
+                                      value="<?= htmlspecialchars($d) ?>"
+                                      id="dept<?= $file['id'] . md5($d) ?>"
+                                      <?= !empty($fv['DEPARTMENT']) && in_array($d, $fv['DEPARTMENT']) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="dept<?= $file['id'] . md5($d) ?>"><?= htmlspecialchars($d) ?></label>
                                   </div>
                                 <?php endforeach; ?>
                               </div>
                             </div>
-                          <?php elseif($role==='MANAGER'): ?>
+
+                          <?php elseif($role === 'MANAGER'): ?>
                             <input type="hidden" name="visibility" value="restricted">
                             <input type="hidden" name="departments[]" value="<?= htmlspecialchars($dept) ?>">
                             <div class="mb-3">
                               <label class="form-label fw-bold">Visibility</label><br>
                               <div class="form-check">
-                                <input class="form-check-input" type="radio" name="manager_visibility" id="onlyDept<?= $file['id'] ?>" value="department" <?= !empty($fv['DEPARTMENT'])?'checked':''?>>
+                                <input
+                                  class="form-check-input"
+                                  type="radio"
+                                  name="manager_visibility"
+                                  id="onlyDept<?= $file['id'] ?>"
+                                  value="department"
+                                  <?= !empty($fv['DEPARTMENT']) ? 'checked' : '' ?>>
                                 <label class="form-check-label" for="onlyDept<?= $file['id'] ?>">Only Department: <?= htmlspecialchars($dept) ?></label>
                               </div>
                               <div class="form-check">
-                                <input class="form-check-input" type="radio" name="manager_visibility" id="wholeCtry<?= $file['id'] ?>" value="country" <?= !empty($fv['COUNTRY'])?'checked':''?>>
+                                <input
+                                  class="form-check-input"
+                                  type="radio"
+                                  name="manager_visibility"
+                                  id="wholeCtry<?= $file['id'] ?>"
+                                  value="country"
+                                  <?= !empty($fv['COUNTRY']) ? 'checked' : '' ?>>
                                 <label class="form-check-label" for="wholeCtry<?= $file['id'] ?>">Whole Country: <?= htmlspecialchars($country) ?></label>
                               </div>
                             </div>
-                            <input type="hidden" name="countries[]" value="<?= htmlspecialchars($country) ?>" id="mgrCtry<?= $file['id'] ?>" <?= !empty($fv['COUNTRY'])?'':'disabled'?>>
+                            <input type="hidden" name="countries[]" value="<?= htmlspecialchars($country) ?>" id="mgrCtry<?= $file['id'] ?>" <?= !empty($fv['COUNTRY']) ? '' : 'disabled' ?>>
                           <?php endif; ?>
                         </div>
                         <div class="modal-footer">
@@ -555,6 +625,7 @@ function getFriendlyFileType($mimeType) {
                     </div>
                   </div>
                 </div>
+
               <?php endforeach; ?>
             </tbody>
           </table>
@@ -581,50 +652,39 @@ function getFriendlyFileType($mimeType) {
                    class="form-control d-inline-block" style="width:auto;" multiple required>
           </div>
           <hr class="my-4">
-          <?php if($role==='ADMIN'): ?>
+          
+          <?php if ($role === 'ADMIN'): ?>
             <div class="mb-3">
               <label class="form-label fw-bold">Visibility</label><br>
               <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="visibility" id="accessAll" value="all" checked>
+                <input class="form-check-input" type="radio" name="visibility"
+                      id="accessAll" value="all" checked>
                 <label class="form-check-label" for="accessAll">All</label>
               </div>
               <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="visibility" id="accessRestricted" value="restricted">
+                <input class="form-check-input" type="radio" name="visibility"
+                      id="accessRestricted" value="restricted">
                 <label class="form-check-label" for="accessRestricted">Restricted</label>
               </div>
             </div>
+
+            
+
+            <!-- Only department selector (no country) -->
             <div id="restrictionOptions" class="d-none">
-              <div class="mb-3">
-                <label class="form-label fw-bold">Restrict By</label><br>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input restrict-toggle" type="checkbox" id="restrictByDept" value="department">
-                  <label class="form-check-label" for="restrictByDept">Department</label>
+              <label class="form-label fw-bold">Select Departments</label>
+              <?php foreach ($departments as $d): ?>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox"
+                        name="departments[]" value="<?= htmlspecialchars($d) ?>"
+                        id="dept<?= md5($d) ?>">
+                  <label class="form-check-label" for="dept<?= md5($d) ?>">
+                    <?= htmlspecialchars($d) ?>
+                  </label>
                 </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input restrict-toggle" type="checkbox" id="restrictByCountry" value="country">
-                  <label class="form-check-label" for="restrictByCountry">Country</label>
-                </div>
-              </div>
-              <div class="mb-3 d-none" id="restrictDepartmentDiv">
-                <label class="form-label">Select Departments</label>
-                <?php foreach($departments as $d): ?>
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="departments[]" value="<?= htmlspecialchars($d) ?>" id="dept<?= md5($d) ?>">
-                    <label class="form-check-label" for="dept<?= md5($d) ?>"><?= htmlspecialchars($d) ?></label>
-                  </div>
-                <?php endforeach; ?>
-              </div>
-              <div class="mb-3 d-none" id="restrictCountryDiv">
-                <label class="form-label">Select Countries</label>
-                <?php foreach($countries as $c): ?>
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="countries[]" value="<?= htmlspecialchars($c) ?>" id="ctry<?= md5($c) ?>">
-                    <label class="form-check-label" for="ctry<?= md5($c) ?>"><?= htmlspecialchars($c) ?></label>
-                  </div>
-                <?php endforeach; ?>
-              </div>
+              <?php endforeach; ?>
             </div>
-          <?php elseif($role==='MANAGER'): ?>
+          <?php elseif ($role === 'MANAGER'): ?>
             <input type="hidden" name="visibility" value="restricted">
             <input type="hidden" name="departments[]" value="<?= htmlspecialchars($dept) ?>">
             <div class="mb-3">
@@ -640,6 +700,7 @@ function getFriendlyFileType($mimeType) {
             </div>
             <input type="hidden" name="countries[]" value="<?= htmlspecialchars($country) ?>" id="mgrCountryInput" disabled>
           <?php endif; ?>
+
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-dark">Upload</button>
@@ -684,7 +745,7 @@ function getFriendlyFileType($mimeType) {
     </form></div>
   </div>
 
-  <!-- ALL YOUR ORIGINAL SCRIPTS BELOW (unchanged) -->
+  <!-- SCRIPTS -->
   <script src="js/jquery-3.4.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/scripts.js"></script>
@@ -702,7 +763,7 @@ function getFriendlyFileType($mimeType) {
     // FILTER
     const types = new Set();
     table.rows().every(function(){
-      types.add(this.data()[2]);
+      types.add(this.data()[3]);
     });
     let menuHtml='';
     [...types].sort().forEach(type=>{
@@ -715,7 +776,7 @@ function getFriendlyFileType($mimeType) {
     $('#typeFilterMenu').html(menuHtml);
     $.fn.dataTable.ext.search.push((settings,row)=>{
       const sel = $('.type-checkbox:checked').map((_,e)=>e.value).get();
-      return !sel.length||sel.includes(row[2]);
+      return !sel.length||sel.includes(row[3]);
     });
     $('#typeFilterMenu').on('change','.type-checkbox',function(){
       table.draw();
@@ -789,6 +850,59 @@ function getFriendlyFileType($mimeType) {
         document.getElementById('fileInput').files = files;
       }
     }
+
+    // EDIT VISIBILITY
+    document.addEventListener('DOMContentLoaded', () => {
+
+    // Run whenever a visibility modal is opened
+    $(document).on('shown.bs.modal', '.modal', function () {
+      const $modal = $(this);
+      if (!this.id.startsWith('editVisibilityModal')) return;         // skip other modals
+      const fileId = this.id.replace('editVisibilityModal', '');
+
+      const $vAll  = $modal.find(`#vAll${fileId}`);
+      const $vRest = $modal.find(`#vRest${fileId}`);
+      const $opt   = $modal.find(`#editRestrictionOptions${fileId}`);
+
+      const toggleRestrictSection = () => {
+        if ($vRest.length && $vRest.is(':checked')) $opt.removeClass('d-none');
+        else                                        $opt.addClass('d-none');
+      };
+      // Initial state + radio listeners
+      toggleRestrictSection();
+      $vAll.on('change', toggleRestrictSection);
+      $vRest.on('change', toggleRestrictSection);
+
+      // Department / Country checkboxes
+      $modal.find('.restrict-toggle').each(function () {
+        const $toggle = $(this);
+        const targetId = $toggle.val() === 'department'
+          ? `#deptDiv${fileId}` : `#countryDiv${fileId}`;
+        const $targetDiv = $modal.find(targetId);
+
+        const showHide = () => {
+          $targetDiv.toggleClass('d-none', !$toggle.is(':checked'));
+        };
+        showHide();                        // initial
+        $toggle.on('change', showHide);    // listener
+      });
+    });
+
+    // 6C. Front‑end validation: restricted but no scope selected
+    $('form[action="admin/edit_visibility.php"]').on('submit', function (e) {
+      const $form = $(this);
+      const fileId = $form.find('input[name="file_id"]').val();
+      const restricted = $form.find(`#vRest${fileId}`).is(':checked');
+      if (!restricted) return; // "All" is OK
+
+      const deptChecked = $form.find(`#deptDiv${fileId} input:checked`).length;
+      const ctryChecked = $form.find(`#countryDiv${fileId} input:checked`).length;
+      if (!deptChecked && !ctryChecked) {
+        alert('Please choose at least one department or country for restricted access.');
+        e.preventDefault();
+      }
+    });
+  });
   </script>
   
   <!-- Session Timeout -->
