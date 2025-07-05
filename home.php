@@ -36,6 +36,8 @@ $currentHour = date('H');
 // Use JavaScript for client-side time, fallback to server time for testing
 $greeting = $testHour !== null ? getGreeting($testHour) : getGreeting(); // Use actual server time as fallback
 $capitalizedName = capitalizeName($_SESSION['username']);
+
+
 ?> 
 
 <!DOCTYPE html>
@@ -338,29 +340,31 @@ $capitalizedName = capitalizeName($_SESSION['username']);
             <div class="announcements-wp">
               <h3>Announcements</h3>
               <?php
-require_once 'connect.php';
-$sql = "SELECT title, context, priority, target_audience, timestamp FROM announcements ORDER BY 
-          CASE LOWER(priority)
-              WHEN 'high' THEN 1
-              WHEN 'medium' THEN 2
-              WHEN 'low' THEN 3
-              ELSE 4
-          END, timestamp DESC";
-$result = $conn->query($sql);
+                require_once 'connect.php';
+                $sql = "SELECT title, context, priority, target_audience, timestamp FROM announcements ORDER BY 
+              CASE LOWER(priority)
+                  WHEN 'high' THEN 1
+                  WHEN 'medium' THEN 2
+                  WHEN 'low' THEN 3
+                  ELSE 4
+                  END, timestamp DESC";
+              $result = $conn->query($sql);
 
-if ($result && $result->num_rows > 0):
-  while ($row = $result->fetch_assoc()):
-    $priority = strtolower($row['priority']);
-    $priorityClass = 'priority-low';
-    if ($priority === 'high') $priorityClass = 'priority-high';
-    else if ($priority === 'medium') $priorityClass = 'priority-medium';
+          if ($result && $result->num_rows > 0):
+            while ($row = $result->fetch_assoc()):
+              $priority = strtolower($row['priority']);
+              $priorityClass = 'priority-low';
+              if ($priority === 'high') $priorityClass = 'priority-high';
+              else if ($priority === 'medium') $priorityClass = 'priority-medium';
 
-    $shortContent = mb_strimwidth(strip_tags($row['context']), 0, 70, '...');
-    $safeFullContent = htmlspecialchars($row['context']);
-    $safeTitle = htmlspecialchars($row['title']);
-    $formattedDate = date('M d, Y h:i A', strtotime($row['timestamp']));
-    $targetAudience = htmlspecialchars($row['target_audience']);
-?>
+              $shortContent = mb_strimwidth(strip_tags($row['context']), 0, 50, '...');
+              $safeFullContent = nl2br(htmlspecialchars($row['context'], ENT_QUOTES, 'UTF-8'));
+              $safeTitle = htmlspecialchars($row['title']);
+              $date = new DateTime($row['timestamp'], new DateTimeZone('UTC'));
+              $date->setTimezone(new DateTimeZone('Asia/Singapore'));
+              $formattedDate = $date->format('M d, Y h:i A');
+              $targetAudience = htmlspecialchars($row['target_audience']);
+            ?>
   <div class="announcement">
     <div class="announcement-header">
       <h4><?= $safeTitle ?></h4>
@@ -478,7 +482,7 @@ $conn->close();
     modal.addEventListener('show.bs.modal', function (event) {
       const trigger = event.relatedTarget;
       document.getElementById('modalTitle').textContent = trigger.getAttribute('data-title');
-      document.getElementById('modalContent').textContent = trigger.getAttribute('data-full');
+      document.getElementById('modalContent').innerHTML = trigger.getAttribute('data-full');
       document.getElementById('modalAudience').textContent = trigger.getAttribute('data-audience');
       document.getElementById('modalPriority').textContent = trigger.getAttribute('data-priority');
       document.getElementById('modalTimestamp').textContent = trigger.getAttribute('data-timestamp');

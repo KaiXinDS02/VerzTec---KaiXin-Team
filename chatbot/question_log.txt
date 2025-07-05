@@ -3616,38 +3616,21 @@ A: Hello! How can I assist you today?
 ---
 [❌ Rejected Personal] 2025-07-05T14:11:59.580998 - Q: i love you
 ---
-2025-07-05T18:54:37.161684 - Q: hello
-A: Hello! How can I assist you today?
----
-2025-07-05T18:56:44.596098 - Q: gello
-A: It seems like you might be referring to "gelato" or possibly the word "Jell-O." However, without more context, it's difficult for me to pinpoint exactly which term you're using.
+2025-07-05T20:50:21.903031 - Q: what are the pantry rules
+A: The pantry rules at Verztec are as follows:
 
-If you meant gelato, I'd be happy to provide information about this delicious Italian dessert. Gelato is a type of frozen dessert made from milk, cream, and sugar, similar to ice cream but with a denser consistency and often less air incorporated into the mixture. This results in a more intense flavor experience.
+Please keep our pantry clean and neat. This includes being considerate when washing dishes in the sink area and ensuring it remains dry after use. Additionally, if coffee or tea is spilled on the water dispenser surface, please clean it immediately.
 
-On the other hand, if you meant Jell-O, I can provide information on that as well. Jell-O is a type of dessert made from gelatin, which is dissolved in hot water and then cooled until it sets. It's often flavored with fruit or other ingredients and comes in many different varieties.
+It's also important to dispose of any unwanted items from the fridge and take out leftover food, boxes, and plastic containers outside of the office. When using the office bin, please close the lid properly after disposal.
 
-Could you please clarify which term you were using?
----
-2025-07-05T20:21:28.628942 - Q: hello
-A: Hello! It's nice to meet you. Is there something I can help you with or would you like to chat?
----
-2025-07-05T20:30:14.915701 - Q: Hello
-A: Hello! How can I assist you today?
----
-2025-07-05T20:32:33.435766 - Q: hi
-A: How can I assist you today?
----
-2025-07-05T20:33:22.078854 - Q: are you a midget
-A: I don't have a physical body, so I wouldn't be considered a person of a specific height. The term "midget" is also considered outdated and stigmatizing by many people. A more respectful and inclusive term would be "person with dwarfism" or simply "dwarf."
+After having a meal in the office, please clean up the countertops or tables with a damp cloth. Be mindful not to cut fruits or other food items on the kitchen top, but rather use the available chopping boards instead.
 
-If you're asking about the physical characteristics of people with dwarfism, it's essential to remember that every individual is unique and differs in terms of height, build, and other physical traits.
+By following these guidelines, we can maintain a clean and insect-free pantry environment, which is greatly appreciated by management.
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-05T20:55:02.130777 - Q: what are the pantry rules
+A: The pantry rules at Verztec are as follows:
 
-Would you like to know more about dwarfism or discuss any related topic?
----
-2025-07-05T20:40:23.946386 - Q: hi
-A: How can I assist you today?
----
-2025-07-05T20:41:51.355150 - Q: hi
-A: Good morning Verztec. My name is [Your Name], and I'm an HR Assistant in the Human Resources department. How can I assist you today?
-Source: 8_Basic Telephone Skills.pdf
+Please keep our pantry clean and neat. This includes being considerate when washing in the sink area and drying it afterwards, cleaning the water dispenser surface if you spill coffee or tea on it, disposing of unwanted items and tidying up the fridge, disposing of leftover food and packaging outside the office, closing the lid properly after disposal, cleaning up countertops or tables with a damp cloth after use, not cutting fruits or other food items on the kitchen top but using the available chopping boards.
+Source: 18_Verztec_Pantry Rules_060715.pdf
 ---
