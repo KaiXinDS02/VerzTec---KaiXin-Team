@@ -7,6 +7,7 @@ include __DIR__ . '/../connect.php';
 $message = "";
 // Assuming session is started and manager's department is stored in session
 $managerDept = $_SESSION['department'] ?? null;
+$role = $_SESSION['role'] ?? null;
 
 // Load all valid countries from the countries table into an array
 $validCountries = [];
@@ -314,9 +315,11 @@ $userCount = $res->fetch_assoc()['cnt'];
             <button class="btn btn-dark d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addUserModal">
               <i class="fa fa-user-plus me-2"></i> Add User
             </button>
-            <button class="btn btn-dark d-flex align-items-center" onclick="document.getElementById('excel_file').click();">
-              <i class="fa fa-upload me-2"></i> Upload File
-            </button>
+            <?php if ($role === 'ADMIN'): ?>
+              <button class="btn btn-dark d-flex align-items-center" onclick="document.getElementById('excel_file').click();">
+                <i class="fa fa-upload me-2"></i> Upload File
+              </button>
+            <?php endif; ?>
             <form method="POST" enctype="multipart/form-data" style="display:none;">
               <input type="file" name="excel_file" id="excel_file" accept=".xls,.xlsx" onchange="this.form.submit()">
             </form>
