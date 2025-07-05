@@ -1,7 +1,8 @@
 <?php
 require __DIR__ . '/../connect.php';
 require __DIR__ . '/../admin/auto_log_function.php';
-
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 $user_id      = $_SESSION['user_id']   ?? null;
 $user_role    = $_SESSION['role']      ?? '';
 $user_dept    = $_SESSION['department']?? null;

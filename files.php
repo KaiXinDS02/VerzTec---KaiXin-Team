@@ -577,7 +577,7 @@ function getFriendlyFileType($mimeType) {
                style="border:2px dashed #ccc;"
                ondrop="handleDrop(event)" ondragover="event.preventDefault()">
             <p class="mb-2">Drag and drop your file(s) here or</p>
-            <input type="file" id="fileInput" name="upload_file[]"
+            <input type="file" id="fileInput" name="upload_files[]"
                    class="form-control d-inline-block" style="width:auto;" multiple required>
           </div>
           <hr class="my-4">
