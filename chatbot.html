@@ -538,7 +538,44 @@
           transform: scale(1);
         }
       }
-    </style>
+      
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .avatar-controls {
+          top: 10px;
+          right: 10px;
+          gap: 8px;
+        }
+        
+        .background-controls {
+          top: 10px;
+          left: 10px;
+          gap: 8px;
+        }
+        
+        .background-option {
+          width: 25px;
+          height: 25px;
+        }
+        
+        .volume-control {
+          padding: 5px 8px;
+          font-size: 0.75rem;
+        }
+        
+        .volume-slider {
+          width: 60px;
+        }
+        
+        .avatar-controls .btn {
+          padding: 4px 8px;
+          font-size: 0.75rem;
+        }
+        
+        .background-label {
+          font-size: 0.75rem;
+        }
+      }
     </style>
 </head>
 <body>
@@ -625,14 +662,11 @@
                   <i class="fa fa-volume-up" style="font-size: 0.8rem;"></i>
                   <span id="avatar-volume-display" style="font-size: 0.8rem; min-width: 25px;">100%</span>
                 </div>
-                <button id="avatar-mute-btn" class="btn btn-sm btn-outline-light">
-                  <i class="fa fa-volume-up"></i>
+                <button id="toggle-voice" class="btn btn-sm btn-outline-light">
+                  <i class="fa fa-volume-up"></i> Voice On
                 </button>
                 <button id="toggle-avatar" class="btn btn-sm btn-outline-light">
                   <i class="fa fa-robot"></i> Avatar On
-                </button>
-                <button id="toggle-voice" class="btn btn-sm btn-outline-light">
-                  <i class="fa fa-volume-up"></i> Voice On
                 </button>
                 <div class="btn-group" role="group">
                   <button id="speed-1x" class="btn btn-sm btn-outline-light speed-btn active" data-speed="1">1x</button>
@@ -812,49 +846,10 @@
         // Update mute button state
         if (volume === 0) {
           isMuted = true;
-          updateAvatarMuteButton();
         } else if (isMuted) {
           isMuted = false;
-          updateAvatarMuteButton();
         }
       });
-      
-      document.getElementById('avatar-mute-btn').addEventListener('click', function() {
-        const volumeSlider = document.getElementById('avatar-volume-slider');
-        const volumeDisplay = document.getElementById('avatar-volume-display');
-        
-        if (isMuted) {
-          // Unmute - restore previous volume
-          const restoreVolume = previousVolume > 0 ? previousVolume : 0.5;
-          volumeSlider.value = restoreVolume * 100;
-          volumeDisplay.textContent = Math.round(restoreVolume * 100) + '%';
-          setAvatarVolume(restoreVolume);
-          isMuted = false;
-        } else {
-          // Mute - store current volume and set to 0
-          previousVolume = volumeSlider.value / 100;
-          volumeSlider.value = 0;
-          volumeDisplay.textContent = '0%';
-          setAvatarVolume(0);
-          isMuted = true;
-        }
-        
-        updateAvatarMuteButton();
-        updateAvatarStatus(isMuted ? 'Audio muted' : 'Audio unmuted');
-      });
-      
-      function updateAvatarMuteButton() {
-        const muteBtn = document.getElementById('avatar-mute-btn');
-        if (isMuted) {
-          muteBtn.innerHTML = '<i class="fa fa-volume-off"></i>';
-          muteBtn.classList.add('btn-danger');
-          muteBtn.classList.remove('btn-outline-light');
-        } else {
-          muteBtn.innerHTML = '<i class="fa fa-volume-up"></i>';
-          muteBtn.classList.remove('btn-danger');
-          muteBtn.classList.add('btn-outline-light');
-        }
-      }
       
       // Background color change functionality
       document.querySelectorAll('.background-option').forEach(option => {
