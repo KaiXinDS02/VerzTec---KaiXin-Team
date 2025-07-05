@@ -293,7 +293,15 @@ $conn->close();
                 <td><?= htmlspecialchars($row['priority'] ?? '') ?></td>
                 <td><?= htmlspecialchars($row['target_audience'] ?? '') ?></td>
                 <td>
-                  <?= isset($row['timestamp']) ? date("d M Y, H:i", strtotime($row['timestamp'])) : 'N/A' ?>
+                  <?php
+                    if (isset($row['timestamp'])) {
+                        $date = new DateTime($row['timestamp'], new DateTimeZone('UTC'));
+                        $date->setTimezone(new DateTimeZone('Asia/Singapore'));
+                        echo $date->format("d M Y, H:i");
+                    } else {
+                        echo 'N/A';
+                    } 
+                    ?>
                 </td>
                 <td>
                   <button

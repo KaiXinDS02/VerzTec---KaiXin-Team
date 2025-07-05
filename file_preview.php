@@ -6,8 +6,8 @@ require_once 'admin/auto_log_function.php'; // Add this for logging
 
 use Firebase\JWT\JWT;
 
-$filesFolderPath = '/var/www/html/files/';
-$baseFileUrl = 'http://host.docker.internal:8080/files/';
+$filesFolderPath = '/var/www/html/chatbot/data/pdfs/';
+$baseFileUrl = 'http://host.docker.internal:8080/chatbot/data/pdfs/';
 $onlyOfficeUrl = 'http://localhost:8081/';
 $jwtSecret = 'my_jwt_secret';
 
