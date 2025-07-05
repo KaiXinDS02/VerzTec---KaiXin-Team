@@ -91,6 +91,7 @@
         top: 15px;
         right: 15px;
         display: flex;
+        flex-direction: column;
         gap: 10px;
         pointer-events: auto;
       }
@@ -98,11 +99,170 @@
       .avatar-controls .btn {
         backdrop-filter: blur(10px);
         background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
         color: white;
+        padding: 6px 12px;
         font-size: 0.85rem;
-        padding: 5px 10px;
+        border-radius: 6px;
         transition: all 0.3s ease;
+      }
+      
+      .avatar-controls .btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+      
+      /* Volume control styles */
+      .volume-control {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        padding: 6px 10px;
+        color: white;
+        font-size: 0.8rem;
+      }
+      
+      .volume-slider {
+        width: 80px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 2px;
+        outline: none;
+        margin: 0;
+        appearance: none;
+      }
+      
+      .volume-slider::-webkit-slider-thumb {
+        appearance: none;
+        width: 14px;
+        height: 14px;
+        background: white;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+      
+      .volume-slider::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
+        background: white;
+        border-radius: 50%;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+      
+      /* Background color options */
+      .background-controls {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        pointer-events: auto;
+      }
+      
+      .background-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      
+      .background-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        padding: 8px 12px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.8rem;
+        min-width: 120px;
+      }
+      
+      .background-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+      
+      .background-current-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        flex-shrink: 0;
+      }
+      
+      .background-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        padding: 8px 0;
+        margin-top: 4px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        display: none;
+        z-index: 1000;
+        min-width: 160px;
+      }
+      
+      .background-menu.show {
+        display: block;
+      }
+      
+      .background-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        color: #333;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        font-size: 0.85rem;
+      }
+      
+      .background-menu-item:hover {
+        background: rgba(0,0,0,0.1);
+      }
+      
+      .background-menu-item.active {
+        background: rgba(0,0,0,0.1);
+        font-weight: 600;
+      }
+      
+      .background-menu-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 1px solid rgba(0,0,0,0.2);
+        flex-shrink: 0;
+        position: relative;
+      }
+      
+      .background-menu-color .checkmark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 10px;
+        font-weight: bold;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+      }
+      
+      .background-menu-item.active .checkmark {
+        opacity: 1;
       }
       
       .avatar-controls .btn:hover {
@@ -426,7 +586,40 @@
           transform: scale(1);
         }
       }
-    </style>
+      
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .avatar-controls {
+          top: 10px;
+          right: 10px;
+          gap: 8px;
+        }
+        
+        .background-controls {
+          top: 10px;
+          left: 10px;
+          gap: 8px;
+        }
+        
+        .background-option {
+          width: 25px;
+          height: 25px;
+        }
+        
+        .volume-control {
+          padding: 5px 8px;
+          font-size: 0.75rem;
+        }
+        
+        .volume-slider {
+          width: 60px;
+        }
+        
+        .avatar-controls .btn {
+          padding: 4px 8px;
+          font-size: 0.75rem;
+        }
+      }
     </style>
 </head>
 <body>
@@ -476,12 +669,86 @@
           <div class="avatar-container h-100">
             <div id="avatar-3d" class="avatar-3d"></div>
             <div class="avatar-overlay">
+              <div class="background-controls">
+                <div class="background-dropdown">
+                  <div class="background-toggle" id="background-toggle">
+                    <div class="background-current-color" 
+                         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    </div>
+                    <span>Background</span>
+                    <i class="fa fa-chevron-down" style="margin-left: auto; font-size: 0.7rem;"></i>
+                  </div>
+                  <div class="background-menu" id="background-menu">
+                    <div class="background-menu-item active" 
+                         data-bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                         data-name="Purple Gradient">
+                      <div class="background-menu-color" 
+                           style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                      <span>Purple Gradient</span>
+                    </div>
+                    <div class="background-menu-item" 
+                         data-bg="linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)"
+                         data-name="Red Gradient">
+                      <div class="background-menu-color" 
+                           style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);">
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                      <span>Red Gradient</span>
+                    </div>
+                    <div class="background-menu-item" 
+                         data-bg="linear-gradient(135deg, #0abde3 0%, #006ba6 100%)"
+                         data-name="Blue Gradient">
+                      <div class="background-menu-color" 
+                           style="background: linear-gradient(135deg, #0abde3 0%, #006ba6 100%);">
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                      <span>Blue Gradient</span>
+                    </div>
+                    <div class="background-menu-item" 
+                         data-bg="linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%)"
+                         data-name="Green Gradient">
+                      <div class="background-menu-color" 
+                           style="background: linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%);">
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                      <span>Green Gradient</span>
+                    </div>
+                    <div class="background-menu-item" 
+                         data-bg="linear-gradient(135deg, #feca57 0%, #ff9ff3 100%)"
+                         data-name="Yellow Pink">
+                      <div class="background-menu-color" 
+                           style="background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);">
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                      <span>Yellow Pink</span>
+                    </div>
+                    <div class="background-menu-item" 
+                         data-bg="linear-gradient(135deg, #2c2c54 0%, #40407a 100%)"
+                         data-name="Dark Purple">
+                      <div class="background-menu-color" 
+                           style="background: linear-gradient(135deg, #2c2c54 0%, #40407a 100%);">
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                      <span>Dark Purple</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="avatar-controls">
-                <button id="toggle-avatar" class="btn btn-sm btn-outline-light">
-                  <i class="fa fa-robot"></i> Avatar On
-                </button>
+                <div class="volume-control">
+                  <i class="fa fa-volume-down" style="font-size: 0.8rem;"></i>
+                  <input type="range" id="avatar-volume-slider" class="volume-slider" 
+                         min="0" max="100" value="100" step="1">
+                  <i class="fa fa-volume-up" style="font-size: 0.8rem;"></i>
+                  <span id="avatar-volume-display" style="font-size: 0.8rem; min-width: 25px;">100%</span>
+                </div>
                 <button id="toggle-voice" class="btn btn-sm btn-outline-light">
                   <i class="fa fa-volume-up"></i> Voice On
+                </button>
+                <button id="toggle-avatar" class="btn btn-sm btn-outline-light">
+                  <i class="fa fa-robot"></i> Avatar On
                 </button>
                 <div class="btn-group" role="group">
                   <button id="speed-1x" class="btn btn-sm btn-outline-light speed-btn active" data-speed="1">1x</button>
@@ -594,7 +861,8 @@
         elevenlabsApiKey: 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7',
         voice: 'EXAVITQu4vr4xnSDxMaL', // Bella voice
         avatarUrl: 'assets/avatars/models/64f1a714fe61576b46f27ca2.glb',
-        animationsUrl: 'assets/avatars/models/animations.glb'
+        animationsUrl: 'assets/avatars/models/animations.glb',
+        volume: 1.0 // Initialize with full volume
       });
       
       // Wait for avatar to be fully initialized
@@ -606,6 +874,11 @@
           
           // Set initial voice state
           avatarManager.setVoiceEnabled(isVoiceEnabled);
+          
+          // Sync volume slider with avatar manager
+          const currentVolume = avatarManager.getVolume();
+          document.getElementById('avatar-volume-slider').value = currentVolume * 100;
+          document.getElementById('avatar-volume-display').textContent = Math.round(currentVolume * 100) + '%';
           
           // Test API key
           avatarManager.testApiKey().then(result => {
@@ -641,6 +914,71 @@
       document.getElementById('show-avatar').addEventListener('click', function() {
         isAvatarEnabled = true;
         toggleAvatar();
+      });
+      
+      // Volume control functionality
+      let isMuted = false;
+      let previousVolume = 1.0;
+      
+      document.getElementById('avatar-volume-slider').addEventListener('input', function() {
+        const volume = this.value / 100;
+        setAvatarVolume(volume);
+        document.getElementById('avatar-volume-display').textContent = this.value + '%';
+        
+        // Update mute button state
+        if (volume === 0) {
+          isMuted = true;
+        } else if (isMuted) {
+          isMuted = false;
+        }
+      });
+      
+      // Background color change functionality
+      const backgroundToggle = document.getElementById('background-toggle');
+      const backgroundMenu = document.getElementById('background-menu');
+      
+      // Toggle dropdown
+      backgroundToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        backgroundMenu.classList.toggle('show');
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function() {
+        backgroundMenu.classList.remove('show');
+      });
+      
+      // Handle background selection
+      document.querySelectorAll('.background-menu-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.stopPropagation();
+          
+          // Remove active class from all items
+          document.querySelectorAll('.background-menu-item').forEach(menuItem => {
+            menuItem.classList.remove('active');
+          });
+          
+          // Add active class to clicked item
+          this.classList.add('active');
+          
+          // Update current selection display
+          const newBg = this.dataset.bg;
+          const newName = this.dataset.name;
+          
+          document.querySelector('.background-current-color').style.background = newBg;
+          
+          // Change avatar background
+          const avatarContainer = document.querySelector('.avatar-container');
+          avatarContainer.style.background = newBg;
+          
+          // Don't close dropdown - let user manually close it
+          updateAvatarStatus(`Background changed to ${newName}`);
+        });
+      });
+      
+      // Prevent dropdown from closing when clicking inside
+      backgroundMenu.addEventListener('click', function(e) {
+        e.stopPropagation();
       });
       
       // Voice toggle (main avatar controls)
@@ -791,6 +1129,18 @@
     
     function updateAvatarStatus(status) {
       document.querySelector('.avatar-status').textContent = status;
+    }
+    
+    function setAvatarVolume(volume) {
+      if (avatarManager) {
+        avatarManager.setVolume(volume);
+      } else {
+        // Fallback for when avatar manager isn't initialized yet
+        const audioElements = document.querySelectorAll('audio');
+        audioElements.forEach(audio => {
+          audio.volume = volume;
+        });
+      }
     }
     
     function disableUserInput() {

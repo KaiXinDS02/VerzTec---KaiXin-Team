@@ -10,18 +10,17 @@ if (!isset($_SESSION['username'])) {
     $_SESSION['username'] = 'John Doe';
 }
 
-// Function to get greeting based on time
-function getGreeting() {
-    $hour = date('H'); // Get current hour in 24-hour format
+// Function to get greeting based on time (moved to JavaScript for client-side time)
+function getGreeting($testHour = null) {
+    // This function is now mainly for server-side testing
+    $hour = $testHour !== null ? $testHour : date('H');
     
-    if ($hour >= 5 && $hour < 12) {
+    if ($hour >= 6 && $hour < 12) {
         return 'Good Morning';
-    } elseif ($hour >= 12 && $hour < 17) {
+    } elseif ($hour >= 12 && $hour < 18) {
         return 'Good Afternoon';
-    } elseif ($hour >= 17 && $hour < 22) {
-        return 'Good Evening';
     } else {
-        return 'Good Night';
+        return 'Good Evening';
     }
 }
 
@@ -30,8 +29,15 @@ function capitalizeName($name) {
     return ucwords(strtolower(trim($name)));
 }
 
-$greeting = getGreeting();
+// Test hour override (for testing purposes)
+$testHour = isset($_GET['testHour']) ? (int)$_GET['testHour'] : null;
+$currentHour = date('H');
+
+// Use JavaScript for client-side time, fallback to server time for testing
+$greeting = $testHour !== null ? getGreeting($testHour) : getGreeting(); // Use actual server time as fallback
 $capitalizedName = capitalizeName($_SESSION['username']);
+
+
 ?> 
 
 <!DOCTYPE html>
@@ -334,29 +340,31 @@ $capitalizedName = capitalizeName($_SESSION['username']);
             <div class="announcements-wp">
               <h3>Announcements</h3>
               <?php
-require_once 'connect.php';
-$sql = "SELECT title, context, priority, target_audience, timestamp FROM announcements ORDER BY 
-          CASE LOWER(priority)
-              WHEN 'high' THEN 1
-              WHEN 'medium' THEN 2
-              WHEN 'low' THEN 3
-              ELSE 4
-          END, timestamp DESC";
-$result = $conn->query($sql);
+                require_once 'connect.php';
+                $sql = "SELECT title, context, priority, target_audience, timestamp FROM announcements ORDER BY 
+              CASE LOWER(priority)
+                  WHEN 'high' THEN 1
+                  WHEN 'medium' THEN 2
+                  WHEN 'low' THEN 3
+                  ELSE 4
+                  END, timestamp DESC";
+              $result = $conn->query($sql);
 
-if ($result && $result->num_rows > 0):
-  while ($row = $result->fetch_assoc()):
-    $priority = strtolower($row['priority']);
-    $priorityClass = 'priority-low';
-    if ($priority === 'high') $priorityClass = 'priority-high';
-    else if ($priority === 'medium') $priorityClass = 'priority-medium';
+          if ($result && $result->num_rows > 0):
+            while ($row = $result->fetch_assoc()):
+              $priority = strtolower($row['priority']);
+              $priorityClass = 'priority-low';
+              if ($priority === 'high') $priorityClass = 'priority-high';
+              else if ($priority === 'medium') $priorityClass = 'priority-medium';
 
-    $shortContent = mb_strimwidth(strip_tags($row['context']), 0, 70, '...');
-    $safeFullContent = htmlspecialchars($row['context']);
-    $safeTitle = htmlspecialchars($row['title']);
-    $formattedDate = date('M d, Y h:i A', strtotime($row['timestamp']));
-    $targetAudience = htmlspecialchars($row['target_audience']);
-?>
+              $shortContent = mb_strimwidth(strip_tags($row['context']), 0, 50, '...');
+              $safeFullContent = nl2br(htmlspecialchars($row['context'], ENT_QUOTES, 'UTF-8'));
+              $safeTitle = htmlspecialchars($row['title']);
+              $date = new DateTime($row['timestamp'], new DateTimeZone('UTC'));
+              $date->setTimezone(new DateTimeZone('Asia/Singapore'));
+              $formattedDate = $date->format('M d, Y h:i A');
+              $targetAudience = htmlspecialchars($row['target_audience']);
+            ?>
   <div class="announcement">
     <div class="announcement-header">
       <h4><?= $safeTitle ?></h4>
@@ -408,7 +416,8 @@ $conn->close();
 
         <div class="col-lg-9">
           <div class="right-content-wp">
-            <h2><?= $greeting ?>, <?= htmlspecialchars($capitalizedName) ?>!</h2>
+            <h2 id="greeting-display"><?= $greeting ?>, <?= htmlspecialchars($capitalizedName) ?>!</h2>
+            
             <div class="rc-content-box">
               <div class="contents">
                 <div class="input-box">
@@ -473,10 +482,49 @@ $conn->close();
     modal.addEventListener('show.bs.modal', function (event) {
       const trigger = event.relatedTarget;
       document.getElementById('modalTitle').textContent = trigger.getAttribute('data-title');
-      document.getElementById('modalContent').textContent = trigger.getAttribute('data-full');
+      document.getElementById('modalContent').innerHTML = trigger.getAttribute('data-full');
       document.getElementById('modalAudience').textContent = trigger.getAttribute('data-audience');
       document.getElementById('modalPriority').textContent = trigger.getAttribute('data-priority');
       document.getElementById('modalTimestamp').textContent = trigger.getAttribute('data-timestamp');
+    });
+    
+    // Client-side time and greeting functions
+    function getClientGreeting(testHour = null) {
+        const now = new Date();
+        const hour = testHour !== null ? testHour : now.getHours();
+        
+        if (hour >= 6 && hour < 12) {
+            return 'Good Morning';
+        } else if (hour >= 12 && hour < 18) {
+            return 'Good Afternoon';
+        } else {
+            return 'Good Evening';
+        }
+    }
+    
+    function updateGreeting() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const testHour = urlParams.get('testHour');
+        const userName = '<?= htmlspecialchars($capitalizedName) ?>';
+        
+        if (testHour) {
+            // Use server-side test hour - don't update client-side
+            return;
+        } else {
+            // Use client-side time
+            const greeting = getClientGreeting();
+            document.getElementById('greeting-display').textContent = `${greeting}, ${userName}!`;
+        }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateGreeting();
+        
+        // Update greeting every minute
+        setInterval(function() {
+            updateGreeting();
+        }, 60000);
     });
   </script>
   <script src="js/inactivity.js"></script>

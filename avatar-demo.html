@@ -96,12 +96,156 @@
             margin: 5px 0;
         }
         
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .volume-slider {
+            flex: 1;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            outline: none;
+            margin: 0 !important;
+        }
+        
+        .volume-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .volume-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
         .avatar-overlay {
             position: absolute;
             bottom: 20px;
             left: 20px;
             color: white;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        /* Background color options */
+        .background-controls {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            pointer-events: auto;
+        }
+        
+        .background-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .background-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            min-width: 120px;
+        }
+        
+        .background-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .background-current-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            flex-shrink: 0;
+        }
+        
+        .background-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            padding: 8px 0;
+            margin-top: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+            min-width: 160px;
+        }
+        
+        .background-menu.show {
+            display: block;
+        }
+        
+        .background-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            color: #333;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-size: 0.85rem;
+        }
+        
+        .background-menu-item:hover {
+            background: rgba(0,0,0,0.1);
+        }
+        
+        .background-menu-item.active {
+            background: rgba(0,0,0,0.1);
+            font-weight: 600;
+        }
+        
+        .background-menu-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.2);
+            flex-shrink: 0;
+            position: relative;
+        }
+        
+        .background-menu-color .checkmark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+        
+        .background-menu-item.active .checkmark {
+            opacity: 1;
         }
     </style>
 </head>
@@ -116,6 +260,74 @@
                 <div class="avatar-overlay">
                     <h4>VerzTec AI Assistant</h4>
                     <p id="avatar-status">Initializing...</p>
+                </div>
+                
+                <!-- Background color options -->
+                <div class="background-controls">
+                    <div class="background-dropdown">
+                        <div class="background-toggle" id="background-toggle">
+                            <div class="background-current-color" id="current-bg-color"></div>
+                            <span>Background</span>
+                            <i class="fa fa-caret-down"></i>
+                        </div>
+                        
+                        <div class="background-menu" id="background-menu">
+                            <div class="background-menu-item active" 
+                                 data-bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                                 data-name="Purple Gradient">
+                                <div class="background-menu-color" 
+                                     style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    <i class="fa fa-check checkmark"></i>
+                                </div>
+                                <span>Purple Gradient</span>
+                            </div>
+                            <div class="background-menu-item" 
+                                 data-bg="linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)"
+                                 data-name="Red Gradient">
+                                <div class="background-menu-color" 
+                                     style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);">
+                                    <i class="fa fa-check checkmark"></i>
+                                </div>
+                                <span>Red Gradient</span>
+                            </div>
+                            <div class="background-menu-item" 
+                                 data-bg="linear-gradient(135deg, #0abde3 0%, #006ba6 100%)"
+                                 data-name="Blue Gradient">
+                                <div class="background-menu-color" 
+                                     style="background: linear-gradient(135deg, #0abde3 0%, #006ba6 100%);">
+                                    <i class="fa fa-check checkmark"></i>
+                                </div>
+                                <span>Blue Gradient</span>
+                            </div>
+                            <div class="background-menu-item" 
+                                 data-bg="linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%)"
+                                 data-name="Green Gradient">
+                                <div class="background-menu-color" 
+                                     style="background: linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%);">
+                                    <i class="fa fa-check checkmark"></i>
+                                </div>
+                                <span>Green Gradient</span>
+                            </div>
+                            <div class="background-menu-item" 
+                                 data-bg="linear-gradient(135deg, #feca57 0%, #ff9ff3 100%)"
+                                 data-name="Yellow Pink">
+                                <div class="background-menu-color" 
+                                     style="background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);">
+                                    <i class="fa fa-check checkmark"></i>
+                                </div>
+                                <span>Yellow Pink</span>
+                            </div>
+                            <div class="background-menu-item" 
+                                 data-bg="linear-gradient(135deg, #2c2c54 0%, #40407a 100%)"
+                                 data-name="Dark Purple">
+                                <div class="background-menu-color" 
+                                     style="background: linear-gradient(135deg, #2c2c54 0%, #40407a 100%);">
+                                    <i class="fa fa-check checkmark"></i>
+                                </div>
+                                <span>Dark Purple</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -140,6 +352,22 @@
                             <option value="AZnzlk1XvdvUeBnXmlld">Domi (Female)</option>
                             <option value="EXAVITQu4vr4xnSDxMaL">Bella (Female)</option>
                         </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Volume Control:</label>
+                        <div class="volume-control">
+                            <i class="fa fa-volume-down"></i>
+                            <input type="range" id="volume-slider" class="volume-slider" 
+                                   min="0" max="100" value="100" step="1">
+                            <i class="fa fa-volume-up"></i>
+                            <span id="volume-display" style="min-width: 35px; font-weight: bold;">100%</span>
+                        </div>
+                        <div class="mt-2">
+                            <button id="mute-btn" onclick="toggleMute()" class="btn btn-secondary">
+                                <i class="fa fa-volume-up"></i> Mute
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="control-group">
@@ -204,6 +432,7 @@
         // Initialize avatar when page loads
         document.addEventListener('DOMContentLoaded', function() {
             initializeDemo();
+            initializeBackgroundDropdown();
         });
         
         function initializeDemo() {
@@ -213,13 +442,19 @@
                 elevenlabsApiKey: '',
                 voice: 'pNInz6obpgDQGcFmaJgB',
                 avatarUrl: 'assets/avatars/models/64f1a714fe61576b46f27ca2.glb',
-                animationsUrl: 'assets/avatars/models/animations.glb'
+                animationsUrl: 'assets/avatars/models/animations.glb',
+                volume: 1.0 // Initialize with full volume
             });
             
             // Update status when initialized
             setTimeout(() => {
                 updateStatus('Avatar loaded successfully!');
                 updateAvatarStatus('Ready for interaction');
+                
+                // Sync volume slider with avatar manager
+                const currentVolume = avatarManager.getVolume();
+                document.getElementById('volume-slider').value = currentVolume * 100;
+                document.getElementById('volume-display').textContent = Math.round(currentVolume * 100) + '%';
             }, 3000);
         }
         
@@ -378,6 +613,74 @@
             }
         });
         
+        // Volume control functionality
+        let isMuted = false;
+        let previousVolume = 1.0;
+        
+        document.getElementById('volume-slider').addEventListener('input', function() {
+            const volume = this.value / 100;
+            setVolume(volume);
+            document.getElementById('volume-display').textContent = this.value + '%';
+            
+            // Update mute button state
+            if (volume === 0) {
+                isMuted = true;
+                updateMuteButton();
+            } else if (isMuted) {
+                isMuted = false;
+                updateMuteButton();
+            }
+        });
+        
+        function setVolume(volume) {
+            if (avatarManager) {
+                avatarManager.setVolume(volume);
+            } else {
+                // Fallback for when avatar manager isn't initialized yet
+                const audioElements = document.querySelectorAll('audio');
+                audioElements.forEach(audio => {
+                    audio.volume = volume;
+                });
+            }
+        }
+        
+        function toggleMute() {
+            const volumeSlider = document.getElementById('volume-slider');
+            const volumeDisplay = document.getElementById('volume-display');
+            
+            if (isMuted) {
+                // Unmute - restore previous volume
+                const restoreVolume = previousVolume > 0 ? previousVolume : 0.5;
+                volumeSlider.value = restoreVolume * 100;
+                volumeDisplay.textContent = Math.round(restoreVolume * 100) + '%';
+                setVolume(restoreVolume);
+                isMuted = false;
+            } else {
+                // Mute - store current volume and set to 0
+                previousVolume = volumeSlider.value / 100;
+                volumeSlider.value = 0;
+                volumeDisplay.textContent = '0%';
+                setVolume(0);
+                isMuted = true;
+            }
+            
+            updateMuteButton();
+            updateStatus(isMuted ? 'Audio muted' : 'Audio unmuted');
+        }
+        
+        function updateMuteButton() {
+            const muteBtn = document.getElementById('mute-btn');
+            if (isMuted) {
+                muteBtn.innerHTML = '<i class="fa fa-volume-off"></i> Unmute';
+                muteBtn.classList.remove('btn-secondary');
+                muteBtn.classList.add('btn-danger');
+            } else {
+                muteBtn.innerHTML = '<i class="fa fa-volume-up"></i> Mute';
+                muteBtn.classList.remove('btn-danger');
+                muteBtn.classList.add('btn-secondary');
+            }
+        }
+        
         // Keyboard shortcuts
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Enter' && event.target.id === 'test-text') {
@@ -390,6 +693,79 @@
             console.error('Demo error:', event.error);
             updateStatus('Error: ' + event.message);
         });
+        
+        // Background color functionality
+        let isBackgroundMenuOpen = false;
+        
+        function toggleBackgroundMenu() {
+            const menu = document.getElementById('background-menu');
+            isBackgroundMenuOpen = !isBackgroundMenuOpen;
+            
+            if (isBackgroundMenuOpen) {
+                menu.classList.add('show');
+            } else {
+                menu.classList.remove('show');
+            }
+        }
+        
+        // Initialize background dropdown functionality
+        function initializeBackgroundDropdown() {
+            const backgroundToggle = document.getElementById('background-toggle');
+            const backgroundMenu = document.getElementById('background-menu');
+            const currentBgColor = document.getElementById('current-bg-color');
+            
+            // Set initial background
+            const initialBg = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            currentBgColor.style.background = initialBg;
+            
+            // Handle toggle button click
+            backgroundToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleBackgroundMenu();
+            });
+            
+            // Handle background selection
+            document.querySelectorAll('.background-menu-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    // Remove active class from all items
+                    document.querySelectorAll('.background-menu-item').forEach(menuItem => {
+                        menuItem.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    
+                    // Update current selection display
+                    const newBg = this.dataset.bg;
+                    const newName = this.dataset.name;
+                    
+                    // Update the current color circle
+                    currentBgColor.style.background = newBg;
+                    
+                    // Change avatar background
+                    const avatarDemo = document.getElementById('avatar-demo');
+                    avatarDemo.style.background = newBg;
+                    
+                    // Don't close dropdown - let user manually close it
+                    updateStatus(`Background changed to ${newName}`);
+                });
+            });
+            
+            // Only close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!backgroundToggle.contains(e.target) && !backgroundMenu.contains(e.target)) {
+                    isBackgroundMenuOpen = false;
+                    backgroundMenu.classList.remove('show');
+                }
+            });
+            
+            // Prevent dropdown from closing when clicking inside
+            backgroundMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
     </script>
 </body>
 </html>

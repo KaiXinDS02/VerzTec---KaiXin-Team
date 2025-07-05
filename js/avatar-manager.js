@@ -9,6 +9,7 @@ class AvatarManager {
       animationsUrl: options.animationsUrl || 'assets/avatars/models/animations.glb',
       elevenlabsApiKey: options.elevenlabsApiKey || 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7',
       voice: options.voice || 'EXAVITQu4vr4xnSDxMaL', // Bella voice
+      volume: options.volume || 1.0, // Default volume
       ...options
     };
     
@@ -210,7 +211,7 @@ class AvatarManager {
     this.audioElement = document.createElement('audio');
     this.audioElement.crossOrigin = 'anonymous';
     this.audioElement.preload = 'auto';
-    this.audioElement.volume = 1.0;
+    this.audioElement.volume = this.options.volume;
     this.audioElement.muted = false;
     
     // Add the audio element to the DOM (hidden) to ensure it can play
@@ -621,7 +622,7 @@ class AvatarManager {
 
     // Set up audio
     this.audioElement.src = audioUrl;
-    this.audioElement.volume = 1.0;
+    this.audioElement.volume = this.options.volume;
     this.audioElement.muted = false;
     this.audioElement.playbackRate = speedMultiplier; // Apply speed control
     
@@ -691,7 +692,7 @@ class AvatarManager {
 
     // Set up audio for direct playback
     this.audioElement.src = audioUrl;
-    this.audioElement.volume = 1.0;
+    this.audioElement.volume = this.options.volume;
     this.audioElement.muted = false;
     this.audioElement.playbackRate = speedMultiplier; // Apply speed control
     console.log('🎵 Audio playback rate set to:', this.audioElement.playbackRate);
@@ -755,7 +756,7 @@ class AvatarManager {
   async playAudioNewElement(audioUrl, speedMultiplier = 1.0) {
     const tempAudio = document.createElement('audio');
     tempAudio.crossOrigin = 'anonymous';
-    tempAudio.volume = 1.0;
+    tempAudio.volume = this.options.volume;
     tempAudio.muted = false;
     tempAudio.playbackRate = speedMultiplier; // Apply speed control
     tempAudio.src = audioUrl;
@@ -803,7 +804,7 @@ class AvatarManager {
       // Create a temporary audio element that's not connected to Web Audio API
       const tempAudio = document.createElement('audio');
       tempAudio.crossOrigin = 'anonymous';
-      tempAudio.volume = 1.0;
+      tempAudio.volume = this.options.volume;
       tempAudio.muted = false;
       tempAudio.src = audioUrl;
       
@@ -1355,7 +1356,7 @@ class AvatarManager {
     try {
       // Create a completely new, simple audio element
       const simpleAudio = document.createElement('audio');
-      simpleAudio.volume = 1.0;
+      simpleAudio.volume = this.options.volume;
       simpleAudio.muted = false;
       
       // Use a simple test sound
@@ -1466,6 +1467,38 @@ class AvatarManager {
   
   isVoiceEnabled() {
     return this.voiceEnabled !== false; // Default to true if not set
+  }
+  
+  setVolume(volume) {
+    // Clamp volume between 0 and 1
+    this.options.volume = Math.max(0, Math.min(1, volume));
+    
+    // Update main audio element volume
+    if (this.audioElement) {
+      this.audioElement.volume = this.options.volume;
+    }
+    
+    // Update all other audio elements that might be in use
+    const audioElements = document.querySelectorAll('audio');
+    audioElements.forEach(audio => {
+      if (audio !== this.audioElement) {
+        audio.volume = this.options.volume;
+      }
+    });
+    
+    console.log('🔊 Avatar volume set to:', (this.options.volume * 100).toFixed(0) + '%');
+  }
+  
+  getVolume() {
+    return this.options.volume;
+  }
+  
+  mute() {
+    this.setVolume(0);
+  }
+  
+  unmute(volume = 1.0) {
+    this.setVolume(volume);
   }
   
   destroy() {
