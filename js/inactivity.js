@@ -10,7 +10,7 @@
 
   const resetTimer = () => {
     clearTimeout(timeout);
-    timeout = setTimeout(redirectToLogin, 30 * 60 * 1000); // 5 minutes
+    timeout = setTimeout(redirectToLogin, 30 * 60 * 1000); // 30 minutes
   };
 
   ['load', 'mousemove', 'mousedown', 'click', 'scroll', 'keypress'].forEach(evt => {
