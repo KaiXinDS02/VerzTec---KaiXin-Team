@@ -4,8 +4,8 @@ require __DIR__ . '/../admin/auto_log_function.php';
 require_once __DIR__ . '/../connect.php';
 use Firebase\JWT\JWT;
 
-$filesFolderPath = '/var/www/html/files/';
-$baseFileUrl = 'http://web:80/files/';
+$filesFolderPath = '/var/www/html/chatbot/data/pdfs/';
+$baseFileUrl = 'http://web:80/chatbot/data/pdfs/';
 $onlyOfficeUrl = 'http://localhost:8081/';
 $jwtSecret = 'my_jwt_secret';
 

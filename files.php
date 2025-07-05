@@ -7,7 +7,7 @@ require __DIR__ . '/vendor/autoload.php';
 header('Content-Type: text/html; charset=utf-8');
 
 $message = "";
-$directory = 'files';
+$directory = 'chatbot/data/pdfs';
 
 // Determine user context
 $user_id = $_SESSION['user_id'] ?? 1;

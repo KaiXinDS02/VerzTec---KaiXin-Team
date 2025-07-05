@@ -7,7 +7,7 @@ $user_role    = $_SESSION['role']      ?? '';
 $user_dept    = $_SESSION['department']?? null;
 $user_country = $_SESSION['country']   ?? null;
 
-$directory = __DIR__ . '/../files';
+$directory = __DIR__ . '/../chatbot/data/pdfs';
 
 // Map MIME types to simplified, friendly file types for classification
 function getFriendlyFileType($mimeType) {
