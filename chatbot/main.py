@@ -60,7 +60,7 @@ def is_personal_question(question: str) -> bool:
     personal_keywords = [
         "father", "mother", "brother", "sister", "family", "boyfriend", "girlfriend",
         "relationship", "love", "hate", "angry", "feel", "emotional", "personal", "sad",
-        "why is my", "mental health", "feeling"
+        "why is my", "mental health", "feeling", "friend", "mean"
     ]
     return any(word in question.lower() for word in personal_keywords)
 
