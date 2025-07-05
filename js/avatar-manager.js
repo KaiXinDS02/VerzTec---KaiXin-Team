@@ -1594,7 +1594,180 @@ class AvatarManager {
       }
     }
   }
-}
 
-// Export for global use
-window.AvatarManager = AvatarManager;
+  // Dynamic avatar loading methods
+  async loadNewAvatar(avatarUrl) {
+    try {
+      console.log('Loading new avatar:', avatarUrl);
+      
+      // Remove existing avatar
+      if (this.avatar) {
+        this.scene.remove(this.avatar);
+        this.avatar = null;
+      }
+      
+      // Stop existing animations
+      if (this.mixer) {
+        this.mixer.stopAllAction();
+      }
+      
+      // Load new avatar
+      const loader = new THREE.GLTFLoader();
+      const gltf = await new Promise((resolve, reject) => {
+        loader.load(avatarUrl, resolve, 
+          (progress) => {
+            console.log('New avatar loading progress:', (progress.loaded / progress.total * 100) + '%');
+          }, 
+          reject);
+      });
+      
+      this.avatar = gltf.scene;
+      this.scene.add(this.avatar);
+      
+      // Update avatar URL
+      this.options.avatarUrl = avatarUrl;
+      
+      // Setup Ready Player Me controller and morph targets
+      this.readyPlayerMeController = new ReadyPlayerMeAvatar(this);
+      this.morphTargets = this.readyPlayerMeController.findMorphTargets(this.avatar);
+      this.readyPlayerMeController.setupExpressionController(this.avatar, this.morphTargets);
+      
+      // Position avatar
+      this.avatar.position.set(0, 0, 0);
+      this.avatar.scale.set(1.5, 1.5, 1.5);
+      
+      // Load animations if available
+      let animationClips = gltf.animations || [];
+      
+      // Load external animations if specified
+      if (this.options.animationsUrl && this.options.animationsUrl !== avatarUrl) {
+        try {
+          const animationGltf = await new Promise((resolve, reject) => {
+            loader.load(this.options.animationsUrl, resolve, 
+              (progress) => {
+                console.log('Animation loading progress:', (progress.loaded / progress.total * 100) + '%');
+              }, 
+              reject);
+          });
+          
+          if (animationGltf.animations && animationGltf.animations.length > 0) {
+            animationClips = [...animationClips, ...animationGltf.animations];
+          }
+        } catch (error) {
+          console.warn('Failed to load separate animations:', error);
+        }
+      }
+      
+      // Setup animations
+      this.setupAnimations(animationClips);
+      
+      console.log('✅ New avatar loaded successfully');
+      return true;
+    } catch (error) {
+      console.error('Failed to load new avatar:', error);
+      throw error;
+    }
+  }
+  
+  async setAnimationsUrl(animationsUrl) {
+    try {
+      console.log('Loading new animations:', animationsUrl);
+      
+      // Stop existing animations
+      if (this.mixer) {
+        this.mixer.stopAllAction();
+      }
+      
+      // Load new animations
+      const loader = new THREE.GLTFLoader();
+      const animationGltf = await new Promise((resolve, reject) => {
+        loader.load(animationsUrl, resolve, 
+          (progress) => {
+            console.log('Animation loading progress:', (progress.loaded / progress.total * 100) + '%');
+          }, 
+          reject);
+      });
+      
+      // Update animations URL
+      this.options.animationsUrl = animationsUrl;
+      
+      // Setup new animations
+      if (animationGltf.animations && animationGltf.animations.length > 0) {
+        this.setupAnimations(animationGltf.animations);
+      }
+      
+      console.log('✅ Animations updated successfully');
+      return true;
+    } catch (error) {
+      console.error('Failed to load new animations:', error);
+      throw error;
+    }
+  }
+  
+  async loadAnimations(animationsUrl) {
+    // Alias for setAnimationsUrl for backward compatibility
+    return this.setAnimationsUrl(animationsUrl);
+  }
+  
+  setupAnimations(animationClips) {
+    // Reset animation actions
+    this.idleAction = null;
+    this.talkingAction = null;
+    this.thinkingAction = null;
+    
+    if (animationClips && animationClips.length > 0 && this.avatar) {
+      this.mixer = new THREE.AnimationMixer(this.avatar);
+      
+      animationClips.forEach((clip) => {
+        const action = this.mixer.clipAction(clip);
+        const clipName = clip.name.toLowerCase();
+        
+        console.log(`Setting up animation clip: "${clip.name}" (${clipName})`);
+        
+        if (clipName.includes('idle')) {
+          this.idleAction = action;
+          console.log('✅ Idle animation set:', clip.name);
+        } else if (clipName.includes('talk') || clipName.includes('speaking')) {
+          this.talkingAction = action;
+          console.log('✅ Talking animation set:', clip.name);
+        } else if (clipName.includes('think') || clipName.includes('pondering') || 
+                   clipName.includes('contemplat') || clipName.includes('reflect') ||
+                   clipName.includes('consider') || clipName.includes('pause')) {
+          this.thinkingAction = action;
+          console.log('✅ Thinking animation set:', clip.name);
+        }
+      });
+      
+      // Start with idle animation
+      if (this.idleAction) {
+        this.idleAction.play();
+        this.currentAnimation = 'idle';
+        console.log('✅ Started idle animation');
+      }
+      
+      // Log animation status
+      console.log('Animation Setup Status:');
+      console.log('- Idle animation:', this.idleAction ? '✅ Available' : '❌ Not found');
+      console.log('- Talking animation:', this.talkingAction ? '✅ Available' : '❌ Not found');
+      console.log('- Thinking animation:', this.thinkingAction ? '✅ Available' : '❌ Not found');
+    }
+  }
+  
+  // Method to get the current avatar mesh for analysis
+  getAvatarMesh() {
+    return this.avatar;
+  }
+  
+  // Method to perform gender analysis on the current avatar
+  analyzeCurrentAvatarGender() {
+    if (!this.avatar) {
+      console.warn('No avatar loaded for gender analysis');
+      return 'female';
+    }
+    
+    // This will be called from the main chatbot script
+    // which has access to the analyzeAvatarGender function
+    return window.analyzeAvatarGender ? window.analyzeAvatarGender(this.avatar) : 'female';
+  }
+
+  // ...existing code...

@@ -247,6 +247,125 @@
         .background-menu-item.active .checkmark {
             opacity: 1;
         }
+        
+        /* Avatar customization controls */
+        .avatar-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            pointer-events: auto;
+        }
+        
+        .customize-avatar-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            min-width: 140px;
+        }
+        
+        .customize-avatar-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        /* Ready Player Me Modal */
+        .rpm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .rpm-modal.show {
+            display: flex;
+        }
+        
+        .rpm-modal-content {
+            width: 90%;
+            height: 90%;
+            max-width: 1200px;
+            max-height: 800px;
+            background: white;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .rpm-modal-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .rpm-modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+            flex: 1;
+        }
+        
+        .rpm-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .rpm-close-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+        
+        .rpm-iframe {
+            width: 100%;
+            height: calc(100% - 70px);
+            border: none;
+        }
+        
+        .rpm-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #666;
+        }
+        
+        .rpm-loading i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -328,6 +447,13 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                
+                <!-- Ready Player Me Avatar Creator -->
+                <div class="avatar-controls">
+                    <button id="customize-avatar-btn" class="customize-avatar-btn">
+                        <i class="fa fa-user"></i> Customize Avatar
+                    </button>
                 </div>
             </div>
         </div>
@@ -418,6 +544,29 @@
         </div>
     </div>
 
+    <!-- Ready Player Me Avatar Creator Modal -->
+    <div id="rpm-modal" class="rpm-modal">
+        <div class="rpm-modal-content">
+            <div class="rpm-modal-header">
+                <h3 class="rpm-modal-title">Customize Your Avatar</h3>
+                <button class="rpm-close-btn" id="rpm-close-btn">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="rpm-loading" id="rpm-loading">
+                <i class="fa fa-spinner"></i>
+                <p>Loading Avatar Creator...</p>
+            </div>
+            <iframe 
+                id="rpm-iframe" 
+                class="rpm-iframe" 
+                style="display: none;"
+                src=""
+                allow="camera *; microphone *">
+            </iframe>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -433,6 +582,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             initializeDemo();
             initializeBackgroundDropdown();
+            initializeReadyPlayerMe();
         });
         
         function initializeDemo() {
@@ -766,6 +916,148 @@
                 e.stopPropagation();
             });
         }
+        
+        // Ready Player Me Avatar Creator Integration
+        function initializeReadyPlayerMe() {
+            const customizeBtn = document.getElementById('customize-avatar-btn');
+            const modal = document.getElementById('rpm-modal');
+            const closeBtn = document.getElementById('rpm-close-btn');
+            const iframe = document.getElementById('rpm-iframe');
+            const loading = document.getElementById('rpm-loading');
+            
+            // Avatar Creator URL with frameApi enabled
+            const avatarCreatorUrl = 'https://demo.readyplayer.me/avatar?frameApi';
+            
+            // Open Avatar Creator Modal
+            customizeBtn.addEventListener('click', function() {
+                modal.classList.add('show');
+                loading.style.display = 'block';
+                iframe.style.display = 'none';
+                
+                // Load the iframe
+                iframe.src = avatarCreatorUrl;
+                
+                updateStatus('Opening Ready Player Me Avatar Creator...');
+            });
+            
+            // Close Modal
+            function closeModal() {
+                modal.classList.remove('show');
+                iframe.src = '';
+                updateStatus('Avatar Creator closed');
+            }
+            
+            closeBtn.addEventListener('click', closeModal);
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            // Listen to messages from Ready Player Me iframe
+            window.addEventListener('message', function(event) {
+                const json = parse(event);
+                
+                if (json?.source !== 'readyplayerme') {
+                    return;
+                }
+                
+                // Handle different events from Ready Player Me
+                switch (json.eventName) {
+                    case 'v1.frame.ready':
+                        // Avatar Creator iframe is ready
+                        loading.style.display = 'none';
+                        iframe.style.display = 'block';
+                        updateStatus('Avatar Creator loaded successfully');
+                        console.log('Ready Player Me iframe is ready');
+                        break;
+                        
+                    case 'v1.avatar.exported':
+                        // Avatar has been created/updated
+                        const avatarUrl = json.data.url;
+                        console.log('New avatar created:', avatarUrl);
+                        updateStatus('Avatar created successfully!');
+                        
+                        // Update the avatar URL input field
+                        document.getElementById('avatar-url').value = avatarUrl;
+                        
+                        // Load the new avatar
+                        loadNewAvatar(avatarUrl);
+                        
+                        // Close the modal
+                        setTimeout(() => {
+                            closeModal();
+                        }, 1000);
+                        break;
+                        
+                    case 'v1.user.set':
+                        console.log('User data set:', json.data);
+                        break;
+                        
+                    default:
+                        console.log('Unhandled Ready Player Me event:', json.eventName, json.data);
+                }
+            });
+            
+            // Parse message from iframe
+            function parse(event) {
+                try {
+                    return JSON.parse(event.data);
+                } catch (error) {
+                    return null;
+                }
+            }
+            
+            // Load new avatar function
+            function loadNewAvatar(avatarUrl) {
+                updateStatus('Loading new avatar...');
+                updateAvatarStatus('Loading...');
+                
+                // Destroy current avatar
+                if (avatarManager) {
+                    avatarManager.destroy();
+                }
+                
+                // Create new avatar with the custom URL
+                setTimeout(() => {
+                    avatarManager = new AvatarManager('avatar-demo', {
+                        elevenlabsApiKey: document.getElementById('api-key').value,
+                        voice: document.getElementById('voice-select').value,
+                        avatarUrl: avatarUrl,
+                        animationsUrl: 'assets/avatars/models/animations.glb',
+                        volume: 1.0
+                    });
+                    
+                    // Wait for avatar to load
+                    setTimeout(() => {
+                        updateStatus('Custom avatar loaded successfully!');
+                        updateAvatarStatus('Ready for interaction');
+                        
+                        // Sync volume slider
+                        const currentVolume = avatarManager.getVolume();
+                        document.getElementById('volume-slider').value = currentVolume * 100;
+                        document.getElementById('volume-display').textContent = Math.round(currentVolume * 100) + '%';
+                    }, 3000);
+                }, 500);
+            }
+        }
+        
+        // Keep the existing avatar customization system functions for fallback
+        // but they won't be used with Ready Player Me integration
+        let currentAvatarConfig = {
+            preset: 'professional',
+            gender: 'male',
+            skinTone: 'light',
+            hairStyle: 'short',
+            hairColor: 'brown',
+            clothing: {
+                top: 'shirt',
+                bottom: 'jeans',
+                shoes: 'sneakers'
+            }
+        };
     </script>
 </body>
 </html>

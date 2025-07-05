@@ -109,7 +109,8 @@
       
       .avatar-controls .btn:hover {
         background: rgba(255, 255, 255, 0.2);
-        border-color: rgba(255, 255, 255, 0.5);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
       }
       
       /* Volume control styles */
@@ -291,6 +292,267 @@
         background: rgba(255, 193, 7, 0.2);
         border-color: #ffc107;
         color: #ffc107;
+      }
+      
+      /* Avatar customization controls */
+      .avatar-dropdown {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 10px;
+      }
+      
+      .avatar-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        padding: 8px 12px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.8rem;
+        min-width: 140px;
+      }
+      
+      .avatar-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+      
+      .avatar-current-icon {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      
+      .avatar-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        padding: 0;
+        margin-top: 4px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        display: none;
+        z-index: 1000;
+        min-width: 280px;
+        max-width: 350px;
+      }
+      
+      .avatar-menu.show {
+        display: block;
+      }
+      
+      .avatar-menu-tabs {
+        display: flex;
+        background: rgba(0,0,0,0.05);
+        border-radius: 8px 8px 0 0;
+        padding: 4px;
+      }
+      
+      .avatar-menu-tab {
+        flex: 1;
+        padding: 8px 12px;
+        text-align: center;
+        background: transparent;
+        border: none;
+        border-radius: 4px;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+      
+      .avatar-menu-tab.active {
+        background: white;
+        color: #333;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      
+      .avatar-menu-tab:hover:not(.active) {
+        background: rgba(255,255,255,0.5);
+        color: #333;
+      }
+      
+      .avatar-menu-content {
+        padding: 16px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      
+      .avatar-menu-section {
+        display: none;
+        margin-bottom: 16px;
+      }
+      
+      .avatar-menu-section.active {
+        display: block;
+      }
+      
+      .avatar-menu-section:last-child {
+        margin-bottom: 0;
+      }
+      
+      .avatar-section-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      
+      .avatar-option-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      
+      .avatar-option-item {
+        aspect-ratio: 1;
+        border: 2px solid rgba(0,0,0,0.1);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .avatar-option-item:hover {
+        border-color: #007bff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      }
+      
+      .avatar-option-item.active {
+        border-color: #007bff;
+        background: rgba(0,123,255,0.1);
+      }
+      
+      .avatar-option-item.active .checkmark {
+        opacity: 1;
+      }
+      
+      .avatar-option-item .checkmark {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        background: #007bff;
+        color: white;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+      
+      .avatar-color-circle {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid rgba(0,0,0,0.1);
+        flex-shrink: 0;
+      }
+      
+      .avatar-preset-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid rgba(0,0,0,0.1);
+        margin-bottom: 8px;
+      }
+      
+      .avatar-preset-item:hover {
+        background: rgba(0,0,0,0.05);
+        border-color: #007bff;
+      }
+      
+      .avatar-preset-item.active {
+        background: rgba(0,123,255,0.1);
+        border-color: #007bff;
+      }
+      
+      .avatar-preset-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+      }
+      
+      .avatar-preset-info {
+        flex: 1;
+      }
+      
+      .avatar-preset-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 2px;
+      }
+      
+      .avatar-preset-desc {
+        font-size: 0.8rem;
+        color: #666;
+      }
+      
+      .avatar-gender-buttons {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      
+      .avatar-gender-btn {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid rgba(0,0,0,0.2);
+        border-radius: 6px;
+        background: white;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+      
+      .avatar-gender-btn:hover {
+        border-color: #007bff;
+        color: #007bff;
+      }
+      
+      .avatar-gender-btn.active {
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
       }
       
       .avatar-info {
@@ -620,6 +882,241 @@
           font-size: 0.75rem;
         }
       }
+      
+      /* Ready Player Me Modal Styles */
+      .rpm-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      
+      .rpm-modal-content {
+        background: white;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 1200px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      }
+      
+      .rpm-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid #e0e0e0;
+        background: #f8f9fa;
+      }
+      
+      .rpm-modal-header h3 {
+        margin: 0;
+        color: #333;
+        font-size: 1.2rem;
+        font-weight: 600;
+      }
+      
+      .rpm-close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #666;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+      }
+      
+      .rpm-close-btn:hover {
+        background: #e0e0e0;
+        color: #333;
+      }
+      
+      .rpm-modal-body {
+        flex: 1;
+        overflow: hidden;
+      }
+      
+      .rpm-frame {
+        width: 100%;
+        height: 700px;
+        border: none;
+        display: block;
+      }
+      
+      @media (max-width: 768px) {
+        .rpm-modal {
+          padding: 10px;
+        }
+        
+        .rpm-modal-content {
+          max-height: 95vh;
+        }
+        
+        .rpm-modal-header {
+          padding: 15px 20px;
+        }
+        
+        .rpm-modal-header h3 {
+          font-size: 1.1rem;
+        }
+        
+        .rpm-frame {
+          height: 600px;
+        }
+      }
+      
+      /* Voice Selection Dropdown Styles */
+      .voice-selection-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      
+      .voice-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        padding: 4px 0;
+        margin-top: 4px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        display: none;
+        z-index: 1000;
+        min-width: 180px;
+      }
+      
+      .voice-menu.show {
+        display: block;
+      }
+      
+      .voice-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.85rem;
+        position: relative;
+      }
+      
+      .voice-menu-item:hover {
+        background: rgba(0,0,0,0.1);
+      }
+      
+      .voice-menu-item.active {
+        background: rgba(0,123,255,0.1);
+        color: #007bff;
+        font-weight: 600;
+      }
+      
+      .voice-menu-item i:first-child {
+        width: 16px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      
+      .voice-menu-item span {
+        flex: 1;
+      }
+      
+      .voice-checkmark {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        font-size: 0.8rem;
+      }
+      
+      .voice-menu-item.active .voice-checkmark {
+        opacity: 1;
+      }
+      
+      /* Avatar Selection Dropdown Styles */
+      .avatar-selection-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      
+      .avatar-selection-dropdown .avatar-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        padding: 4px 0;
+        margin-top: 4px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        display: none;
+        z-index: 1000;
+        min-width: 160px;
+      }
+      
+      .avatar-selection-dropdown .avatar-menu.show {
+        display: block;
+      }
+      
+      .avatar-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.85rem;
+        position: relative;
+      }
+      
+      .avatar-menu-item:hover {
+        background: rgba(0,0,0,0.1);
+      }
+      
+      .avatar-menu-item.active {
+        background: rgba(0,123,255,0.1);
+        color: #007bff;
+        font-weight: 600;
+      }
+      
+      .avatar-menu-item i:first-child {
+        width: 16px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      
+      .avatar-menu-item span {
+        flex: 1;
+      }
+      
+      .avatar-checkmark {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        font-size: 0.8rem;
+      }
+      
+      .avatar-menu-item.active .avatar-checkmark {
+        opacity: 1;
+      }
     </style>
 </head>
 <body>
@@ -737,6 +1234,56 @@
                 </div>
               </div>
               <div class="avatar-controls">
+                <button id="customize-avatar-btn" class="btn btn-sm btn-outline-light">
+                  <i class="fa fa-user"></i> Customize Avatar
+                </button>
+                
+                <div class="avatar-selection-dropdown">
+                  <button id="avatar-toggle" class="btn btn-sm btn-outline-light">
+                    <i class="fa fa-users"></i> <span id="current-avatar-name">Female Avatar</span>
+                    <i class="fa fa-chevron-down" style="margin-left: 5px; font-size: 0.7rem;"></i>
+                  </button>
+                  <div class="avatar-menu" id="avatar-selection-menu">
+                    <div class="avatar-menu-item active" data-avatar="female">
+                      <i class="fa fa-female"></i>
+                      <span>Female Avatar</span>
+                      <i class="fa fa-check avatar-checkmark"></i>
+                    </div>
+                    <div class="avatar-menu-item" data-avatar="male">
+                      <i class="fa fa-male"></i>
+                      <span>Male Avatar</span>
+                      <i class="fa fa-check avatar-checkmark"></i>
+                    </div>
+                  </div>
+                </div>
+                
+                <button id="revert-avatar-btn" class="btn btn-sm btn-outline-light">
+                  <i class="fa fa-undo"></i> Reset to Default
+                </button>
+                
+                <button id="force-male-animations-btn" class="btn btn-sm btn-outline-light" style="display: none;">
+                  <i class="fa fa-male"></i> Use Male Animations
+                </button>
+                
+                <div class="voice-selection-dropdown">
+                  <button id="voice-toggle" class="btn btn-sm btn-outline-light">
+                    <i class="fa fa-microphone"></i> <span id="current-voice-name">Bella (Female)</span>
+                    <i class="fa fa-chevron-down" style="margin-left: 5px; font-size: 0.7rem;"></i>
+                  </button>
+                  <div class="voice-menu" id="voice-menu">
+                    <div class="voice-menu-item active" data-voice="female">
+                      <i class="fa fa-female"></i>
+                      <span>Bella (Female)</span>
+                      <i class="fa fa-check voice-checkmark"></i>
+                    </div>
+                    <div class="voice-menu-item" data-voice="male">
+                      <i class="fa fa-male"></i>
+                      <span>Adam (Male)</span>
+                      <i class="fa fa-check voice-checkmark"></i>
+                    </div>
+                  </div>
+                </div>
+                
                 <div class="volume-control">
                   <i class="fa fa-volume-down" style="font-size: 0.8rem;"></i>
                   <input type="range" id="avatar-volume-slider" class="volume-slider" 
@@ -838,10 +1385,43 @@
     let currentSpeed = 1.0; // Speed multiplier for text and speech
     let isChatbotBusy = false; // Track if chatbot is currently processing/talking
     
+    // Avatar system configuration
+    let originalAvatarUrl = 'assets/avatars/models/female_avatar.glb'; // Default female avatar
+    let currentAvatarUrl = '';
+    let currentAvatarGender = 'female'; // Track current avatar gender
+    let availableAvatars = {
+      female: {
+        avatarUrl: 'assets/avatars/models/female_avatar.glb',
+        animationsUrl: 'assets/avatars/models/female_animations.glb',
+        name: 'Female Avatar',
+        gender: 'female'
+      },
+      male: {
+        avatarUrl: 'assets/avatars/models/male_avatar.glb',
+        animationsUrl: 'assets/avatars/models/male_animations.glb',
+        name: 'Male Avatar',
+        gender: 'male'
+      }
+    };
+    let availableVoices = {
+      female: {
+        id: 'EXAVITQu4vr4xnSDxMaL', // Bella
+        name: 'Bella (Female)',
+        gender: 'female'
+      },
+      male: {
+        id: 'pNInz6obpgDQGcFmaJgB', // Adam
+        name: 'Adam (Male)', 
+        gender: 'male'
+      }
+    };
+    let currentVoiceId = availableVoices.female.id;
+    
     // Initialize avatar when page loads
     document.addEventListener('DOMContentLoaded', function() {
       initializeAvatar();
       setupEventListeners();
+      initializeAvatarCustomization();
     });
     
     // Cleanup on page unload
@@ -856,12 +1436,16 @@
         return;
       }
       
-      // Use fixed settings with API key and Bella voice
+      // Set current avatar URL to the selected avatar
+      const currentAvatarConfig = availableAvatars[currentAvatarGender];
+      currentAvatarUrl = currentAvatarConfig.avatarUrl;
+      
+      // Use current voice settings
       avatarManager = new AvatarManager('avatar-3d', {
         elevenlabsApiKey: 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7',
-        voice: 'EXAVITQu4vr4xnSDxMaL', // Bella voice
-        avatarUrl: 'assets/avatars/models/64f1a714fe61576b46f27ca2.glb',
-        animationsUrl: 'assets/avatars/models/animations.glb',
+        voice: currentVoiceId,
+        avatarUrl: currentAvatarUrl,
+        animationsUrl: currentAvatarConfig.animationsUrl,
         volume: 1.0 // Initialize with full volume
       });
       
@@ -903,6 +1487,221 @@
       }, 10000);
     }
     
+    function getAnimationsUrl(gender) {
+      // Return appropriate animation files based on gender
+      if (availableAvatars[gender]) {
+        return availableAvatars[gender].animationsUrl;
+      }
+      // Fallback to female animations
+      return availableAvatars.female.animationsUrl;
+    }
+    
+    function detectAvatarGender(avatarUrl) {
+      // Enhanced gender detection for Ready Player Me avatars
+      if (typeof avatarUrl === 'string') {
+        // Check if it's one of our local avatars
+        if (avatarUrl.includes('male_avatar.glb') || avatarUrl.includes('male')) {
+          return 'male';
+        }
+        if (avatarUrl.includes('female_avatar.glb') || avatarUrl.includes('female')) {
+          return 'female';
+        }
+        
+        // For Ready Player Me URLs, use more sophisticated detection
+        const urlLower = avatarUrl.toLowerCase();
+        
+        // Look for gender indicators in filename/path
+        if (urlLower.includes('male') || urlLower.includes('man') || urlLower.includes('boy')) {
+          return 'male';
+        }
+        if (urlLower.includes('female') || urlLower.includes('woman') || urlLower.includes('girl')) {
+          return 'female';
+        }
+        
+        // For Ready Player Me avatars, we'll analyze the 3D model after it loads
+        console.log('Ready Player Me avatar detected, will analyze 3D model for gender detection');
+        return 'unknown'; // Will be detected after model loads
+      }
+      
+      // Default fallback
+      return 'female';
+    }
+    
+    function analyzeAvatarGender(avatarMesh) {
+      // Enhanced 3D avatar mesh analysis to determine gender based on body proportions
+      if (!avatarMesh) {
+        console.log('No avatar mesh available for analysis');
+        return 'female';
+      }
+      
+      try {
+        // Get the bounding box of the avatar
+        const box = new THREE.Box3().setFromObject(avatarMesh);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        
+        // Calculate body proportions
+        const height = size.y;
+        const width = size.x;
+        const depth = size.z;
+        
+        // Advanced ratio calculations
+        const shoulderHipRatio = width / height;
+        const aspectRatio = width / depth;
+        const volumeRatio = (width * depth) / (height * height);
+        
+        // Analyze specific body regions if possible
+        let shoulderWidth = 0;
+        let hipWidth = 0;
+        let chestDepth = 0;
+        
+        // Try to find specific body parts for more accurate detection
+        avatarMesh.traverse((child) => {
+          if (child.isMesh && child.name) {
+            const name = child.name.toLowerCase();
+            
+            // Look for shoulder/chest area
+            if (name.includes('shoulder') || name.includes('chest') || name.includes('torso')) {
+              const childBox = new THREE.Box3().setFromObject(child);
+              const childSize = childBox.getSize(new THREE.Vector3());
+              shoulderWidth = Math.max(shoulderWidth, childSize.x);
+              chestDepth = Math.max(chestDepth, childSize.z);
+            }
+            
+            // Look for hip area
+            if (name.includes('hip') || name.includes('pelvis') || name.includes('waist')) {
+              const childBox = new THREE.Box3().setFromObject(child);
+              const childSize = childBox.getSize(new THREE.Vector3());
+              hipWidth = Math.max(hipWidth, childSize.x);
+            }
+          }
+        });
+        
+        // Calculate confidence score
+        let maleScore = 0;
+        let femaleScore = 0;
+        
+        console.log('Enhanced Avatar Analysis:', {
+          height: height.toFixed(2),
+          width: width.toFixed(2),
+          depth: depth.toFixed(2),
+          shoulderHipRatio: shoulderHipRatio.toFixed(3),
+          aspectRatio: aspectRatio.toFixed(3),
+          volumeRatio: volumeRatio.toFixed(3),
+          shoulderWidth: shoulderWidth.toFixed(2),
+          hipWidth: hipWidth.toFixed(2),
+          chestDepth: chestDepth.toFixed(2)
+        });
+        
+        // Scoring system for gender detection
+        
+        // 1. Shoulder-to-hip ratio (primary indicator)
+        if (shoulderHipRatio > 0.48) {
+          maleScore += 3;
+        } else if (shoulderHipRatio > 0.45) {
+          maleScore += 2;
+        } else if (shoulderHipRatio > 0.42) {
+          maleScore += 1;
+        } else if (shoulderHipRatio < 0.38) {
+          femaleScore += 3;
+        } else if (shoulderHipRatio < 0.41) {
+          femaleScore += 2;
+        } else {
+          femaleScore += 1;
+        }
+        
+        // 2. Body depth (secondary indicator)
+        if (depth > 0.28) {
+          maleScore += 2;
+        } else if (depth > 0.25) {
+          maleScore += 1;
+        } else if (depth < 0.22) {
+          femaleScore += 2;
+        } else {
+          femaleScore += 1;
+        }
+        
+        // 3. Overall body volume ratio
+        if (volumeRatio > 0.25) {
+          maleScore += 2;
+        } else if (volumeRatio < 0.20) {
+          femaleScore += 2;
+        }
+        
+        // 4. Aspect ratio (width vs depth)
+        if (aspectRatio > 1.8) {
+          maleScore += 1;
+        } else if (aspectRatio < 1.5) {
+          femaleScore += 1;
+        }
+        
+        // 5. Specific body part analysis
+        if (shoulderWidth > 0 && hipWidth > 0) {
+          const shoulderHipMeasuredRatio = shoulderWidth / hipWidth;
+          if (shoulderHipMeasuredRatio > 1.15) {
+            maleScore += 2;
+          } else if (shoulderHipMeasuredRatio < 1.05) {
+            femaleScore += 2;
+          }
+        }
+        
+        // 6. Chest depth analysis
+        if (chestDepth > 0.15) {
+          maleScore += 1;
+        } else if (chestDepth < 0.12) {
+          femaleScore += 1;
+        }
+        
+        const totalScore = maleScore + femaleScore;
+        const confidence = Math.max(maleScore, femaleScore) / totalScore;
+        
+        console.log('Gender Detection Scoring:', {
+          maleScore: maleScore,
+          femaleScore: femaleScore,
+          confidence: (confidence * 100).toFixed(1) + '%',
+          decision: maleScore > femaleScore ? 'MALE' : 'FEMALE'
+        });
+        
+        // Determine gender based on scoring
+        if (maleScore > femaleScore) {
+          console.log(`✅ Detected as MALE (confidence: ${(confidence * 100).toFixed(1)}%)`);
+          return 'male';
+        } else {
+          console.log(`✅ Detected as FEMALE (confidence: ${(confidence * 100).toFixed(1)}%)`);
+          return 'female';
+        }
+        
+      } catch (error) {
+        console.error('Error analyzing avatar gender:', error);
+        return 'female'; // Default fallback
+      }
+    }
+    
+    function suggestVoiceChange(detectedGender) {
+      // Show a suggestion to change voice based on detected gender
+      const currentVoiceGender = getCurrentVoiceGender();
+      
+      if (detectedGender !== currentVoiceGender) {
+        const suggestedVoice = availableVoices[detectedGender];
+        if (suggestedVoice) {
+          updateAvatarStatus(`💡 Tip: Consider switching to ${suggestedVoice.name} voice for better matching`);
+          setTimeout(() => {
+            updateAvatarStatus('Ready to help');
+          }, 5000);
+        }
+      }
+    }
+    
+    function getCurrentVoiceGender() {
+      // Find current voice gender
+      for (const [gender, voice] of Object.entries(availableVoices)) {
+        if (voice.id === currentVoiceId) {
+          return gender;
+        }
+      }
+      return 'female'; // Default
+    }
+    
     function setupEventListeners() {
       // Avatar toggle
       document.getElementById('toggle-avatar').addEventListener('click', function() {
@@ -914,6 +1713,70 @@
       document.getElementById('show-avatar').addEventListener('click', function() {
         isAvatarEnabled = true;
         toggleAvatar();
+      });
+      
+      // Revert to original avatar
+      document.getElementById('revert-avatar-btn').addEventListener('click', function() {
+        revertToOriginalAvatar();
+      });
+      
+      // Force male animations (for when detection is wrong)
+      document.getElementById('force-male-animations-btn').addEventListener('click', function() {
+        forceMaleAnimations();
+      });
+      
+      // Voice selection dropdown
+      const voiceToggle = document.getElementById('voice-toggle');
+      const voiceMenu = document.getElementById('voice-menu');
+      
+      voiceToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        voiceMenu.classList.toggle('show');
+      });
+      
+      // Close voice dropdown when clicking outside
+      document.addEventListener('click', function() {
+        voiceMenu.classList.remove('show');
+      });
+      
+      // Prevent dropdown from closing when clicking inside
+      voiceMenu.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+      
+      // Handle voice selection
+      document.querySelectorAll('.voice-menu-item').forEach(item => {
+        item.addEventListener('click', function() {
+          const selectedVoice = this.dataset.voice;
+          changeVoice(selectedVoice);
+        });
+      });
+      
+      // Avatar selection dropdown
+      const avatarToggle = document.getElementById('avatar-toggle');
+      const avatarSelectionMenu = document.getElementById('avatar-selection-menu');
+      
+      avatarToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        avatarSelectionMenu.classList.toggle('show');
+      });
+      
+      // Close avatar dropdown when clicking outside
+      document.addEventListener('click', function() {
+        avatarSelectionMenu.classList.remove('show');
+      });
+      
+      // Prevent dropdown from closing when clicking inside
+      avatarSelectionMenu.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+      
+      // Handle avatar selection
+      document.querySelectorAll('#avatar-selection-menu .avatar-menu-item').forEach(item => {
+        item.addEventListener('click', function() {
+          const selectedAvatar = this.dataset.avatar;
+          switchAvatar(selectedAvatar);
+        });
       });
       
       // Volume control functionality
@@ -1431,7 +2294,609 @@
         thinkingAnimationInterval = null;
       }
     }
+    
+    // Avatar customization system functions
+    function toggleAvatarMenu() {
+      const menu = document.getElementById('avatar-menu');
+      isAvatarMenuOpen = !isAvatarMenuOpen;
+      
+      if (isAvatarMenuOpen) {
+        menu.classList.add('show');
+      } else {
+        menu.classList.remove('show');
+      }
+    }
+    
+    function switchAvatar(avatarType) {
+      if (!availableAvatars[avatarType]) {
+        console.error('Unknown avatar type:', avatarType);
+        return;
+      }
+      
+      const selectedAvatar = availableAvatars[avatarType];
+      
+      // Update current avatar configuration
+      currentAvatarGender = selectedAvatar.gender;
+      currentAvatarUrl = selectedAvatar.avatarUrl;
+      
+      // Update UI
+      document.getElementById('current-avatar-name').textContent = selectedAvatar.name;
+      
+      // Update active avatar in menu
+      document.querySelectorAll('#avatar-selection-menu .avatar-menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      document.querySelector(`[data-avatar="${avatarType}"]`).classList.add('active');
+      
+      // Auto-switch voice to match gender
+      const matchingVoice = availableVoices[selectedAvatar.gender];
+      if (matchingVoice && currentVoiceId !== matchingVoice.id) {
+        currentVoiceId = matchingVoice.id;
+        document.getElementById('current-voice-name').textContent = matchingVoice.name;
+        
+        // Update voice menu selection
+        document.querySelectorAll('#voice-menu .voice-menu-item').forEach(item => {
+          item.classList.remove('active');
+        });
+        document.querySelector(`[data-voice="${selectedAvatar.gender}"]`).classList.add('active');
+      }
+      
+      // Close dropdown
+      document.getElementById('avatar-selection-menu').classList.remove('show');
+      
+      // Update status and load new avatar
+      updateAvatarStatus('🔄 Switching to ' + selectedAvatar.name + '...');
+      
+      // Load the new avatar
+      if (avatarManager) {
+        if (typeof avatarManager.loadNewAvatar === 'function') {
+          avatarManager.loadNewAvatar(selectedAvatar.avatarUrl).then(() => {
+            // Update voice and animations
+            avatarManager.setVoice(currentVoiceId);
+            if (avatarManager.setAnimationsUrl) {
+              avatarManager.setAnimationsUrl(selectedAvatar.animationsUrl);
+            }
+            
+            updateAvatarStatus('✅ Switched to ' + selectedAvatar.name);
+            setTimeout(() => {
+              updateAvatarStatus('Ready to help');
+            }, 2000);
+          }).catch(error => {
+            console.error('Error switching avatar:', error);
+            updateAvatarStatus('❌ Error switching avatar');
+          });
+        } else {
+          // Fallback: reinitialize avatar manager
+          const avatarContainer = document.getElementById('avatar-3d');
+          avatarContainer.innerHTML = '';
+          
+          avatarManager = new AvatarManager('avatar-3d', {
+            elevenlabsApiKey: 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7',
+            voice: currentVoiceId,
+            avatarUrl: selectedAvatar.avatarUrl,
+            animationsUrl: selectedAvatar.animationsUrl,
+            volume: document.getElementById('avatar-volume-slider').value / 100
+          });
+          
+          // Wait for reinitialization
+          const checkReinitialization = setInterval(() => {
+            if (avatarManager && avatarManager.isInitialized) {
+              clearInterval(checkReinitialization);
+              updateAvatarStatus('✅ Switched to ' + selectedAvatar.name);
+              setTimeout(() => {
+                updateAvatarStatus('Ready to help');
+              }, 2000);
+            }
+          }, 500);
+        }
+      }
+      
+      console.log('Switched to avatar:', selectedAvatar);
+    }
+    
+    function changeVoice(voiceType) {
+      if (!availableVoices[voiceType]) {
+        console.error('Unknown voice type:', voiceType);
+        return;
+      }
+      
+      const selectedVoice = availableVoices[voiceType];
+      
+      // Update current voice
+      currentVoiceId = selectedVoice.id;
+      currentAvatarGender = selectedVoice.gender;
+      
+      // Update UI
+      document.getElementById('current-voice-name').textContent = selectedVoice.name;
+      
+      // Update active voice in menu
+      document.querySelectorAll('.voice-menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      document.querySelector(`[data-voice="${voiceType}"]`).classList.add('active');
+      
+      // Update avatar manager voice
+      if (avatarManager) {
+        avatarManager.setVoice(currentVoiceId);
+        
+        // Update animations if gender changed
+        const newAnimationsUrl = getAnimationsUrl(currentAvatarGender);
+        if (avatarManager.setAnimationsUrl) {
+          avatarManager.setAnimationsUrl(newAnimationsUrl);
+        }
+      }
+      
+      // Close dropdown
+      document.getElementById('voice-menu').classList.remove('show');
+      
+      // Update status
+      updateAvatarStatus(`Voice changed to ${selectedVoice.name}`);
+      setTimeout(() => {
+        updateAvatarStatus('Ready to help');
+      }, 2000);
+      
+      console.log('Voice changed to:', selectedVoice);
+    }
+    
+    function isLikelyMaleAvatar(avatarUrl) {
+      // Helper function to detect if an avatar might be male despite being detected as female
+      // This is a simple heuristic - you could make this more sophisticated
+      
+      if (typeof avatarUrl === 'string') {
+        // Check for male indicators in the URL or filename
+        const urlLower = avatarUrl.toLowerCase();
+        
+        // Look for male-specific patterns
+        if (urlLower.includes('beard') || urlLower.includes('mustache') || 
+            urlLower.includes('masculine') || urlLower.includes('man') ||
+            urlLower.includes('male') || urlLower.includes('boy')) {
+          return true;
+        }
+        
+        // For Ready Player Me avatars, we could check other heuristics
+        // For now, let's show the button for all custom avatars to let user decide
+        if (avatarUrl.includes('models.readyplayer.me') || avatarUrl.startsWith('blob:')) {
+          return true; // Show option for all custom avatars
+        }
+      }
+      
+      return false;
+    }
+    
+    function forceMaleAnimations() {
+      if (!avatarManager) {
+        console.error('Avatar manager not initialized');
+        return;
+      }
+      
+      // Force male gender and animations
+      currentAvatarGender = 'male';
+      const maleAnimationsUrl = getAnimationsUrl('male');
+      
+      updateAvatarStatus('🔄 Switching to male animations...');
+      
+      // Update animations
+      if (avatarManager.setAnimationsUrl) {
+        avatarManager.setAnimationsUrl(maleAnimationsUrl);
+      } else if (avatarManager.loadAnimations) {
+        avatarManager.loadAnimations(maleAnimationsUrl);
+      }
+      
+      // Also suggest male voice
+      const maleVoice = availableVoices.male;
+      currentVoiceId = maleVoice.id;
+      document.getElementById('current-voice-name').textContent = maleVoice.name;
+      
+      // Update voice menu selection
+      document.querySelectorAll('#voice-menu .voice-menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      document.querySelector('[data-voice="male"]').classList.add('active');
+      
+      // Update avatar manager voice
+      if (avatarManager.setVoice) {
+        avatarManager.setVoice(currentVoiceId);
+      }
+      
+      // Hide the force button
+      document.getElementById('force-male-animations-btn').style.display = 'none';
+      
+      updateAvatarStatus('✅ Switched to male animations and voice');
+      setTimeout(() => {
+        updateAvatarStatus('Ready to help');
+      }, 2000);
+      
+      console.log('Forced male animations and voice');
+    }
+    
+    function revertToOriginalAvatar() {
+      if (!avatarManager) {
+        console.error('Avatar manager not initialized');
+        return;
+      }
+      
+      updateAvatarStatus('🔄 Resetting to default avatar...');
+      
+      // Reset to default female avatar
+      const defaultAvatar = availableAvatars.female;
+      currentAvatarUrl = defaultAvatar.avatarUrl;
+      currentAvatarGender = defaultAvatar.gender;
+      
+      // Reset voice to default female
+      currentVoiceId = availableVoices.female.id;
+      document.getElementById('current-voice-name').textContent = availableVoices.female.name;
+      document.getElementById('current-avatar-name').textContent = defaultAvatar.name;
+      
+      // Update menu selections
+      document.querySelectorAll('#voice-menu .voice-menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      document.querySelector('[data-voice="female"]').classList.add('active');
+      
+      document.querySelectorAll('#avatar-selection-menu .avatar-menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      document.querySelector('[data-avatar="female"]').classList.add('active');
+      
+      // Check if avatar manager has a method to reload
+      if (typeof avatarManager.loadNewAvatar === 'function') {
+        avatarManager.loadNewAvatar(defaultAvatar.avatarUrl).then(() => {
+          // Update voice and animations
+          avatarManager.setVoice(currentVoiceId);
+          if (avatarManager.setAnimationsUrl) {
+            avatarManager.setAnimationsUrl(defaultAvatar.animationsUrl);
+          }
+          
+          updateAvatarStatus('✅ Reset to default avatar');
+          setTimeout(() => {
+            updateAvatarStatus('Ready to help');
+          }, 2000);
+        }).catch(error => {
+          console.error('Error reverting avatar:', error);
+          updateAvatarStatus('❌ Error resetting avatar');
+        });
+      } else {
+        // Fallback: reinitialize avatar manager
+        const avatarContainer = document.getElementById('avatar-3d');
+        avatarContainer.innerHTML = '';
+        
+        avatarManager = new AvatarManager('avatar-3d', {
+          elevenlabsApiKey: 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7',
+          voice: currentVoiceId,
+          avatarUrl: defaultAvatar.avatarUrl,
+          animationsUrl: defaultAvatar.animationsUrl,
+          volume: document.getElementById('avatar-volume-slider').value / 100
+        });
+        
+        // Wait for reinitialization
+        const checkReinitialization = setInterval(() => {
+          if (avatarManager && avatarManager.isInitialized) {
+            clearInterval(checkReinitialization);
+            updateAvatarStatus('✅ Reset to default avatar');
+            setTimeout(() => {
+              updateAvatarStatus('Ready to help');
+            }, 2000);
+          }
+        }, 500);
+      }
+    }
+    
+    function initializeAvatarCustomization() {
+      // Set up Ready Player Me Avatar Creator
+      const customizeBtn = document.getElementById('customize-avatar-btn');
+      const modal = document.getElementById('avatar-creator-modal');
+      const frame = document.getElementById('avatar-creator-frame');
+      
+      // Ready Player Me configuration
+      const subdomain = 'demo'; // You can replace with your custom subdomain
+      frame.src = `https://${subdomain}.readyplayer.me/avatar?frameApi`;
+      
+      // Event listeners for Ready Player Me
+      window.addEventListener('message', handleReadyPlayerMeMessage);
+      document.addEventListener('message', handleReadyPlayerMeMessage);
+      
+      // Customize button click handler
+      customizeBtn.addEventListener('click', function() {
+        openAvatarCreator();
+      });
+      
+      // Close modal when clicking outside
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          closeAvatarCreator();
+        }
+      });
+      
+      // Prevent closing when clicking inside modal content
+      modal.querySelector('.rpm-modal-content').addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    }
+    
+    function handleReadyPlayerMeMessage(event) {
+      const json = parseMessage(event);
+      
+      if (json?.source !== 'readyplayerme') {
+        return;
+      }
+      
+      console.log('Ready Player Me event:', json);
+      
+      // Subscribe to all events when frame is ready
+      if (json.eventName === 'v1.frame.ready') {
+        const frame = document.getElementById('avatar-creator-frame');
+        frame.contentWindow.postMessage(
+          JSON.stringify({
+            target: 'readyplayerme',
+            type: 'subscribe',
+            eventName: 'v1.**'
+          }),
+          '*'
+        );
+        console.log('Subscribed to Ready Player Me events');
+      }
+      
+      // Handle avatar export
+      if (json.eventName === 'v1.avatar.exported') {
+        const avatarUrl = json.data.url;
+        console.log('New avatar URL:', avatarUrl);
+        
+        // Show loading feedback
+        updateAvatarStatus('Processing your new avatar...');
+        
+        // Update the avatar in the 3D viewer
+        updateAvatarModel(avatarUrl);
+        
+        // Close the modal
+        closeAvatarCreator();
+      }
+      
+      // Handle user ID
+      if (json.eventName === 'v1.user.set') {
+        console.log('User ID set:', json.data.id);
+      }
+    }
+    
+    function parseMessage(event) {
+      try {
+        return JSON.parse(event.data);
+      } catch (error) {
+        return null;
+      }
+    }
+    
+    function openAvatarCreator() {
+      const modal = document.getElementById('avatar-creator-modal');
+      modal.style.display = 'block';
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      updateAvatarStatus('🎨 Opening avatar creator...');
+    }
+    
+    function closeAvatarCreator() {
+      const modal = document.getElementById('avatar-creator-modal');
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto'; // Restore scrolling
+    }
+    
+    function updateAvatarModel(avatarUrl) {
+      if (!avatarManager) {
+        console.error('Avatar manager not initialized');
+        return;
+      }
+      
+      // Extract avatar ID from the URL
+      const avatarId = extractAvatarId(avatarUrl);
+      if (!avatarId) {
+        console.error('Could not extract avatar ID from URL:', avatarUrl);
+        return;
+      }
+      
+      // Update current avatar URL
+      currentAvatarUrl = avatarUrl;
+      
+      // Detect gender (basic implementation)
+      currentAvatarGender = detectAvatarGender(avatarUrl);
+      
+      // Create the enhanced URL with morph targets for facial expressions
+      const enhancedAvatarUrl = `https://models.readyplayer.me/${avatarId}.glb?morphTargets=ARKit,Oculus Visemes&quality=medium`;
+      
+      console.log('Downloading avatar with morph targets:', enhancedAvatarUrl);
+      console.log('Detected gender:', currentAvatarGender);
+      
+      // Update the status
+      updateAvatarStatus('🔄 Downloading avatar with facial expressions...');
+      
+      // Download the avatar and store it locally
+      downloadAndStoreAvatar(enhancedAvatarUrl, avatarId).then(localAvatarUrl => {
+        console.log('Avatar downloaded successfully:', localAvatarUrl);
+        
+        // Update status
+        updateAvatarStatus('Loading avatar with facial expressions...');
+        
+        // Get appropriate animations based on gender
+        const animationsUrl = getAnimationsUrl(currentAvatarGender);
+        
+        // Now load the avatar with morph targets
+        if (typeof avatarManager.loadNewAvatar === 'function') {
+          avatarManager.loadNewAvatar(localAvatarUrl).then(() => {
+            // Update animations for gender-specific movements
+            const appropriateAnimationsUrl = getAnimationsUrl(currentAvatarGender);
+            console.log('Loading animations for gender:', currentAvatarGender, 'URL:', appropriateAnimationsUrl);
+            
+            if (avatarManager.setAnimationsUrl) {
+              avatarManager.setAnimationsUrl(appropriateAnimationsUrl);
+            } else if (avatarManager.loadAnimations) {
+              avatarManager.loadAnimations(appropriateAnimationsUrl);
+            }
+            
+            updateAvatarStatus('✅ Avatar updated with facial expressions!');
+            
+            // Show force male animations button if avatar might be male but detected as female
+            if (currentAvatarGender === 'female' && isLikelyMaleAvatar(localAvatarUrl)) {
+              document.getElementById('force-male-animations-btn').style.display = 'inline-block';
+              updateAvatarStatus('💡 Avatar detected as female. Click "Use Male Animations" if this is a male avatar.');
+              setTimeout(() => {
+                updateAvatarStatus('Ready to help');
+              }, 5000);
+            } else {
+              document.getElementById('force-male-animations-btn').style.display = 'none';
+              // Suggest voice change if appropriate
+              setTimeout(() => {
+                suggestVoiceChange(currentAvatarGender);
+              }, 2000);
+            }
+            
+            setTimeout(() => {
+              updateAvatarStatus('Ready to help');
+            }, 3000);
+          }).catch(error => {
+            console.error('Error loading new avatar:', error);
+            updateAvatarStatus('❌ Error loading avatar');
+            setTimeout(() => {
+              updateAvatarStatus('Ready to help');
+            }, 3000);
+          });
+        } else {
+          // Fallback: reinitialize with new URL
+          const avatarContainer = document.getElementById('avatar-3d');
+          avatarContainer.innerHTML = ''; // Clear existing avatar
+          
+          // Get appropriate animations based on gender
+          const appropriateAnimationsUrl = getAnimationsUrl(currentAvatarGender);
+          console.log('Reinitializing with gender:', currentAvatarGender, 'animations:', appropriateAnimationsUrl);
+          
+          // Reinitialize avatar manager with new URL and appropriate animations
+          avatarManager = new AvatarManager('avatar-3d', {
+            elevenlabsApiKey: 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7',
+            voice: currentVoiceId,
+            avatarUrl: localAvatarUrl,
+            animationsUrl: appropriateAnimationsUrl,
+            volume: document.getElementById('avatar-volume-slider').value / 100
+          });
+          
+          // Wait for reinitialization
+          const checkReinitialization = setInterval(() => {
+            if (avatarManager && avatarManager.isInitialized) {
+              clearInterval(checkReinitialization);
+              updateAvatarStatus('✅ Avatar updated with facial expressions!');
+              
+              // Show force male animations button if needed
+              if (currentAvatarGender === 'female' && isLikelyMaleAvatar(localAvatarUrl)) {
+                document.getElementById('force-male-animations-btn').style.display = 'inline-block';
+                updateAvatarStatus('💡 Avatar detected as female. Click "Use Male Animations" if this is a male avatar.');
+                setTimeout(() => {
+                  updateAvatarStatus('Ready to help');
+                }, 5000);
+              } else {
+                document.getElementById('force-male-animations-btn').style.display = 'none';
+                // Suggest voice change if appropriate
+                setTimeout(() => {
+                  suggestVoiceChange(currentAvatarGender);
+                }, 2000);
+              }
+              
+              setTimeout(() => {
+                updateAvatarStatus('Ready to help');
+              }, 3000);
+            }
+          }, 500);
+          
+          // Timeout for reinitialization
+          setTimeout(() => {
+            clearInterval(checkReinitialization);
+            if (!avatarManager || !avatarManager.isInitialized) {
+              updateAvatarStatus('❌ Avatar loading timeout');
+              setTimeout(() => {
+                updateAvatarStatus('Ready to help');
+              }, 2000);
+            }
+          }, 15000);
+        }
+      }).catch(error => {
+        console.error('Error downloading avatar:', error);
+        updateAvatarStatus('❌ Error downloading avatar - please try again');
+        setTimeout(() => {
+          updateAvatarStatus('Ready to help');
+        }, 4000);
+      });
+    }
+    
+    function extractAvatarId(avatarUrl) {
+      // Ready Player Me URLs are in format: https://models.readyplayer.me/AVATAR_ID.glb
+      const match = avatarUrl.match(/\/([a-f0-9]{24})\.glb$/);
+      return match ? match[1] : null;
+    }
+    
+    async function downloadAndStoreAvatar(avatarUrl, avatarId) {
+      try {
+        // Use the PHP script to download and store the avatar
+        const response = await fetch('download_avatar.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            avatarUrl: avatarUrl,
+            avatarId: avatarId
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to download avatar');
+        }
+        
+        console.log('Avatar downloaded successfully:', result);
+        console.log('File size:', result.fileSize, 'bytes');
+        
+        // Return the local URL for the avatar
+        return result.localUrl;
+        
+      } catch (error) {
+        console.error('Error downloading avatar:', error);
+        
+        // Fallback: try to download directly in the browser
+        console.log('Attempting direct download fallback...');
+        try {
+          const directResponse = await fetch(`https://models.readyplayer.me/${avatarId}.glb?morphTargets=ARKit,Oculus Visemes&quality=medium`);
+          if (!directResponse.ok) {
+            throw new Error(`Direct download failed: ${directResponse.status}`);
+          }
+          
+          const avatarBlob = await directResponse.blob();
+          const localAvatarUrl = URL.createObjectURL(avatarBlob);
+          
+          console.log('Direct download successful');
+          return localAvatarUrl;
+          
+        } catch (directError) {
+          console.error('Direct download also failed:', directError);
+          throw error;
+        }
+      }
+    }
   </script>
+
+  <!-- Ready Player Me Avatar Creator Modal -->
+  <div id="avatar-creator-modal" class="rpm-modal" style="display: none;">
+    <div class="rpm-modal-content">
+      <div class="rpm-modal-header">
+        <h3>Customize Your Avatar</h3>
+        <button class="rpm-close-btn" onclick="closeAvatarCreator()">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="rpm-modal-body">
+        <iframe id="avatar-creator-frame" class="rpm-frame" allow="camera *; microphone *; clipboard-write"></iframe>
+      </div>
+    </div>
+  </div>
+
   <script src="js/jquery-3.4.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/scripts.js"></script>
