@@ -10,18 +10,17 @@ if (!isset($_SESSION['username'])) {
     $_SESSION['username'] = 'John Doe';
 }
 
-// Function to get greeting based on time
-function getGreeting() {
-    $hour = date('H'); // Get current hour in 24-hour format
+// Function to get greeting based on time (moved to JavaScript for client-side time)
+function getGreeting($testHour = null) {
+    // This function is now mainly for server-side testing
+    $hour = $testHour !== null ? $testHour : date('H');
     
-    if ($hour >= 5 && $hour < 12) {
+    if ($hour >= 6 && $hour < 12) {
         return 'Good Morning';
-    } elseif ($hour >= 12 && $hour < 17) {
+    } elseif ($hour >= 12 && $hour < 18) {
         return 'Good Afternoon';
-    } elseif ($hour >= 17 && $hour < 22) {
-        return 'Good Evening';
     } else {
-        return 'Good Night';
+        return 'Good Evening';
     }
 }
 
@@ -30,7 +29,12 @@ function capitalizeName($name) {
     return ucwords(strtolower(trim($name)));
 }
 
-$greeting = getGreeting();
+// Test hour override (for testing purposes)
+$testHour = isset($_GET['testHour']) ? (int)$_GET['testHour'] : null;
+$currentHour = date('H');
+
+// Use JavaScript for client-side time, fallback to server time for testing
+$greeting = $testHour !== null ? getGreeting($testHour) : getGreeting(); // Use actual server time as fallback
 $capitalizedName = capitalizeName($_SESSION['username']);
 ?> 
 
@@ -408,7 +412,8 @@ $conn->close();
 
         <div class="col-lg-9">
           <div class="right-content-wp">
-            <h2><?= $greeting ?>, <?= htmlspecialchars($capitalizedName) ?>!</h2>
+            <h2 id="greeting-display"><?= $greeting ?>, <?= htmlspecialchars($capitalizedName) ?>!</h2>
+            
             <div class="rc-content-box">
               <div class="contents">
                 <div class="input-box">
@@ -477,6 +482,45 @@ $conn->close();
       document.getElementById('modalAudience').textContent = trigger.getAttribute('data-audience');
       document.getElementById('modalPriority').textContent = trigger.getAttribute('data-priority');
       document.getElementById('modalTimestamp').textContent = trigger.getAttribute('data-timestamp');
+    });
+    
+    // Client-side time and greeting functions
+    function getClientGreeting(testHour = null) {
+        const now = new Date();
+        const hour = testHour !== null ? testHour : now.getHours();
+        
+        if (hour >= 6 && hour < 12) {
+            return 'Good Morning';
+        } else if (hour >= 12 && hour < 18) {
+            return 'Good Afternoon';
+        } else {
+            return 'Good Evening';
+        }
+    }
+    
+    function updateGreeting() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const testHour = urlParams.get('testHour');
+        const userName = '<?= htmlspecialchars($capitalizedName) ?>';
+        
+        if (testHour) {
+            // Use server-side test hour - don't update client-side
+            return;
+        } else {
+            // Use client-side time
+            const greeting = getClientGreeting();
+            document.getElementById('greeting-display').textContent = `${greeting}, ${userName}!`;
+        }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateGreeting();
+        
+        // Update greeting every minute
+        setInterval(function() {
+            updateGreeting();
+        }, 60000);
     });
   </script>
   <script src="js/inactivity.js"></script>

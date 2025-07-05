@@ -3608,3 +3608,11 @@ A: Hello! It's nice to meet you. Is there something I can help you with or would
 2025-07-05T13:24:21.208803 - Q: hello
 A: Hello! It's nice to meet you. Is there something I can help you with or would you like to chat?
 ---
+2025-07-05T13:55:20.371376 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-05T13:56:41.318921 - Q: hello
+A: Hello! How can I assist you today?
+---
+[❌ Rejected Personal] 2025-07-05T14:11:59.580998 - Q: i love you
+---

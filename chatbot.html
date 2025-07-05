@@ -161,60 +161,108 @@
         position: absolute;
         top: 15px;
         left: 15px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
         pointer-events: auto;
       }
       
-      .background-label {
-        color: white;
-        font-size: 0.8rem;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-        margin-bottom: 5px;
+      .background-dropdown {
+        position: relative;
+        display: inline-block;
       }
       
-      .background-options {
+      .background-toggle {
         display: flex;
-        flex-direction: column;
+        align-items: center;
         gap: 8px;
-      }
-      
-      .background-option {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        padding: 8px 12px;
+        color: white;
         cursor: pointer;
         transition: all 0.3s ease;
+        font-size: 0.8rem;
+        min-width: 120px;
+      }
+      
+      .background-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+      
+      .background-current-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        flex-shrink: 0;
+      }
+      
+      .background-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        padding: 8px 0;
+        margin-top: 4px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        display: none;
+        z-index: 1000;
+        min-width: 160px;
+      }
+      
+      .background-menu.show {
+        display: block;
+      }
+      
+      .background-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        color: #333;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        font-size: 0.85rem;
+      }
+      
+      .background-menu-item:hover {
+        background: rgba(0,0,0,0.1);
+      }
+      
+      .background-menu-item.active {
+        background: rgba(0,0,0,0.1);
+        font-weight: 600;
+      }
+      
+      .background-menu-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 1px solid rgba(0,0,0,0.2);
+        flex-shrink: 0;
         position: relative;
       }
       
-      .background-option:hover {
-        border-color: rgba(255, 255, 255, 0.8);
-        transform: scale(1.1);
-      }
-      
-      .background-option.active {
-        border-color: white;
-        border-width: 3px;
-      }
-      
-      .background-option.active::after {
-        content: '✓';
+      .background-menu-color .checkmark {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         color: white;
-        font-size: 0.8rem;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+        font-size: 10px;
+        font-weight: bold;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.8);
       }
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        font-size: 0.85rem;
-        padding: 5px 10px;
-        transition: all 0.3s ease;
+      
+      .background-menu-item.active .checkmark {
+        opacity: 1;
       }
       
       .avatar-controls .btn:hover {
@@ -571,10 +619,6 @@
           padding: 4px 8px;
           font-size: 0.75rem;
         }
-        
-        .background-label {
-          font-size: 0.75rem;
-        }
       }
     </style>
 </head>
@@ -626,32 +670,70 @@
             <div id="avatar-3d" class="avatar-3d"></div>
             <div class="avatar-overlay">
               <div class="background-controls">
-                <div class="background-label">Background</div>
-                <div class="background-options">
-                  <div class="background-option active" 
-                       data-bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                       style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
-                       title="Purple Gradient"></div>
-                  <div class="background-option" 
-                       data-bg="linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)"
-                       style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);"
-                       title="Red Gradient"></div>
-                  <div class="background-option" 
-                       data-bg="linear-gradient(135deg, #0abde3 0%, #006ba6 100%)"
-                       style="background: linear-gradient(135deg, #0abde3 0%, #006ba6 100%);"
-                       title="Blue Gradient"></div>
-                  <div class="background-option" 
-                       data-bg="linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%)"
-                       style="background: linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%);"
-                       title="Green Gradient"></div>
-                  <div class="background-option" 
-                       data-bg="linear-gradient(135deg, #feca57 0%, #ff9ff3 100%)"
-                       style="background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);"
-                       title="Yellow Pink Gradient"></div>
-                  <div class="background-option" 
-                       data-bg="linear-gradient(135deg, #2c2c54 0%, #40407a 100%)"
-                       style="background: linear-gradient(135deg, #2c2c54 0%, #40407a 100%);"
-                       title="Dark Purple"></div>
+                <div class="background-dropdown">
+                  <div class="background-toggle" id="background-toggle">
+                    <div class="background-current-color" 
+                         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    </div>
+                    <span>Background</span>
+                    <i class="fa fa-chevron-down" style="margin-left: auto; font-size: 0.7rem;"></i>
+                  </div>
+                  <div class="background-menu" id="background-menu">
+                    <div class="background-menu-item active" 
+                         data-bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                         data-name="Purple Gradient">
+                      <div class="background-menu-color" 
+                           style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                      <span>Purple Gradient</span>
+                    </div>
+                    <div class="background-menu-item" 
+                         data-bg="linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)"
+                         data-name="Red Gradient">
+                      <div class="background-menu-color" 
+                           style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);">
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                      <span>Red Gradient</span>
+                    </div>
+                    <div class="background-menu-item" 
+                         data-bg="linear-gradient(135deg, #0abde3 0%, #006ba6 100%)"
+                         data-name="Blue Gradient">
+                      <div class="background-menu-color" 
+                           style="background: linear-gradient(135deg, #0abde3 0%, #006ba6 100%);">
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                      <span>Blue Gradient</span>
+                    </div>
+                    <div class="background-menu-item" 
+                         data-bg="linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%)"
+                         data-name="Green Gradient">
+                      <div class="background-menu-color" 
+                           style="background: linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%);">
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                      <span>Green Gradient</span>
+                    </div>
+                    <div class="background-menu-item" 
+                         data-bg="linear-gradient(135deg, #feca57 0%, #ff9ff3 100%)"
+                         data-name="Yellow Pink">
+                      <div class="background-menu-color" 
+                           style="background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);">
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                      <span>Yellow Pink</span>
+                    </div>
+                    <div class="background-menu-item" 
+                         data-bg="linear-gradient(135deg, #2c2c54 0%, #40407a 100%)"
+                         data-name="Dark Purple">
+                      <div class="background-menu-color" 
+                           style="background: linear-gradient(135deg, #2c2c54 0%, #40407a 100%);">
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                      <span>Dark Purple</span>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="avatar-controls">
@@ -852,21 +934,51 @@
       });
       
       // Background color change functionality
-      document.querySelectorAll('.background-option').forEach(option => {
-        option.addEventListener('click', function() {
-          // Remove active class from all options
-          document.querySelectorAll('.background-option').forEach(opt => opt.classList.remove('active'));
+      const backgroundToggle = document.getElementById('background-toggle');
+      const backgroundMenu = document.getElementById('background-menu');
+      
+      // Toggle dropdown
+      backgroundToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        backgroundMenu.classList.toggle('show');
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function() {
+        backgroundMenu.classList.remove('show');
+      });
+      
+      // Handle background selection
+      document.querySelectorAll('.background-menu-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.stopPropagation();
           
-          // Add active class to clicked option
+          // Remove active class from all items
+          document.querySelectorAll('.background-menu-item').forEach(menuItem => {
+            menuItem.classList.remove('active');
+          });
+          
+          // Add active class to clicked item
           this.classList.add('active');
           
-          // Change background
+          // Update current selection display
           const newBg = this.dataset.bg;
+          const newName = this.dataset.name;
+          
+          document.querySelector('.background-current-color').style.background = newBg;
+          
+          // Change avatar background
           const avatarContainer = document.querySelector('.avatar-container');
           avatarContainer.style.background = newBg;
           
-          updateAvatarStatus('Background changed');
+          // Don't close dropdown - let user manually close it
+          updateAvatarStatus(`Background changed to ${newName}`);
         });
+      });
+      
+      // Prevent dropdown from closing when clicking inside
+      backgroundMenu.addEventListener('click', function(e) {
+        e.stopPropagation();
       });
       
       // Voice toggle (main avatar controls)
