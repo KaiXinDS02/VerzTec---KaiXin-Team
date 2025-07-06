@@ -3634,3 +3634,15 @@ A: The pantry rules at Verztec are as follows:
 Please keep our pantry clean and neat. This includes being considerate when washing in the sink area and drying it afterwards, cleaning the water dispenser surface if you spill coffee or tea on it, disposing of unwanted items and tidying up the fridge, disposing of leftover food and packaging outside the office, closing the lid properly after disposal, cleaning up countertops or tables with a damp cloth after use, not cutting fruits or other food items on the kitchen top but using the available chopping boards.
 Source: 18_Verztec_Pantry Rules_060715.pdf
 ---
+2025-07-06T00:59:16.190386 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-06T13:32:33.214583 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-06T13:34:04.844983 - Q: hi
+A: How can I assist you today?
+---
+2025-07-06T13:34:09.668894 - Q: hi
+A: How can I assist you today?
+---

@@ -1385,20 +1385,20 @@
     let currentSpeed = 1.0; // Speed multiplier for text and speech
     let isChatbotBusy = false; // Track if chatbot is currently processing/talking
     
-    // Avatar system configuration
+    // Avatar system configuration - HARDCODED ANIMATION MAPPINGS
     let originalAvatarUrl = 'assets/avatars/models/female_avatar.glb'; // Default female avatar
     let currentAvatarUrl = '';
     let currentAvatarGender = 'female'; // Track current avatar gender
     let availableAvatars = {
       female: {
         avatarUrl: 'assets/avatars/models/female_avatar.glb',
-        animationsUrl: 'assets/avatars/models/female_animations.glb',
+        animationsUrl: 'assets/avatars/models/female_animations.glb', // HARDCODED: Female avatar ALWAYS uses female animations
         name: 'Female Avatar',
         gender: 'female'
       },
       male: {
         avatarUrl: 'assets/avatars/models/male_avatar.glb',
-        animationsUrl: 'assets/avatars/models/male_animations.glb',
+        animationsUrl: 'assets/avatars/models/male_animations.glb', // HARDCODED: Male avatar ALWAYS uses male animations
         name: 'Male Avatar',
         gender: 'male'
       }
@@ -1419,9 +1419,38 @@
     
     // Initialize avatar when page loads
     document.addEventListener('DOMContentLoaded', function() {
-      initializeAvatar();
-      setupEventListeners();
-      initializeAvatarCustomization();
+      console.log('🚀 DOM Content Loaded - Starting initialization...');
+      
+      // Add basic error handling
+      window.addEventListener('error', function(e) {
+        console.error('💥 JavaScript Error:', e.error, 'at', e.filename, 'line', e.lineno);
+      });
+      
+      // Check if required elements exist
+      const avatarContainer = document.getElementById('avatar-3d');
+      if (!avatarContainer) {
+        console.error('❌ Avatar container not found!');
+        return;
+      }
+      
+      console.log('✅ Avatar container found');
+      
+      // Check if required scripts are loaded
+      if (typeof THREE === 'undefined') {
+        console.error('❌ Three.js not loaded!');
+        return;
+      }
+      
+      console.log('✅ Three.js loaded');
+      
+      try {
+        initializeAvatar();
+        setupEventListeners();
+        initializeAvatarCustomization();
+        console.log('✅ All initialization functions called');
+      } catch (error) {
+        console.error('💥 Error during initialization:', error);
+      }
     });
     
     // Cleanup on page unload
@@ -1430,24 +1459,49 @@
     });
     
     function initializeAvatar() {
+      console.log('🎭 initializeAvatar() called');
+      
       // Only initialize avatar if it's enabled
       if (!isAvatarEnabled) {
         console.log('Avatar disabled, skipping initialization');
         return;
       }
       
+      // Check if AvatarManager class exists
+      if (typeof AvatarManager === 'undefined') {
+        console.error('❌ AvatarManager class not found! Check if avatar-manager.js is loaded.');
+        return;
+      }
+      
+      console.log('✅ AvatarManager class found');
+      
       // Set current avatar URL to the selected avatar
       const currentAvatarConfig = availableAvatars[currentAvatarGender];
       currentAvatarUrl = currentAvatarConfig.avatarUrl;
       
-      // Use current voice settings
-      avatarManager = new AvatarManager('avatar-3d', {
-        elevenlabsApiKey: 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7',
-        voice: currentVoiceId,
-        avatarUrl: currentAvatarUrl,
-        animationsUrl: currentAvatarConfig.animationsUrl,
-        volume: 1.0 // Initialize with full volume
-      });
+      console.log('🎭 Initializing Avatar Manager with:');
+      console.log('  - Avatar URL:', currentAvatarUrl);
+      console.log('  - Animations URL:', currentAvatarConfig.animationsUrl);
+      console.log('  - Gender:', currentAvatarGender);
+      console.log('  - Voice ID:', currentVoiceId);
+      
+      try {
+        // Use current voice settings
+        avatarManager = new AvatarManager('avatar-3d', {
+          elevenlabsApiKey: 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7',
+          voice: currentVoiceId,
+          avatarUrl: currentAvatarUrl,
+          animationsUrl: currentAvatarConfig.animationsUrl,
+          volume: 1.0 // Initialize with full volume
+        });
+        
+        console.log('✅ AvatarManager created successfully');
+        
+      } catch (error) {
+        console.error('💥 Error creating AvatarManager:', error);
+        updateAvatarStatus('❌ Avatar failed to initialize');
+        return;
+      }
       
       // Wait for avatar to be fully initialized
       const checkInitialization = setInterval(() => {
@@ -1488,12 +1542,18 @@
     }
     
     function getAnimationsUrl(gender) {
-      // Return appropriate animation files based on gender
-      if (availableAvatars[gender]) {
-        return availableAvatars[gender].animationsUrl;
+      // HARDCODED ANIMATION MAPPINGS - NO EXCEPTIONS
+      if (gender === 'female') {
+        console.log('🎭 HARDCODED: Female avatar MUST use female animations');
+        return 'assets/avatars/models/female_animations.glb';
+      } else if (gender === 'male') {
+        console.log('🎭 HARDCODED: Male avatar MUST use male animations');
+        return 'assets/avatars/models/male_animations.glb';
       }
-      // Fallback to female animations
-      return availableAvatars.female.animationsUrl;
+      
+      // Default fallback to female animations
+      console.log('🎭 HARDCODED: Unknown gender, defaulting to female animations');
+      return 'assets/avatars/models/female_animations.glb';
     }
     
     function detectAvatarGender(avatarUrl) {
@@ -1703,22 +1763,43 @@
     }
     
     function setupEventListeners() {
-      // Avatar toggle
-      document.getElementById('toggle-avatar').addEventListener('click', function() {
-        isAvatarEnabled = !isAvatarEnabled;
-        toggleAvatar();
-      });
+      console.log('🎛️ Setting up event listeners...');
       
-      // Show avatar button (in chat header)
-      document.getElementById('show-avatar').addEventListener('click', function() {
-        isAvatarEnabled = true;
-        toggleAvatar();
-      });
-      
-      // Revert to original avatar
-      document.getElementById('revert-avatar-btn').addEventListener('click', function() {
-        revertToOriginalAvatar();
-      });
+      try {
+        // Avatar toggle
+        const toggleAvatarBtn = document.getElementById('toggle-avatar');
+        if (toggleAvatarBtn) {
+          toggleAvatarBtn.addEventListener('click', function() {
+            isAvatarEnabled = !isAvatarEnabled;
+            toggleAvatar();
+          });
+          console.log('✅ Avatar toggle button listener added');
+        } else {
+          console.warn('⚠️ Avatar toggle button not found');
+        }
+        
+        // Show avatar button (in chat header)
+        const showAvatarBtn = document.getElementById('show-avatar');
+        if (showAvatarBtn) {
+          showAvatarBtn.addEventListener('click', function() {
+            isAvatarEnabled = true;
+            toggleAvatar();
+          });
+          console.log('✅ Show avatar button listener added');
+        } else {
+          console.warn('⚠️ Show avatar button not found');
+        }
+        
+        // Revert to original avatar
+        const revertAvatarBtn = document.getElementById('revert-avatar-btn');
+        if (revertAvatarBtn) {
+          revertAvatarBtn.addEventListener('click', function() {
+            revertToOriginalAvatar();
+          });
+          console.log('✅ Revert avatar button listener added');
+        } else {
+          console.warn('⚠️ Revert avatar button not found');
+        }
       
       // Force male animations (for when detection is wrong)
       document.getElementById('force-male-animations-btn').addEventListener('click', function() {
@@ -1905,6 +1986,11 @@
           syncSpeedButtons(currentSpeed);
         });
       });
+      
+      console.log('✅ All event listeners set up successfully');
+    } catch (error) {
+      console.error('💥 Error setting up event listeners:', error);
+    }
     }
     
     function toggleAvatar() {
@@ -2315,6 +2401,14 @@
       
       const selectedAvatar = availableAvatars[avatarType];
       
+      console.log('🔄 Switching to avatar:', {
+        type: avatarType,
+        name: selectedAvatar.name,
+        gender: selectedAvatar.gender,
+        avatarUrl: selectedAvatar.avatarUrl,
+        animationsUrl: selectedAvatar.animationsUrl
+      });
+      
       // Update current avatar configuration
       currentAvatarGender = selectedAvatar.gender;
       currentAvatarUrl = selectedAvatar.avatarUrl;
@@ -2350,13 +2444,19 @@
       // Load the new avatar
       if (avatarManager) {
         if (typeof avatarManager.loadNewAvatar === 'function') {
+          console.log('🎭 Loading new avatar using loadNewAvatar method');
           avatarManager.loadNewAvatar(selectedAvatar.avatarUrl).then(() => {
+            console.log('✅ Avatar loaded, now setting voice and animations');
+            console.log('  - Setting voice to:', currentVoiceId);
+            console.log('  - Setting animations to:', selectedAvatar.animationsUrl);
+            
             // Update voice and animations
             avatarManager.setVoice(currentVoiceId);
             if (avatarManager.setAnimationsUrl) {
-              avatarManager.setAnimationsUrl(selectedAvatar.animationsUrl);
+              return avatarManager.setAnimationsUrl(selectedAvatar.animationsUrl);
             }
-            
+          }).then(() => {
+            console.log('✅ Avatar switch completed successfully');
             updateAvatarStatus('✅ Switched to ' + selectedAvatar.name);
             setTimeout(() => {
               updateAvatarStatus('Ready to help');
@@ -2366,9 +2466,15 @@
             updateAvatarStatus('❌ Error switching avatar');
           });
         } else {
+          console.log('🎭 Reinitializing avatar manager (fallback method)');
           // Fallback: reinitialize avatar manager
           const avatarContainer = document.getElementById('avatar-3d');
           avatarContainer.innerHTML = '';
+          
+          console.log('🎭 Creating new AvatarManager with:');
+          console.log('  - Avatar URL:', selectedAvatar.avatarUrl);
+          console.log('  - Animations URL:', selectedAvatar.animationsUrl);
+          console.log('  - Voice ID:', currentVoiceId);
           
           avatarManager = new AvatarManager('avatar-3d', {
             elevenlabsApiKey: 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7',

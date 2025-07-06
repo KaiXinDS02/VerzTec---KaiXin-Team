@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Test</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #f0f0f0; }
+        #test-container { 
+            width: 400px; 
+            height: 300px; 
+            background: #333; 
+            border: 2px solid red;
+            position: relative;
+        }
+        .status { 
+            margin: 10px 0; 
+            padding: 10px; 
+            background: white; 
+            border: 1px solid #ccc;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>VerzTec Avatar Debug Test</h1>
+    
+    <div class="status" id="status">Checking...</div>
+    
+    <div id="test-container"></div>
+    
+    <button onclick="testBasicThreeJS()">Test Basic Three.js</button>
+    <button onclick="testAvatarManager()">Test Avatar Manager</button>
+    
+    <!-- Load the same scripts as the main page -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="js/rhubarb-lipsync.js"></script>
+    <script src="js/ready-player-me-avatar.js"></script>
+    <script src="js/avatar-manager.js"></script>
+    
+    <script>
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML += '<br>' + message;
+        }
+        
+        function testBasicThreeJS() {
+            updateStatus('🧪 Testing basic Three.js...');
+            
+            try {
+                if (typeof THREE === 'undefined') {
+                    updateStatus('❌ Three.js not loaded');
+                    return;
+                }
+                
+                updateStatus('✅ Three.js loaded');
+                
+                // Create a simple Three.js scene
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, 400/300, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer();
+                
+                renderer.setSize(400, 300);
+                renderer.setClearColor(0x0066cc);
+                
+                const container = document.getElementById('test-container');
+                container.innerHTML = '';
+                container.appendChild(renderer.domElement);
+                
+                // Add a simple cube
+                const geometry = new THREE.BoxGeometry();
+                const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+                const cube = new THREE.Mesh(geometry, material);
+                scene.add(cube);
+                
+                camera.position.z = 5;
+                
+                function animate() {
+                    requestAnimationFrame(animate);
+                    cube.rotation.x += 0.01;
+                    cube.rotation.y += 0.01;
+                    renderer.render(scene, camera);
+                }
+                
+                animate();
+                updateStatus('✅ Basic Three.js test successful - you should see a spinning green cube');
+                
+            } catch (error) {
+                updateStatus('❌ Basic Three.js test failed: ' + error.message);
+            }
+        }
+        
+        function testAvatarManager() {
+            updateStatus('🧪 Testing Avatar Manager...');
+            
+            try {
+                if (typeof AvatarManager === 'undefined') {
+                    updateStatus('❌ AvatarManager class not found');
+                    return;
+                }
+                
+                updateStatus('✅ AvatarManager class found');
+                
+                // Try to create an AvatarManager instance
+                const avatarManager = new AvatarManager('test-container', {
+                    avatarUrl: 'assets/avatars/models/female_avatar.glb',
+                    animationsUrl: 'assets/avatars/models/female_animations.glb'
+                });
+                
+                updateStatus('✅ AvatarManager instance created successfully');
+                
+            } catch (error) {
+                updateStatus('❌ AvatarManager test failed: ' + error.message);
+                console.error('AvatarManager error:', error);
+            }
+        }
+        
+        // Auto-run basic checks on load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('🚀 Page loaded, running initial checks...');
+            
+            // Check if scripts are loaded
+            updateStatus('Three.js loaded: ' + (typeof THREE !== 'undefined' ? '✅ Yes' : '❌ No'));
+            updateStatus('GLTFLoader loaded: ' + (typeof THREE.GLTFLoader !== 'undefined' ? '✅ Yes' : '❌ No'));
+            updateStatus('AvatarManager loaded: ' + (typeof AvatarManager !== 'undefined' ? '✅ Yes' : '❌ No'));
+            
+            // Test basic Three.js automatically
+            setTimeout(testBasicThreeJS, 1000);
+        });
+    </script>
+</body>
+</html>

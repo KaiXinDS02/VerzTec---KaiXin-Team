@@ -120,6 +120,7 @@ class AvatarManager {
     const loader = new THREE.GLTFLoader();
     
     try {
+      console.log('🎭 Loading avatar from:', this.options.avatarUrl);
       const gltf = await new Promise((resolve, reject) => {
         loader.load(this.options.avatarUrl, resolve, 
           (progress) => {
@@ -133,9 +134,11 @@ class AvatarManager {
       
       // Load animations
       let animationClips = gltf.animations || [];
+      console.log('📚 Avatar has', animationClips.length, 'built-in animations');
       
       if (this.options.animationsUrl && this.options.animationsUrl !== this.options.avatarUrl) {
         try {
+          console.log('🎬 Loading external animations from:', this.options.animationsUrl);
           const animationGltf = await new Promise((resolve, reject) => {
             loader.load(this.options.animationsUrl, resolve, 
               (progress) => {
@@ -145,12 +148,19 @@ class AvatarManager {
           });
           
           if (animationGltf.animations && animationGltf.animations.length > 0) {
+            console.log('📚 External animations loaded:', animationGltf.animations.length, 'clips');
             animationClips = [...animationClips, ...animationGltf.animations];
           }
         } catch (error) {
           console.warn('Failed to load separate animations:', error);
         }
       }
+      
+      // Log all animation clips before setup
+      console.log('🎥 Total animation clips available:', animationClips.length);
+      animationClips.forEach((clip, index) => {
+        console.log(`  ${index + 1}. "${clip.name}" (duration: ${clip.duration}s)`);
+      });
       
       // Setup animations
       if (animationClips && animationClips.length > 0) {
@@ -1460,6 +1470,13 @@ class AvatarManager {
     console.log('🎛️ Avatar speed changed from', oldSpeed + 'x', 'to:', this.speed + 'x');
   }
   
+  setVoice(voiceId) {
+    if (voiceId) {
+      this.options.voice = voiceId;
+      console.log('🎤 Avatar voice set to:', voiceId);
+    }
+  }
+  
   setVoiceEnabled(enabled) {
     this.voiceEnabled = enabled;
     console.log('🎙️ Avatar voice', enabled ? 'enabled' : 'disabled');
@@ -1769,5 +1786,4 @@ class AvatarManager {
     // which has access to the analyzeAvatarGender function
     return window.analyzeAvatarGender ? window.analyzeAvatarGender(this.avatar) : 'female';
   }
-
-  // ...existing code...
+}
