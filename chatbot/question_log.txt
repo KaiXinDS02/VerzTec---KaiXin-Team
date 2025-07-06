@@ -3728,3 +3728,18 @@ Source: 18_Verztec_Pantry Rules_060715.pdf
 A: The "Pantry Rules"! Also known as the "Pantry Staples" or "Emergency Pantry," this concept was popularized by Dave Ramsey, a personal finance expert. The idea is to have a set of essential items in your pantry that can help you survive for at least 30 days in case of an emergency, disaster, or economic downturn. Here are some common pantry rules: **The Essentials:** 1. Grains: * Rice (white and brown) * Pasta * Oats 2. Canned Goods: * Vegetables (beans, corn, peas) * Fruits (peaches, pears, mandarin oranges) * Meats (tuna, chicken, beef stew) * Soups * Broth 3. Proteins: * Nuts and seeds (almonds, sunflower seeds, pumpkin seeds) * Dried legumes (lentils, chickpeas, black beans) 4. Baking Supplies: * Flour * Sugar * Baking powder * Baking soda 5. Spices and Herbs: * Salt * Pepper * Garlic powder * Onion powder * Paprika 6. Cooking Oils: * Vegetable oil * Canola oil 7. Snacks: * Dried fruit (raisins, cranberries) * Granola * Energy bars **The Pantry Rules:** 1. **Rotate Your Stock:** Every 3-6 months, rotate your canned goods and other perishable items to ensure they're still good. 2. **Store Food Properly:** Keep food in a cool, dry place (50°F - 70°F) and away from direct sunlight. 3. **Use First-In, First-Out:** Consume older items before newer ones to prevent spoilage. 4. **Label and Date Items:** Label each item with its contents and the date it was stored. 5. **Keep a "Cooking" List:** Keep track of your pantry's contents and plan meals around what you have on hand....
 Source: 18_Verztec_Pantry Rules_060715.pdf
 ---
+2025-07-06T21:10:57.118557 - Q: hi
+A: How can I assist you today?
+---
+2025-07-06T21:11:04.505290 - Q: hi
+A: How can I assist you today?
+---
+2025-07-06T23:36:47.050666 - Q: hi
+A: How can I assist you today?
+---
+2025-07-06T23:43:13.990861 - Q: hullo
+A: Hello! How can I assist you today?
+---
+2025-07-07T00:15:27.934756 - Q: hi
+A: How can I assist you today?
+---

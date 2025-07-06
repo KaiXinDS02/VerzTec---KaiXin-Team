@@ -38,47 +38,78 @@ if (!is_dir($avatarsDir)) {
     }
 }
 
-// Build the enhanced URL with morph targets
+// Build the enhanced URL with morph targets for facial expressions
 $enhancedUrl = "https://models.readyplayer.me/{$avatarId}.glb?morphTargets=ARKit,Oculus Visemes&quality=medium";
 
-// Download the avatar
+// Use the provided avatar URL if it already has morph targets, otherwise use enhanced URL
+$downloadUrl = (strpos($avatarUrl, 'morphTargets') !== false) ? $avatarUrl : $enhancedUrl;
+
+// Download the avatar with morph targets
 $context = stream_context_create([
     'http' => [
-        'timeout' => 30,
-        'user_agent' => 'VerzTec Avatar Downloader'
+        'timeout' => 60, // Increased timeout for larger files with morph targets
+        'user_agent' => 'VerzTec Avatar Downloader/1.0',
+        'method' => 'GET',
+        'header' => [
+            'Accept: application/octet-stream',
+            'Accept-Encoding: gzip, deflate'
+        ]
     ]
 ]);
 
-$avatarData = file_get_contents($enhancedUrl, false, $context);
+$avatarData = file_get_contents($downloadUrl, false, $context);
 
 if ($avatarData === false) {
+    // Log the error for debugging
+    error_log("Failed to download avatar from: " . $downloadUrl);
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to download avatar']);
+    echo json_encode(['error' => 'Failed to download avatar from Ready Player Me']);
     exit;
 }
 
-// Save the avatar to the assets folder
-$filename = $avatarId . '.glb';
+// Validate that we received GLB data
+if (strlen($avatarData) < 1000) {
+    error_log("Avatar data too small, might be an error response");
+    http_response_code(500);
+    echo json_encode(['error' => 'Invalid avatar data received']);
+    exit;
+}
+
+// Save the avatar to the assets folder with morph targets
+$filename = $avatarId . '_with_morphs.glb';
 $filepath = $avatarsDir . $filename;
 
 if (file_put_contents($filepath, $avatarData) === false) {
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to save avatar']);
+    echo json_encode(['error' => 'Failed to save avatar to local storage']);
+    exit;
+}
+
+// Verify file was saved correctly
+if (!file_exists($filepath) || filesize($filepath) === 0) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Avatar file not saved properly']);
     exit;
 }
 
 // Return the local URL
 $localUrl = $filepath;
 
-// Log the download
+// Log the download with enhanced information
 $logData = [
     'timestamp' => date('Y-m-d H:i:s'),
     'avatar_id' => $avatarId,
     'original_url' => $avatarUrl,
-    'enhanced_url' => $enhancedUrl,
+    'download_url' => $downloadUrl,
     'local_path' => $filepath,
-    'file_size' => filesize($filepath)
+    'file_size' => filesize($filepath),
+    'has_morph_targets' => (strpos($downloadUrl, 'morphTargets') !== false)
 ];
+
+// Ensure logs directory exists
+if (!is_dir('logs')) {
+    mkdir('logs', 0755, true);
+}
 
 file_put_contents('logs/avatar_downloads.log', json_encode($logData) . "\n", FILE_APPEND);
 

@@ -1117,6 +1117,494 @@
       .avatar-menu-item.active .avatar-checkmark {
         opacity: 1;
       }
+      
+      /* Avatar customization selection modals */
+      .avatar-selection-modal {
+        display: none;
+        position: fixed;
+        z-index: 10001;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        backdrop-filter: blur(5px);
+      }
+      
+      .avatar-selection-modal.show {
+        display: block;
+      }
+      
+      .avatar-selection-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+      }
+      
+      .avatar-selection-content h3 {
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 24px;
+        font-weight: 600;
+      }
+      
+      .avatar-selection-content p {
+        margin-bottom: 25px;
+        color: #666;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      
+      .gender-selection-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+      
+      .gender-btn {
+        padding: 15px 30px;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        background: white;
+        color: #333;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        min-width: 120px;
+      }
+      
+      .gender-btn:hover {
+        border-color: #007bff;
+        background: #f8f9ff;
+        transform: translateY(-2px);
+      }
+      
+      .gender-btn.selected {
+        border-color: #007bff;
+        background: #007bff;
+        color: white;
+      }
+      
+      .gender-btn i {
+        font-size: 24px;
+        margin-bottom: 5px;
+      }
+      
+      .voice-selection-container {
+        margin-bottom: 25px;
+      }
+      
+      .voice-options {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+      
+      .voice-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      
+      .voice-option:hover {
+        border-color: #007bff;
+        background: #f8f9ff;
+      }
+      
+      .voice-option.selected {
+        border-color: #007bff;
+        background: #007bff;
+        color: white;
+      }
+      
+      .voice-option-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      
+      .voice-option-info i {
+        font-size: 20px;
+        width: 25px;
+        text-align: center;
+      }
+      
+      .voice-option-name {
+        font-weight: 500;
+        font-size: 16px;
+      }
+      
+      .voice-preview-btn {
+        padding: 8px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: white;
+        color: #333;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      
+      .voice-preview-btn:hover {
+        background: #f5f5f5;
+        border-color: #bbb;
+      }
+      
+      .voice-option.selected .voice-preview-btn {
+        background: rgba(255,255,255,0.2);
+        border-color: rgba(255,255,255,0.3);
+        color: white;
+      }
+      
+      .voice-option.selected .voice-preview-btn:hover {
+        background: rgba(255,255,255,0.3);
+        border-color: rgba(255,255,255,0.5);
+      }
+      
+      .selection-modal-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 20px;
+      }
+      
+      .selection-btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 100px;
+      }
+      
+      .selection-btn.primary {
+        background: #007bff;
+        color: white;
+      }
+      
+      .selection-btn.primary:hover {
+        background: #0056b3;
+        transform: translateY(-1px);
+      }
+      
+      .selection-btn.secondary {
+        background: #6c757d;
+        color: white;
+      }
+      
+      .selection-btn.secondary:hover {
+        background: #545b62;
+        transform: translateY(-1px);
+      }
+      
+      .selection-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+      
+      .preview-status {
+        font-size: 14px;
+        color: #666;
+        margin-top: 10px;
+        min-height: 20px;
+      }
+      
+      @media (max-width: 576px) {
+        .avatar-selection-content {
+          padding: 20px;
+          margin: 20px;
+        }
+        
+        .gender-selection-buttons {
+          flex-direction: column;
+          gap: 15px;
+        }
+        
+        .gender-btn {
+          flex-direction: row;
+          min-width: auto;
+        }
+        
+        .voice-options {
+          gap: 10px;
+        }
+        
+        .voice-option {
+          padding: 12px;
+        }
+        
+        .selection-modal-buttons {
+          flex-direction: column;
+        }
+      }
+
+      /* Avatar customization selection modals */
+      .avatar-selection-modal {
+        display: none;
+        position: fixed;
+        z-index: 10001;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        backdrop-filter: blur(5px);
+      }
+      
+      .avatar-selection-modal.show {
+        display: block;
+      }
+      
+      .avatar-selection-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+      }
+      
+      .avatar-selection-content h3 {
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 24px;
+        font-weight: 600;
+      }
+      
+      .avatar-selection-content p {
+        margin-bottom: 25px;
+        color: #666;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      
+      .gender-selection-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+      
+      .gender-btn {
+        padding: 15px 30px;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        background: white;
+        color: #333;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        min-width: 120px;
+      }
+      
+      .gender-btn:hover {
+        border-color: #007bff;
+        background: #f8f9ff;
+        transform: translateY(-2px);
+      }
+      
+      .gender-btn.selected {
+        border-color: #007bff;
+        background: #007bff;
+        color: white;
+      }
+      
+      .gender-btn i {
+        font-size: 24px;
+        margin-bottom: 5px;
+      }
+      
+      .voice-selection-container {
+        margin-bottom: 25px;
+      }
+      
+      .voice-options {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+      
+      .voice-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      
+      .voice-option:hover {
+        border-color: #007bff;
+        background: #f8f9ff;
+      }
+      
+      .voice-option.selected {
+        border-color: #007bff;
+        background: #007bff;
+        color: white;
+      }
+      
+      .voice-option-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      
+      .voice-option-info i {
+        font-size: 20px;
+        width: 25px;
+        text-align: center;
+      }
+      
+      .voice-option-name {
+        font-weight: 500;
+        font-size: 16px;
+      }
+      
+      .voice-preview-btn {
+        padding: 8px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: white;
+        color: #333;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      
+      .voice-preview-btn:hover {
+        background: #f5f5f5;
+        border-color: #bbb;
+      }
+      
+      .voice-option.selected .voice-preview-btn {
+        background: rgba(255,255,255,0.2);
+        border-color: rgba(255,255,255,0.3);
+        color: white;
+      }
+      
+      .voice-option.selected .voice-preview-btn:hover {
+        background: rgba(255,255,255,0.3);
+        border-color: rgba(255,255,255,0.5);
+      }
+      
+      .selection-modal-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 20px;
+      }
+      
+      .selection-btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 100px;
+      }
+      
+      .selection-btn.primary {
+        background: #007bff;
+        color: white;
+      }
+      
+      .selection-btn.primary:hover {
+        background: #0056b3;
+        transform: translateY(-1px);
+      }
+      
+      .selection-btn.secondary {
+        background: #6c757d;
+        color: white;
+      }
+      
+      .selection-btn.secondary:hover {
+        background: #545b62;
+        transform: translateY(-1px);
+      }
+      
+      .selection-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+      
+      .preview-status {
+        font-size: 14px;
+        color: #666;
+        margin-top: 10px;
+        min-height: 20px;
+      }
+      
+      @media (max-width: 576px) {
+        .avatar-selection-content {
+          padding: 20px;
+          margin: 20px;
+        }
+        
+        .gender-selection-buttons {
+          flex-direction: column;
+          gap: 15px;
+        }
+        
+        .gender-btn {
+          flex-direction: row;
+          min-width: auto;
+        }
+        
+        .voice-options {
+          gap: 10px;
+        }
+        
+        .voice-option {
+          padding: 12px;
+        }
+        
+        .selection-modal-buttons {
+          flex-direction: column;
+        }
+      }
     </style>
 </head>
 <body>
@@ -1267,18 +1755,18 @@
                 
                 <div class="voice-selection-dropdown">
                   <button id="voice-toggle" class="btn btn-sm btn-outline-light">
-                    <i class="fa fa-microphone"></i> <span id="current-voice-name">Bella (Female)</span>
+                    <i class="fa fa-microphone"></i> <span id="current-voice-name">Sophia (Female)</span>
                     <i class="fa fa-chevron-down" style="margin-left: 5px; font-size: 0.7rem;"></i>
                   </button>
                   <div class="voice-menu" id="voice-menu">
                     <div class="voice-menu-item active" data-voice="female">
                       <i class="fa fa-female"></i>
-                      <span>Bella (Female)</span>
+                      <span>Sophia (Female)</span>
                       <i class="fa fa-check voice-checkmark"></i>
                     </div>
                     <div class="voice-menu-item" data-voice="male">
                       <i class="fa fa-male"></i>
-                      <span>Adam (Male)</span>
+                      <span>Alexander (Male)</span>
                       <i class="fa fa-check voice-checkmark"></i>
                     </div>
                   </div>
@@ -1370,6 +1858,61 @@
     </div>
   </section>
 
+  <!-- Gender Selection Modal -->
+  <div id="gender-selection-modal" class="avatar-selection-modal">
+    <div class="avatar-selection-content">
+      <h3>🎭 Character Gender</h3>
+      <p>Please select the gender of your customized avatar to ensure proper animations and voice matching.</p>
+      
+      <div class="gender-selection-buttons">
+        <button class="gender-btn" data-gender="female" onclick="selectGender('female')">
+          <i class="fa fa-female"></i>
+          <span>Feminine</span>
+        </button>
+        <button class="gender-btn" data-gender="male" onclick="selectGender('male')">
+          <i class="fa fa-male"></i>
+          <span>Masculine</span>
+        </button>
+      </div>
+      
+      <div class="selection-modal-buttons">
+        <button class="selection-btn primary" id="confirm-gender-btn" onclick="confirmGender()" disabled>
+          Continue
+        </button>
+        <button class="selection-btn secondary" onclick="cancelAvatarCustomization()">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voice Selection Modal -->
+  <div id="voice-selection-modal" class="avatar-selection-modal">
+    <div class="avatar-selection-content">
+      <h3>🎙️ Voice Selection</h3>
+      <p>Choose a voice for your avatar and preview how it sounds.</p>
+      
+      <div class="voice-selection-container">
+        <div class="voice-options" id="voice-options-container">
+          <!-- Voice options will be populated by JavaScript -->
+        </div>
+        
+        <div class="preview-status" id="voice-preview-status">
+          Click "Preview" to hear how each voice sounds
+        </div>
+      </div>
+      
+      <div class="selection-modal-buttons">
+        <button class="selection-btn primary" id="confirm-voice-btn" onclick="confirmVoiceSelection()" disabled>
+          Apply Settings
+        </button>
+        <button class="selection-btn secondary" onclick="goBackToGenderSelection()">
+          Back
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- All your existing scripts (unchanged) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -1405,13 +1948,53 @@
     };
     let availableVoices = {
       female: {
-        id: 'EXAVITQu4vr4xnSDxMaL', // Bella
-        name: 'Bella (Female)',
+        id: 'TbMNBJ27fH2U0VgpSNko',
+        name: 'Sophia (Female)',
+        gender: 'female'
+      },
+      female_elegant: {
+        id: 'x959FyxFeswkQQqFjoPb',
+        name: 'Emma (Elegant Female)',
+        gender: 'female'
+      },
+      female_young: {
+        id: 'aEO01A4wXwd1O8GPgGlF',
+        name: 'Aria (Young Female)',
+        gender: 'female'
+      },
+      female_mature: {
+        id: 'wrxvN1LZJIfL3HHvffqe',
+        name: 'Isabella (Mature Female)',
+        gender: 'female'
+      },
+      female_professional: {
+        id: 'TgnhEILA8UwUqIMi20rp',
+        name: 'Victoria (Professional Female)',
         gender: 'female'
       },
       male: {
-        id: 'pNInz6obpgDQGcFmaJgB', // Adam
-        name: 'Adam (Male)', 
+        id: 'gAMZphRyrWJnLMDnom6H',
+        name: 'Alexander (Male)',
+        gender: 'male'
+      },
+      male_deep: {
+        id: 'KvGNt2kFTJThvOILJU7E',
+        name: 'Marcus (Deep Male)',
+        gender: 'male'
+      },
+      male_young: {
+        id: 'j57KDF72L6gxbLk4sOo5',
+        name: 'Jake (Young Male)',
+        gender: 'male'
+      },
+      male_mature: {
+        id: '4Tha3hqCsECEKz5JttmV',
+        name: 'David (Mature Male)',
+        gender: 'male'
+      },
+      male_professional: {
+        id: 'UDgcwmi9QWxuoU7Du5pH',
+        name: 'Benjamin (Professional Male)',
         gender: 'male'
       }
     };
@@ -2769,6 +3352,13 @@
     
     function openAvatarCreator() {
       const modal = document.getElementById('avatar-creator-modal');
+      const iframe = document.getElementById('avatar-creator-frame');
+      
+      // Set the Ready Player Me URL if not already set
+      if (!iframe.src) {
+        iframe.src = 'https://verztech.readyplayer.me/avatar?frameApi';
+      }
+      
       modal.style.display = 'block';
       document.body.style.overflow = 'hidden'; // Prevent background scrolling
       updateAvatarStatus('🎨 Opening avatar creator...');
@@ -2982,6 +3572,338 @@
         }
       }
     }
+    
+    // --- Gender and Voice Selection Modal Logic ---
+let pendingCustomAvatarUrl = null;
+let selectedGender = null;
+let selectedVoiceId = null;
+
+function showGenderSelectionModal(avatarUrl) {
+  pendingCustomAvatarUrl = avatarUrl;
+  selectedGender = null;
+  document.querySelectorAll('.gender-btn').forEach(btn => btn.classList.remove('selected'));
+  document.getElementById('confirm-gender-btn').disabled = true;
+  document.getElementById('gender-selection-modal').classList.add('show');
+}
+
+function selectGender(gender) {
+  selectedGender = gender;
+  document.querySelectorAll('.gender-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.getAttribute('data-gender') === gender);
+  });
+  document.getElementById('confirm-gender-btn').disabled = false;
+}
+
+function confirmGender() {
+  document.getElementById('gender-selection-modal').classList.remove('show');
+  showVoiceSelectionModal(selectedGender);
+}
+
+function cancelAvatarCustomization() {
+  document.getElementById('gender-selection-modal').classList.remove('show');
+  pendingCustomAvatarUrl = null;
+  selectedGender = null;
+}
+
+function showVoiceSelectionModal(gender) {
+  // Filter voices by gender
+  const voices = Object.values(availableVoices).filter(v => v.gender === gender);
+  const container = document.getElementById('voice-options-container');
+  container.innerHTML = '';
+  voices.forEach(voice => {
+    const div = document.createElement('div');
+    div.className = 'voice-option';
+    div.setAttribute('data-voice-id', voice.id);
+    div.innerHTML = `
+      <div class="voice-option-info">
+        <i class="fa fa-${gender === 'female' ? 'female' : 'male'}"></i>
+        <span class="voice-option-name">${voice.name}</span>
+      </div>
+      <button class="voice-preview-btn" onclick="event.stopPropagation(); previewVoice('${voice.id}', '${voice.name}')">Preview</button>
+    `;
+    div.onclick = function() {
+      document.querySelectorAll('.voice-option').forEach(opt => opt.classList.remove('selected'));
+      div.classList.add('selected');
+      selectedVoiceId = voice.id;
+      document.getElementById('confirm-voice-btn').disabled = false;
+    };
+    container.appendChild(div);
+  });
+  selectedVoiceId = null;
+  document.getElementById('confirm-voice-btn').disabled = true;
+  document.getElementById('voice-preview-status').textContent = 'Click "Preview" to hear how each voice sounds';
+  document.getElementById('voice-selection-modal').classList.add('show');
+}
+
+function previewVoice(voiceId, voiceName) {
+  const statusElement = document.getElementById('voice-preview-status');
+  const previewBtn = event.target;
+  
+  // Disable the button during preview
+  previewBtn.disabled = true;
+  previewBtn.textContent = 'Playing...';
+  statusElement.textContent = `Playing preview for ${voiceName}...`;
+  
+  // Create a sample text for preview
+  const sampleText = "Hello! This is how I sound. I'm excited to be your AI assistant and help you with your questions.";
+  
+  // Use ElevenLabs API to generate and play preview
+  fetch('generate_voice_preview.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      voice_id: voiceId,
+      text: sampleText
+    })
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.blob();
+  })
+  .then(audioBlob => {
+    // Create and play audio
+    const audioUrl = URL.createObjectURL(audioBlob);
+    const audio = new Audio(audioUrl);
+    
+    audio.onended = () => {
+      statusElement.textContent = `Preview finished for ${voiceName}`;
+      previewBtn.disabled = false;
+      previewBtn.textContent = 'Preview';
+      URL.revokeObjectURL(audioUrl);
+    };
+    
+    audio.onerror = () => {
+      statusElement.textContent = `Error playing preview for ${voiceName}`;
+      previewBtn.disabled = false;
+      previewBtn.textContent = 'Preview';
+      URL.revokeObjectURL(audioUrl);
+    };
+    
+    audio.play().catch(err => {
+      console.error('Audio play error:', err);
+      statusElement.textContent = `Error playing preview for ${voiceName}`;
+      previewBtn.disabled = false;
+      previewBtn.textContent = 'Preview';
+      URL.revokeObjectURL(audioUrl);
+    });
+  })
+  .catch(error => {
+    console.error('Voice preview error:', error);
+    statusElement.textContent = `Error generating preview for ${voiceName}. Please try again.`;
+    previewBtn.disabled = false;
+    previewBtn.textContent = 'Preview';
+  });
+}
+
+function confirmVoiceSelection() {
+  document.getElementById('voice-selection-modal').classList.remove('show');
+  if (pendingCustomAvatarUrl && selectedGender && selectedVoiceId) {
+    // Now initialize the avatar with the selected gender and voice
+    initializeCustomAvatarWithGenderAndVoice(pendingCustomAvatarUrl, selectedGender, selectedVoiceId);
+    pendingCustomAvatarUrl = null;
+    selectedGender = null;
+    selectedVoiceId = null;
+  }
+}
+
+function goBackToGenderSelection() {
+  document.getElementById('voice-selection-modal').classList.remove('show');
+  showGenderSelectionModal(pendingCustomAvatarUrl);
+}
+
+function initializeCustomAvatarWithGenderAndVoice(avatarUrl, gender, voiceId) {
+  // Set global gender/voice
+  currentAvatarGender = gender;
+  currentVoiceId = voiceId;
+  // Continue with the normal avatar initialization flow
+  updateAvatarModelWithGenderAndVoice(avatarUrl, gender, voiceId);
+}
+
+function updateAvatarModelWithGenderAndVoice(avatarUrl, gender, voiceId) {
+  // This is a copy of updateAvatarModel, but uses the provided gender/voice
+  if (!avatarManager) {
+    console.error('Avatar manager not initialized');
+    return;
+  }
+  const avatarId = extractAvatarId(avatarUrl);
+  if (!avatarId) {
+    console.error('Could not extract avatar ID from URL:', avatarUrl);
+    return;
+  }
+  
+  currentAvatarUrl = avatarUrl;
+  currentAvatarGender = gender;
+  currentVoiceId = voiceId;
+  
+  // Create the enhanced URL with morph targets for facial expressions
+  const enhancedAvatarUrl = `https://models.readyplayer.me/${avatarId}.glb?morphTargets=ARKit,Oculus Visemes&quality=medium`;
+  
+  console.log('Downloading avatar with morph targets:', enhancedAvatarUrl);
+  console.log('Selected gender:', gender);
+  console.log('Selected voice:', voiceId);
+  
+  updateAvatarStatus('🔄 Downloading custom avatar with facial expressions...');
+  
+  downloadAndStoreAvatar(enhancedAvatarUrl, avatarId).then(localAvatarUrl => {
+    console.log('Avatar downloaded successfully:', localAvatarUrl);
+    
+    updateAvatarStatus('Loading custom avatar with facial expressions...');
+    
+    const animationsUrl = getAnimationsUrl(gender);
+    
+    if (typeof avatarManager.loadNewAvatar === 'function') {
+      avatarManager.loadNewAvatar(localAvatarUrl).then(() => {
+        // Update voice after avatar is loaded
+        if (avatarManager.setVoice) {
+          avatarManager.setVoice(voiceId);
+        }
+        
+        // Update animations for gender-specific movements
+        if (avatarManager.setAnimationsUrl) {
+          avatarManager.setAnimationsUrl(animationsUrl);
+        } else if (avatarManager.loadAnimations) {
+          avatarManager.loadAnimations(animationsUrl);
+        }
+        
+        updateAvatarStatus('✅ Custom avatar loaded with facial expressions!');
+        
+        // Update UI elements
+        updateVoiceDisplay(voiceId);
+        updateAvatarDisplay(gender);
+        
+        setTimeout(() => { updateAvatarStatus('Ready to help'); }, 3000);
+      }).catch(error => {
+        console.error('Error loading new avatar:', error);
+        updateAvatarStatus('❌ Error loading custom avatar');
+        setTimeout(() => { updateAvatarStatus('Ready to help'); }, 3000);
+      });
+    } else {
+      // Fallback: reinitialize
+      const avatarContainer = document.getElementById('avatar-3d');
+      avatarContainer.innerHTML = '';
+      
+      avatarManager = new AvatarManager('avatar-3d', {
+        elevenlabsApiKey: 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7',
+        voice: voiceId,
+        avatarUrl: localAvatarUrl,
+        animationsUrl: animationsUrl,
+        volume: document.getElementById('avatar-volume-slider').value / 100
+      });
+      
+      const checkReinit = setInterval(() => {
+        if (avatarManager && avatarManager.isInitialized) {
+          clearInterval(checkReinit);
+          updateAvatarStatus('✅ Custom avatar loaded with facial expressions!');
+          
+          // Update UI elements
+          updateVoiceDisplay(voiceId);
+          updateAvatarDisplay(gender);
+          
+          setTimeout(() => { updateAvatarStatus('Ready to help'); }, 3000);
+        }
+      }, 500);
+    }
+  }).catch(error => {
+    console.error('Error downloading avatar:', error);
+    updateAvatarStatus('❌ Error downloading custom avatar');
+    setTimeout(() => { updateAvatarStatus('Ready to help'); }, 3000);
+  });
+}
+
+function updateVoiceDisplay(voiceId) {
+  // Find the voice name by ID
+  const voice = Object.values(availableVoices).find(v => v.id === voiceId);
+  if (voice) {
+    document.getElementById('current-voice-name').textContent = voice.name;
+    
+    // Update the voice dropdown selection
+    document.querySelectorAll('.voice-menu-item').forEach(item => {
+      item.classList.remove('active');
+      if (item.getAttribute('data-voice') === voice.gender) {
+        item.classList.add('active');
+      }
+    });
+    
+    // Update the avatar manager's voice if it exists
+    if (avatarManager && avatarManager.setVoice) {
+      avatarManager.setVoice(voiceId);
+    }
+  }
+}
+
+function updateAvatarDisplay(gender) {
+  // Update the avatar display to show "Custom Avatar"
+  document.getElementById('current-avatar-name').textContent = `Custom Avatar (${gender === 'female' ? 'Female' : 'Male'})`;
+  
+  // Update the avatar selection to show custom avatar as active
+  document.querySelectorAll('.avatar-menu-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  
+  // Add a custom avatar option to the dropdown if it doesn't exist
+  const avatarMenu = document.getElementById('avatar-selection-menu');
+  if (avatarMenu && !avatarMenu.querySelector('.avatar-menu-item[data-avatar="custom"]')) {
+    const customOption = document.createElement('div');
+    customOption.className = 'avatar-menu-item active';
+    customOption.setAttribute('data-avatar', 'custom');
+    customOption.innerHTML = `
+      <i class="fa fa-user"></i>
+      <span>Custom Avatar</span>
+      <i class="fa fa-check avatar-checkmark"></i>
+    `;
+    avatarMenu.appendChild(customOption);
+  } else if (avatarMenu) {
+    // Make the custom option active
+    const customOption = avatarMenu.querySelector('.avatar-menu-item[data-avatar="custom"]');
+    if (customOption) {
+      customOption.classList.add('active');
+    }
+  }
+}
+
+// --- Patch Ready Player Me export handler to show gender/voice modals ---
+function handleReadyPlayerMeMessage(event) {
+  const json = parseMessage(event);
+  if (json?.source !== 'readyplayerme') return;
+  
+  console.log('Ready Player Me event:', json);
+  
+  // Subscribe to all events when frame is ready
+  if (json.eventName === 'v1.frame.ready') {
+    const frame = document.getElementById('avatar-creator-frame');
+    frame.contentWindow.postMessage(
+      JSON.stringify({
+        target: 'readyplayerme',
+        type: 'subscribe',
+        eventName: 'v1.**'
+      }),
+      '*'
+    );
+    console.log('Subscribed to Ready Player Me events');
+  }
+  
+  // Handle avatar export - show gender/voice selection instead of immediate initialization
+  if (json.eventName === 'v1.avatar.exported') {
+    const avatarUrl = json.data.url;
+    console.log('New avatar URL:', avatarUrl);
+    
+    // Close the Ready Player Me modal first
+    closeAvatarCreator();
+    
+    // Show gender selection modal
+    showGenderSelectionModal(avatarUrl);
+    return;
+  }
+  
+  // Handle user ID
+  if (json.eventName === 'v1.user.set') {
+    console.log('User ID set:', json.data.id);
+  }
+}
   </script>
 
   <!-- Ready Player Me Avatar Creator Modal -->
@@ -2995,6 +3917,60 @@
       </div>
       <div class="rpm-modal-body">
         <iframe id="avatar-creator-frame" class="rpm-frame" allow="camera *; microphone *; clipboard-write"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gender and Voice Selection Modals (New) -->
+  <div id="gender-selection-modal" class="avatar-selection-modal">
+    <div class="avatar-selection-content">
+      <h3>🎭 Character Gender</h3>
+      <p>Please select the gender of your customized avatar to ensure proper animations and voice matching.</p>
+      
+      <div class="gender-selection-buttons">
+        <button class="gender-btn" data-gender="female" onclick="selectGender('female')">
+          <i class="fa fa-female"></i>
+          <span>Feminine</span>
+        </button>
+        <button class="gender-btn" data-gender="male" onclick="selectGender('male')">
+          <i class="fa fa-male"></i>
+          <span>Masculine</span>
+        </button>
+      </div>
+      
+      <div class="selection-modal-buttons">
+        <button class="selection-btn primary" id="confirm-gender-btn" onclick="confirmGender()" disabled>
+          Continue
+        </button>
+        <button class="selection-btn secondary" onclick="cancelAvatarCustomization()">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="voice-selection-modal" class="avatar-selection-modal">
+    <div class="avatar-selection-content">
+      <h3>🎙️ Voice Selection</h3>
+      <p>Choose a voice for your avatar and preview how it sounds.</p>
+      
+      <div class="voice-selection-container">
+        <div class="voice-options" id="voice-options-container">
+          <!-- Voice options will be populated by JavaScript -->
+        </div>
+        
+        <div class="preview-status" id="voice-preview-status">
+          Click "Preview" to hear how each voice sounds
+        </div>
+      </div>
+      
+      <div class="selection-modal-buttons">
+        <button class="selection-btn primary" id="confirm-voice-btn" onclick="confirmVoiceSelection()" disabled>
+          Apply Settings
+        </button>
+        <button class="selection-btn secondary" onclick="goBackToGenderSelection()">
+          Back
+        </button>
       </div>
     </div>
   </div>
