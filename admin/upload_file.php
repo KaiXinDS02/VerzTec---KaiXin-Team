@@ -67,6 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         // Move file to the target directory
         if (!move_uploaded_file($f['tmp_name'][$i], $targetPath)) continue;
 
+        // Call the data_cleaning.py
+         $escaped_filename = escapeshellarg($originalName);
+        exec("python3 /var/www/html/chatbot/chatbot/data_cleaning.py $escaped_filename 2>&1", $output, $return_code);
+        
+
         // Get file details for database storage
         $fileSizeKb = round(filesize($targetPath) / 1024);
         $mimeType   = mime_content_type($targetPath);
@@ -161,7 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     }
 
     // Trigger re-indexing after deletion
-    exec("python /var/www/html/chatbot/ingest.py");
+    //exec("python3 /var/www/html/chatbot/chatbot/ingest.py");
 
     // After processing all files, redirect to the files page
     header("Location: ../files.php");
