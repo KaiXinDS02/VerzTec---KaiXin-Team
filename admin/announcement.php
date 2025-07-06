@@ -430,11 +430,34 @@ $conn->close();
     </div>
   </div>
 
+  <!-- notification -->
+   <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#81869E; color:#fff; border-radius: 12px 12px 0 0;">
+        <h5 class="modal-title" id="announcementModalLabel">Announcement</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h5 id="modalTitle"></h5>
+        <p id="modalContent"></p>
+        <hr>
+        <p><strong>Target Audience:</strong> <span id="modalAudience"></span></p>
+        <p><strong>Priority:</strong> <span id="modalPriority"></span></p>
+        <p><strong>Posted:</strong> <span id="modalTimestamp"></span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
   <script src="js/jquery-3.4.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/scripts.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+  <script src="js\notification.js"></script> <!-- Custom script for handling announcements -->
+
 
   <script>
     $(document).ready(function () {
@@ -472,6 +495,8 @@ $conn->close();
         $('#deleteAnnouncementModal').modal('show');
       });
     });
+
+    
   </script>
 
   <!-- Session Timeout -->
