@@ -22,6 +22,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['file_id'])) {
             unlink($fullPath);
         }
 
+        // ALSO delete the corresponding cleaned .txt file from chatbot/data/cleaned
+        $baseName = pathinfo($file_path, PATHINFO_FILENAME); // filename without extension
+        $cleanedTxtPath = $_SERVER['DOCUMENT_ROOT'] . '/chatbot/data/cleaned/' . $baseName . '.txt';
+        $cleanedDocxPath = $_SERVER['DOCUMENT_ROOT'] . '/chatbot/data/cleaned/' . $baseName . '.docx';
+
+        // Remove .txt or .docx version if it exists in cleaned folder
+        if (file_exists($cleanedTxtPath)) {
+            unlink($cleanedTxtPath);
+        }
+        if (file_exists($cleanedDocxPath)) {
+            unlink($cleanedDocxPath);
+        }
+
         // Delete from the database
         $del = $conn->prepare("DELETE FROM files WHERE id = ?");
         $del->bind_param("i", $file_id);
