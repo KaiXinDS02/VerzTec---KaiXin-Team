@@ -461,11 +461,15 @@ $conn->close();
         </div>  <!-- End of col-lg-9 -->
       </div>
     </div>
+
+
   </main>
 
   <script src="js/jquery-3.4.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/scripts.js"></script>
+  <script src="js/notification.js"></script> <!-- Custom script for handling announcements -->
+
   <script>
     (function(){
       const input = document.getElementById('activitySearch');
