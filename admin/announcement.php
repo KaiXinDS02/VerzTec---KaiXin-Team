@@ -431,14 +431,14 @@ $conn->close();
   </div>
 
   <!-- notification -->
-   <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header" style="background-color:#81869E; color:#fff; border-radius: 12px 12px 0 0;">
+<div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 600px; padding-left: 1rem; padding-right: 1rem;">
+    <div class="modal-content" style="border-radius: 12px; background-color: #fff; overflow: hidden; border: none; box-shadow: none;">
+      <div class="modal-header" style="background-color: #81869E; color: #fff; border-radius: 12px 12px 0 0; border-bottom: none;">
         <h5 class="modal-title" id="announcementModalLabel">Announcement</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" style="background-color: #fff; padding: 1rem 1.5rem; border-radius: 0;">
         <h5 id="modalTitle"></h5>
         <p id="modalContent"></p>
         <hr>
