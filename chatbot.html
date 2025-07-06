@@ -1419,7 +1419,7 @@
     
     // Initialize avatar when page loads
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('🚀 DOM Content Loaded - Starting initialization...');
+      console.log('🚀 VerzTec Chatbot - Initializing...');
       
       // Add basic error handling
       window.addEventListener('error', function(e) {
@@ -1433,21 +1433,17 @@
         return;
       }
       
-      console.log('✅ Avatar container found');
-      
       // Check if required scripts are loaded
       if (typeof THREE === 'undefined') {
         console.error('❌ Three.js not loaded!');
         return;
       }
       
-      console.log('✅ Three.js loaded');
-      
       try {
         initializeAvatar();
         setupEventListeners();
         initializeAvatarCustomization();
-        console.log('✅ All initialization functions called');
+        console.log('✅ VerzTec Chatbot initialized successfully');
       } catch (error) {
         console.error('💥 Error during initialization:', error);
       }
