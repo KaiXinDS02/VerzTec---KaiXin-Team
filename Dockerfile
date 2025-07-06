@@ -25,10 +25,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 
 # Copy application files into container
-COPY . /var/www/html/
+#COPY . /var/www/html/
 
 # Set working directory
-WORKDIR /var/www/html
+#WORKDIR /var/www/html
 
 # Run composer install
-RUN composer install
+#RUN composer install
