@@ -1,3 +1,8 @@
+function parseTimestampAsUTC(dateStr) {
+  // Add 'Z' to treat input as UTC time string
+  return new Date(dateStr + "Z");
+}
+
 function showNotificationPopup(announcement) {
   // Only show if not already dismissed
   if (document.querySelector('.custom-alert')) return;
@@ -22,16 +27,29 @@ function showNotificationPopup(announcement) {
   `;
   alert.innerHTML = `
     <strong>New Announcement:</strong><br>
-    <span>${announcement.title}</span><br>
+    <span style="font-size: 1.1rem; font-weight: 600;">${announcement.title}</span><br>
     <small style="color:gray;">Click to view</small>
   `;
+
   alert.onclick = function () {
-    // Fill modal with announcement content
     document.getElementById('modalTitle').textContent = announcement.title;
     document.getElementById('modalContent').innerHTML = announcement.context;
     document.getElementById('modalAudience').textContent = announcement.target_audience;
     document.getElementById('modalPriority').textContent = announcement.priority;
-    document.getElementById('modalTimestamp').textContent = new Date(announcement.timestamp).toLocaleString();
+
+    const options = {
+      timeZone: 'Asia/Singapore',
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    };
+
+    const utcDate = parseTimestampAsUTC(announcement.timestamp);
+    const sgTime = utcDate.toLocaleString('en-SG', options);
+    document.getElementById('modalTimestamp').textContent = sgTime;
 
     const modal = new bootstrap.Modal(document.getElementById('announcementModal'));
     modal.show();
@@ -40,9 +58,15 @@ function showNotificationPopup(announcement) {
   };
 
   document.body.appendChild(alert);
+
+  setTimeout(() => {
+    if (document.body.contains(alert)) {
+      alert.remove();
+      localStorage.setItem('lastSeenAnnouncement', announcement.timestamp);
+    }
+  }, 10000);
 }
 
-// Check for new announcement every 30 seconds
 setInterval(() => {
   fetch('/admin/latest_announcement.php')
     .then(res => res.json())
@@ -53,4 +77,4 @@ setInterval(() => {
         showNotificationPopup(announcement);
       }
     });
-}, 5000); // 5 seconds for testing
+}, 5000); // every 5 seconds

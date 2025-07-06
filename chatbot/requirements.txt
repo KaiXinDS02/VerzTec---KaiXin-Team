@@ -18,3 +18,6 @@ numpy
 regex==2024.11.6
 uvicorn
 rapidfuzz
+pdfplumber
+docx2txt
+docx

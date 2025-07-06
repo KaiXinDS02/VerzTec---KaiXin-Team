@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['file_id'])) {
                 log_action($conn, $_SESSION['user_id'], 'files', 'delete', $details);
             }
             // Trigger re-indexing after deletion
-            exec("python /var/www/html/chatbot/ingest.py");
+            //exec("python3 /var/www/html/chatbot/chatbot/ingest.py");
 
             echo 'success';
         } else {
