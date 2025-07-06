@@ -54,13 +54,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 
         $counter = 1;
         $targetPath   = "$directory/$originalName";
-        $relativePath = "files/$originalName";
+        $relativePath = "chatbot/data/pdfs/$originalName";
 
         // Avoid overwriting files with the same name
         while (file_exists($targetPath)) {
             $originalName = $filename . "($counter)." . $extension;
             $targetPath   = "$directory/$originalName";
-            $relativePath = "files/$originalName";
+            $relativePath = "chatbot/data/pdfs/$originalName";
             $counter++;
         }
 
@@ -159,6 +159,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         log_action($conn, $user_id, 'files', 'add',
                    "Uploaded file: $originalName ($fileType, $fileSizeKb KB).");
     }
+
+    // Trigger re-indexing after deletion
+    exec("python /var/www/html/chatbot/ingest.py");
 
     // After processing all files, redirect to the files page
     header("Location: ../files.php");

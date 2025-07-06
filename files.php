@@ -170,7 +170,7 @@ function getFriendlyFileType($mimeType) {
       $mimeType = mime_content_type($filePath);
       $fileType = getFriendlyFileType($mimeType);
       $fileSize = round(filesize($filePath) / 1024);
-      $relativePath = 'files/' . $file; // Use web-safe relative path
+      $relativePath = 'chatbot/data/pdfs/' . $file; // Use web-safe relative path
 
       $check = $conn->prepare("SELECT id FROM files WHERE file_path = ?");
       $check->bind_param("s", $relativePath);
