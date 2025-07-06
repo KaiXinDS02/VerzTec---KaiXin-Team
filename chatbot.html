@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
+    <!-- 
+    VOICE PREVIEW SYSTEM:
+    - Uses local preview files from assets/audio/voice_previews/ instead of API calls
+    - Preview files are pre-generated and named for each voice
+    - API and voice ID are only used when voice is selected for actual speech
+    - Preset avatar voices remain unchanged
+    -->
     <!-- Meta setup -->
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -982,74 +989,6 @@
         }
       }
       
-      /* Voice Selection Dropdown Styles */
-      .voice-selection-dropdown {
-        position: relative;
-        display: inline-block;
-      }
-      
-      .voice-menu {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 6px;
-        padding: 4px 0;
-        margin-top: 4px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        display: none;
-        z-index: 1000;
-        min-width: 180px;
-      }
-      
-      .voice-menu.show {
-        display: block;
-      }
-      
-      .voice-menu-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 12px;
-        color: #333;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-size: 0.85rem;
-        position: relative;
-      }
-      
-      .voice-menu-item:hover {
-        background: rgba(0,0,0,0.1);
-      }
-      
-      .voice-menu-item.active {
-        background: rgba(0,123,255,0.1);
-        color: #007bff;
-        font-weight: 600;
-      }
-      
-      .voice-menu-item i:first-child {
-        width: 16px;
-        text-align: center;
-        flex-shrink: 0;
-      }
-      
-      .voice-menu-item span {
-        flex: 1;
-      }
-      
-      .voice-checkmark {
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        font-size: 0.8rem;
-      }
-      
-      .voice-menu-item.active .voice-checkmark {
-        opacity: 1;
-      }
-      
       /* Avatar Selection Dropdown Styles */
       .avatar-selection-dropdown {
         position: relative;
@@ -1753,24 +1692,7 @@
                   <i class="fa fa-male"></i> Use Male Animations
                 </button>
                 
-                <div class="voice-selection-dropdown">
-                  <button id="voice-toggle" class="btn btn-sm btn-outline-light">
-                    <i class="fa fa-microphone"></i> <span id="current-voice-name">Sophia (Female)</span>
-                    <i class="fa fa-chevron-down" style="margin-left: 5px; font-size: 0.7rem;"></i>
-                  </button>
-                  <div class="voice-menu" id="voice-menu">
-                    <div class="voice-menu-item active" data-voice="female">
-                      <i class="fa fa-female"></i>
-                      <span>Sophia (Female)</span>
-                      <i class="fa fa-check voice-checkmark"></i>
-                    </div>
-                    <div class="voice-menu-item" data-voice="male">
-                      <i class="fa fa-male"></i>
-                      <span>Alexander (Male)</span>
-                      <i class="fa fa-check voice-checkmark"></i>
-                    </div>
-                  </div>
-                </div>
+
                 
                 <div class="volume-control">
                   <i class="fa fa-volume-down" style="font-size: 0.8rem;"></i>
@@ -1950,52 +1872,62 @@
       female: {
         id: 'TbMNBJ27fH2U0VgpSNko',
         name: 'Sophia (Female)',
-        gender: 'female'
+        gender: 'female',
+        previewFile: 'assets/audio/voice_previews/ElevenLabs_2025-07-06T17_01_30_Lori - Happy and sweet_pvc_sp100_s50_sb75_se0_b_m2.mp3'
       },
       female_elegant: {
         id: 'x959FyxFeswkQQqFjoPb',
         name: 'Emma (Elegant Female)',
-        gender: 'female'
+        gender: 'female',
+        previewFile: 'assets/audio/voice_previews/ElevenLabs_2025-07-06T17_02_02_Peach - Sweet & Sassy_pvc_sp100_s50_sb75_se0_b_m2.mp3'
       },
       female_young: {
         id: 'aEO01A4wXwd1O8GPgGlF',
         name: 'Aria (Young Female)',
-        gender: 'female'
+        gender: 'female',
+        previewFile: 'assets/audio/voice_previews/ElevenLabs_2025-07-06T17_02_21_Arabella_pvc_sp100_s12_sb100_se0_b_m2.mp3'
       },
       female_mature: {
         id: 'wrxvN1LZJIfL3HHvffqe',
         name: 'Isabella (Mature Female)',
-        gender: 'female'
+        gender: 'female',
+        previewFile: 'assets/audio/voice_previews/ElevenLabs_2025-07-06T17_02_48_Bella - Bubbly Best Friend_pvc_sp100_s30_sb100_se2_b_m2.mp3'
       },
       female_professional: {
         id: 'TgnhEILA8UwUqIMi20rp',
         name: 'Victoria (Professional Female)',
-        gender: 'female'
+        gender: 'female',
+        previewFile: 'assets/audio/voice_previews/ElevenLabs_2025-07-06T17_03_10_Jenna - Warm and Articulate_pvc_sp100_s50_sb75_se100_b_m2.mp3'
       },
       male: {
         id: 'gAMZphRyrWJnLMDnom6H',
         name: 'Alexander (Male)',
-        gender: 'male'
+        gender: 'male',
+        previewFile: 'assets/audio/voice_previews/ElevenLabs_2025-07-06T17_04_21_Keith\'s Voice - Nonchalant Talker_pvc_sp100_s55_sb45_se16_b_m2.mp3'
       },
       male_deep: {
         id: 'KvGNt2kFTJThvOILJU7E',
         name: 'Marcus (Deep Male)',
-        gender: 'male'
+        gender: 'male',
+        previewFile: 'assets/audio/voice_previews/ElevenLabs_2025-07-06T17_05_01_James Voice Clone_pvc_sp100_s19_sb75_se0_b_m2.mp3'
       },
       male_young: {
         id: 'j57KDF72L6gxbLk4sOo5',
         name: 'Jake (Young Male)',
-        gender: 'male'
+        gender: 'male',
+        previewFile: 'assets/audio/voice_previews/ElevenLabs_2025-07-06T17_05_18_George_pvc_sp94_s69_sb37_se0_b_m2.mp3'
       },
       male_mature: {
         id: '4Tha3hqCsECEKz5JttmV',
         name: 'David (Mature Male)',
-        gender: 'male'
+        gender: 'male',
+        previewFile: 'assets/audio/voice_previews/ElevenLabs_2025-07-06T17_05_31_Asad Shah_pvc_sp105_s63_sb61_se50_b_m2.mp3'
       },
       male_professional: {
         id: 'UDgcwmi9QWxuoU7Du5pH',
         name: 'Benjamin (Professional Male)',
-        gender: 'male'
+        gender: 'male',
+        previewFile: 'assets/audio/voice_previews/ElevenLabs_2025-07-06T17_05_59_Steve- American voice for commercials_pvc_sp100_s71_sb62_se79_b_m2.mp3'
       }
     };
     let currentVoiceId = availableVoices.female.id;
@@ -2383,33 +2315,6 @@
       // Force male animations (for when detection is wrong)
       document.getElementById('force-male-animations-btn').addEventListener('click', function() {
         forceMaleAnimations();
-      });
-      
-      // Voice selection dropdown
-      const voiceToggle = document.getElementById('voice-toggle');
-      const voiceMenu = document.getElementById('voice-menu');
-      
-      voiceToggle.addEventListener('click', function(e) {
-        e.stopPropagation();
-        voiceMenu.classList.toggle('show');
-      });
-      
-      // Close voice dropdown when clicking outside
-      document.addEventListener('click', function() {
-        voiceMenu.classList.remove('show');
-      });
-      
-      // Prevent dropdown from closing when clicking inside
-      voiceMenu.addEventListener('click', function(e) {
-        e.stopPropagation();
-      });
-      
-      // Handle voice selection
-      document.querySelectorAll('.voice-menu-item').forEach(item => {
-        item.addEventListener('click', function() {
-          const selectedVoice = this.dataset.voice;
-          changeVoice(selectedVoice);
-        });
       });
       
       // Avatar selection dropdown
@@ -3005,13 +2910,6 @@
       const matchingVoice = availableVoices[selectedAvatar.gender];
       if (matchingVoice && currentVoiceId !== matchingVoice.id) {
         currentVoiceId = matchingVoice.id;
-        document.getElementById('current-voice-name').textContent = matchingVoice.name;
-        
-        // Update voice menu selection
-        document.querySelectorAll('#voice-menu .voice-menu-item').forEach(item => {
-          item.classList.remove('active');
-        });
-        document.querySelector(`[data-voice="${selectedAvatar.gender}"]`).classList.add('active');
       }
       
       // Close dropdown
@@ -3091,15 +2989,6 @@
       currentVoiceId = selectedVoice.id;
       currentAvatarGender = selectedVoice.gender;
       
-      // Update UI
-      document.getElementById('current-voice-name').textContent = selectedVoice.name;
-      
-      // Update active voice in menu
-      document.querySelectorAll('.voice-menu-item').forEach(item => {
-        item.classList.remove('active');
-      });
-      document.querySelector(`[data-voice="${voiceType}"]`).classList.add('active');
-      
       // Update avatar manager voice
       if (avatarManager) {
         avatarManager.setVoice(currentVoiceId);
@@ -3110,9 +2999,6 @@
           avatarManager.setAnimationsUrl(newAnimationsUrl);
         }
       }
-      
-      // Close dropdown
-      document.getElementById('voice-menu').classList.remove('show');
       
       // Update status
       updateAvatarStatus(`Voice changed to ${selectedVoice.name}`);
@@ -3170,13 +3056,6 @@
       // Also suggest male voice
       const maleVoice = availableVoices.male;
       currentVoiceId = maleVoice.id;
-      document.getElementById('current-voice-name').textContent = maleVoice.name;
-      
-      // Update voice menu selection
-      document.querySelectorAll('#voice-menu .voice-menu-item').forEach(item => {
-        item.classList.remove('active');
-      });
-      document.querySelector('[data-voice="male"]').classList.add('active');
       
       // Update avatar manager voice
       if (avatarManager.setVoice) {
@@ -3209,15 +3088,9 @@
       
       // Reset voice to default female
       currentVoiceId = availableVoices.female.id;
-      document.getElementById('current-voice-name').textContent = availableVoices.female.name;
       document.getElementById('current-avatar-name').textContent = defaultAvatar.name;
       
       // Update menu selections
-      document.querySelectorAll('#voice-menu .voice-menu-item').forEach(item => {
-        item.classList.remove('active');
-      });
-      document.querySelector('[data-voice="female"]').classList.add('active');
-      
       document.querySelectorAll('#avatar-selection-menu .avatar-menu-item').forEach(item => {
         item.classList.remove('active');
       });
@@ -3637,65 +3510,101 @@ function showVoiceSelectionModal(gender) {
 
 function previewVoice(voiceId, voiceName) {
   const statusElement = document.getElementById('voice-preview-status');
+  const dropdownStatusElement = document.getElementById('voice-dropdown-status');
   const previewBtn = event.target;
+  
+  // Find the voice configuration that matches the voiceId
+  let previewFile = null;
+  for (const [key, voice] of Object.entries(availableVoices)) {
+    if (voice.id === voiceId) {
+      previewFile = voice.previewFile;
+      break;
+    }
+  }
+  
+  if (!previewFile) {
+    const errorMsg = `No preview available for ${voiceName}`;
+    if (statusElement) statusElement.textContent = errorMsg;
+    if (dropdownStatusElement) {
+      dropdownStatusElement.textContent = errorMsg;
+      dropdownStatusElement.style.display = 'block';
+    }
+    console.error('No preview file found for voice:', voiceId);
+    return;
+  }
   
   // Disable the button during preview
   previewBtn.disabled = true;
   previewBtn.textContent = 'Playing...';
-  statusElement.textContent = `Playing preview for ${voiceName}...`;
   
-  // Create a sample text for preview
-  const sampleText = "Hello! This is how I sound. I'm excited to be your AI assistant and help you with your questions.";
+  // Update status elements
+  const playingMsg = `Playing preview for ${voiceName}...`;
+  if (statusElement) statusElement.textContent = playingMsg;
+  if (dropdownStatusElement) {
+    dropdownStatusElement.textContent = playingMsg;
+    dropdownStatusElement.style.display = 'block';
+  }
   
-  // Use ElevenLabs API to generate and play preview
-  fetch('generate_voice_preview.php', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      voice_id: voiceId,
-      text: sampleText
-    })
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+  // Create and play audio from local file
+  const audio = new Audio(previewFile);
+  
+  audio.onloadstart = () => {
+    console.log('Loading preview audio for:', voiceName);
+  };
+  
+  audio.oncanplaythrough = () => {
+    console.log('Audio ready to play for:', voiceName);
+  };
+  
+  audio.onended = () => {
+    const finishedMsg = `Preview finished for ${voiceName}`;
+    if (statusElement) statusElement.textContent = finishedMsg;
+    if (dropdownStatusElement) {
+      dropdownStatusElement.textContent = finishedMsg;
+      setTimeout(() => {
+        dropdownStatusElement.style.display = 'none';
+      }, 2000);
     }
-    return response.blob();
-  })
-  .then(audioBlob => {
-    // Create and play audio
-    const audioUrl = URL.createObjectURL(audioBlob);
-    const audio = new Audio(audioUrl);
-    
-    audio.onended = () => {
-      statusElement.textContent = `Preview finished for ${voiceName}`;
-      previewBtn.disabled = false;
-      previewBtn.textContent = 'Preview';
-      URL.revokeObjectURL(audioUrl);
-    };
-    
-    audio.onerror = () => {
-      statusElement.textContent = `Error playing preview for ${voiceName}`;
-      previewBtn.disabled = false;
-      previewBtn.textContent = 'Preview';
-      URL.revokeObjectURL(audioUrl);
-    };
-    
-    audio.play().catch(err => {
-      console.error('Audio play error:', err);
-      statusElement.textContent = `Error playing preview for ${voiceName}`;
-      previewBtn.disabled = false;
-      previewBtn.textContent = 'Preview';
-      URL.revokeObjectURL(audioUrl);
-    });
-  })
-  .catch(error => {
-    console.error('Voice preview error:', error);
-    statusElement.textContent = `Error generating preview for ${voiceName}. Please try again.`;
     previewBtn.disabled = false;
-    previewBtn.textContent = 'Preview';
+    previewBtn.textContent = 'Play';
+    console.log('Audio finished playing for:', voiceName);
+  };
+  
+  audio.onerror = (error) => {
+    console.error('Audio error for:', voiceName, error);
+    const errorMsg = `Error playing preview for ${voiceName}`;
+    if (statusElement) statusElement.textContent = errorMsg;
+    if (dropdownStatusElement) {
+      dropdownStatusElement.textContent = errorMsg;
+      dropdownStatusElement.style.display = 'block';
+    }
+    previewBtn.disabled = false;
+    previewBtn.textContent = 'Play';
+  };
+  
+  audio.onabort = () => {
+    console.log('Audio playback aborted for:', voiceName);
+    const stoppedMsg = `Preview stopped for ${voiceName}`;
+    if (statusElement) statusElement.textContent = stoppedMsg;
+    if (dropdownStatusElement) {
+      dropdownStatusElement.textContent = stoppedMsg;
+      dropdownStatusElement.style.display = 'block';
+    }
+    previewBtn.disabled = false;
+    previewBtn.textContent = 'Play';
+  };
+  
+  // Play the audio
+  audio.play().catch(err => {
+    console.error('Audio play error for:', voiceName, err);
+    const errorMsg = `Error playing preview for ${voiceName}`;
+    if (statusElement) statusElement.textContent = errorMsg;
+    if (dropdownStatusElement) {
+      dropdownStatusElement.textContent = errorMsg;
+      dropdownStatusElement.style.display = 'block';
+    }
+    previewBtn.disabled = false;
+    previewBtn.textContent = 'Play';
   });
 }
 
@@ -3818,16 +3727,6 @@ function updateVoiceDisplay(voiceId) {
   // Find the voice name by ID
   const voice = Object.values(availableVoices).find(v => v.id === voiceId);
   if (voice) {
-    document.getElementById('current-voice-name').textContent = voice.name;
-    
-    // Update the voice dropdown selection
-    document.querySelectorAll('.voice-menu-item').forEach(item => {
-      item.classList.remove('active');
-      if (item.getAttribute('data-voice') === voice.gender) {
-        item.classList.add('active');
-      }
-    });
-    
     // Update the avatar manager's voice if it exists
     if (avatarManager && avatarManager.setVoice) {
       avatarManager.setVoice(voiceId);
