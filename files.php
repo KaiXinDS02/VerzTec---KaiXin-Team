@@ -360,8 +360,8 @@ function getFriendlyFileType($mimeType) {
           <div class="page-menu-wp">
             <ul>
               <li><a href="home.php">Home</a></li>
-              <li><a href="chatbot.html">Chatbot</a></li>
-              <li class="active"><a href="#">Files</a></li>
+              <li><a href="chatbot.php">Chatbot</a></li>
+              <li class="active"><a href="files.php">Files</a></li>
               <?php if ($_SESSION['role'] !== 'USER'): ?>
                 <li><a href="admin/users.php">Admin</a></li>
               <?php endif; ?>

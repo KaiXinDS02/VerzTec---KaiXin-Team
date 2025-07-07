@@ -293,8 +293,8 @@ $capitalizedName = capitalizeName($_SESSION['username']);
         <div class="col-xl-6 col-md-5 order-3 order-md-2 d-flex justify-content-center justify-content-md-start">
           <div class="page-menu-wp">
             <ul>
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="chatbot.html">Chatbot</a></li>
+              <li class="active"><a href="home.php">Home</a></li>
+              <li><a href="chatbot.php">Chatbot</a></li>
               <li><a href="files.php">Files</a></li>
               <?php if ($_SESSION['role'] !== 'USER'): ?>
               <li><a href="admin/users.php">Admin</a></li>
