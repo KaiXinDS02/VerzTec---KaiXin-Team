@@ -95,4 +95,14 @@ INSERT INTO `announcements` (`title`, `context`, `target_audience`, `priority`) 
 ('New Feature Released', 'Document tagging is now available under the files section!', 'Users', 'Medium');
 
 
+-- CHAT HISTORY TABLE
+CREATE TABLE chat_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    question TEXT,
+    answer TEXT,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
+);
+
 COMMIT;
