@@ -2648,6 +2648,7 @@
 
       // Send message to chatbot API
       try {
+        console.log('🔄 Sending message to API:', message);
         const response = await fetch('http://localhost:8000/chat', {
           method: 'POST',
           headers: {
@@ -2656,7 +2657,24 @@
           body: JSON.stringify({ question: message })
         });
         
+        console.log('📡 API Response status:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('📦 API Response data:', data);
+        
+        // Check if the response has the expected structure
+        if (!data || (!data.answer && !data.response)) {
+          console.error('❌ Invalid API response structure:', data);
+          throw new Error('Invalid response from chatbot API');
+        }
+        
+        // Get the answer from the response (try both 'answer' and 'response' fields)
+        const botAnswer = data.answer || data.response || 'Sorry, I could not generate a response.';
+        console.log('🤖 Bot answer:', botAnswer.substring(0, 100) + '...');
         
         // Store reference file info for later use (after text is complete)
         let referenceFile = null;
@@ -2670,14 +2688,14 @@
         // Speak the response if voice is enabled and avatar is ready
         if (isVoiceEnabled && isAvatarEnabled && avatarManager && avatarManager.isInitialized) {
           try {
-            console.log('Starting synchronized speech with speed:', currentSpeed + 'x', 'for text:', data.answer.substring(0, 50) + '...');
+            console.log('Starting synchronized speech with speed:', currentSpeed + 'x', 'for text:', botAnswer.substring(0, 50) + '...');
             
             // Variable to track if message box has been created
             let botMessageDiv = null;
             let isFirstLetterReady = false;
             
             // Use the improved speakWithTextStream method with callback for when first letter is ready
-            await avatarManager.speakWithTextStream(data.answer, (streamedText) => {
+            await avatarManager.speakWithTextStream(botAnswer, (streamedText) => {
               // Check if this is the signal that first letter is ready (empty string)
               if (streamedText === '' && !isFirstLetterReady) {
                 console.log('📝 First letter ready signal received, creating message box...');
@@ -2721,7 +2739,7 @@
             console.error('Speech failed:', error);
             hideThinking(); // Hide thinking animation on error
             // If speech fails, show the text normally
-            addMessageToChat(data.answer, 'bot');
+            addMessageToChat(botAnswer, 'bot');
             // Add reference file after text is shown
             if (referenceFile) {
               addReferenceLink(referenceFile.url, referenceFile.name);
@@ -2732,7 +2750,7 @@
         } else {
           hideThinking(); // Hide thinking animation if avatar not ready or voice disabled
           // Voice disabled or avatar not ready, just show text normally
-          addMessageToChat(data.answer, 'bot');
+          addMessageToChat(botAnswer, 'bot');
           // Add reference file after text is shown
           if (referenceFile) {
             addReferenceLink(referenceFile.url, referenceFile.name);
@@ -2751,7 +2769,20 @@
       } catch (error) {
         hideThinking(); // Hide thinking animation on error
         console.error('Error:', error);
-        addMessageToChat('Sorry, I encountered an error. Please make sure the chatbot server is running on port 8000.', 'bot');
+        
+        // More specific error messages
+        let errorMessage = 'Sorry, I encountered an error. ';
+        if (error.message.includes('Failed to fetch')) {
+          errorMessage += 'Cannot connect to the chatbot server. Please make sure it is running on port 8000.';
+        } else if (error.message.includes('HTTP error')) {
+          errorMessage += `Server responded with error: ${error.message}`;
+        } else if (error.message.includes('Invalid response')) {
+          errorMessage += 'The server returned an invalid response format.';
+        } else {
+          errorMessage += `${error.message}`;
+        }
+        
+        addMessageToChat(errorMessage, 'bot');
         updateAvatarStatus('Connection error');
         enableUserInput(); // Re-enable input after error
         
