@@ -139,9 +139,9 @@ if ($result && $result->num_rows) {
           <div class="page-menu-wp">
             <ul>
               <li><a href="home.php">Home</a></li>
-              <li><a href="chatbot.html">Chatbot</a></li>
+              <li><a href="chatbot.php">Chatbot</a></li>
               <li><a href="files.php">Files</a></li>
-              <li class="active"><a href="#">Admin</a></li>
+              <li class="active"><a href="admin/users.php">Admin</a></li>
             </ul>
           </div>
         </div>

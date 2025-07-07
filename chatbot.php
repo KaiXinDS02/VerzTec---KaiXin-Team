@@ -1,3 +1,21 @@
+<?php
+session_start();
+include('connect.php'); 
+include 'admin/auto_log_function.php';
+require __DIR__ . '/vendor/autoload.php';
+
+header('Content-Type: text/html; charset=utf-8');
+
+// Determine user context
+$role    = $_SESSION['role']    ?? '';
+$dept = $_SESSION['department'] ?? 'Your Department';
+$country = $_SESSION['country'] ?? 'Your Country';
+?>
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
@@ -1132,9 +1150,11 @@
           <div class="page-menu-wp">
             <ul>
               <li><a href="home.php">Home</a></li>
-              <li class="active"><a href="#">Chatbot</a></li>
+              <li class="active"><a href="chatbot.php">Chatbot</a></li>
               <li><a href="files.php">Files</a></li>
-              <li><a href="admin/users.php">Admin</a></li>
+              <?php if ($_SESSION['role'] !== 'USER'): ?>
+                <li><a href="admin/users.php">Admin</a></li>
+              <?php endif; ?>
             </ul>
           </div>
         </div>
