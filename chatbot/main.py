@@ -210,6 +210,18 @@ def index():
 def favicon():
     return FileResponse("static/favicon.ico")
 
+# Added this to enable reload of model after change is made - charmaine
+@app.post("/reload_vectorstore")
+def reload_vectorstore():
+    global qa_chain, vectorstore
+    print("🔄 [RELOAD] /reload_vectorstore endpoint called")
+    qa_chain, vectorstore = load_chain()
+    try:
+        doc_count = len(vectorstore.index_to_docstore_id)
+    except Exception:
+        doc_count = "unknown"
+    print(f"✅ [RELOAD] Reloaded vectorstore. Document count: {doc_count}")
+    return {"status": "reloaded", "doc_count": doc_count}
 
 # import os
 # import re

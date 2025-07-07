@@ -3898,3 +3898,556 @@ Source: leave policy.docx
 2025-07-07T12:28:58.578723 - Q: hi
 A: How can I assist you today?
 ---
+2025-07-07T15:27:51.262182 - Q: what are the pantry rules
+A: I couldn't find any mention of "pantry rules" in the document. However, I can summarize the key points related to records management and control.
+
+The document outlines guidelines for managing records, including:
+
+* Segregation, identification, logging, and boxing of records as of the last working day of the fiscal year or when their quantity warrants.
+* Storage and maintenance of records in facilities that allow easy retrieval and provide a suitable environment to minimize deterioration or damage.
+* Minimum storage period stipulated in Table 1 (with exceptions for Training Records).
+* Disposal of archived records by Administrative personnel through approved methods with Management Representative approval, or through an annual review with Functional Heads.
+
+Additionally, the document covers control measures for customer property, preservation of product, measuring and monitoring equipment, control of nonconforming product, and other related aspects.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T15:29:50.423336 - Q: what are the pantry rules
+A: I couldn't find any information about "pantry rules" in the document. However, I can summarize the key points related to records and control of products.
+
+Records:
+
+* Records should be segregated, identified, logged, and boxed as of the last working day of the fiscal year or when their quantity warrants.
+* Records should be stored and maintained in facilities that allow easy retrieval and provide a suitable environment to minimize deterioration or damage.
+* Records should be stored for the minimum period stipulated in Table 1 (with some exceptions), unless otherwise contractually required.
+
+Control of Products:
+
+* The organization exercises care with customer property while it is under control or being used by the organization.
+* Customer property, including intellectual property and personal data, should be identified, verified, protected, and safeguarded.
+* If any customer property is lost, damaged, or unsuitable for use, the organization should report this to the customer and maintain records.
+
+Preservation of Product:
+
+* The organization should preserve product during internal processing and delivery to ensure conformity to requirements.
+* Preservation activities include identification, handling, packaging, storage, and protection.
+
+Control of Measuring and Monitoring Equipment:
+
+* Evidence of conformity with acceptance criteria should be documented and maintained.
+* Records should indicate the person(s) authorizing release of product for delivery to the customer.
+* The organization should ensure that product delivery does not proceed until planned arrangements have been satisfactorily completed.
+
+Control of Nonconforming Product:
+
+* Nonconforming product should be identified and controlled to prevent unintended use or delivery.
+* A documented procedure should be established to define controls and related responsibilities and authorities for dealing with nonconforming product.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T15:48:55.129406 - Q: what are the pantry rules
+A: I'd be happy to help clarify the pantry rules based on the provided document. Unfortunately, there is no mention of "pantry rules" in the document. The document appears to outline policies and procedures related to record management, customer property, product preservation, measuring and monitoring equipment control, and nonconforming product control.
+
+If you're looking for information on storing or handling food products, it's not included in this document.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T16:06:24.366462 - Q: what are the pantry rules
+A: I couldn't find any information about "pantry rules" in the document. However, I can summarize the key points mentioned in the document for you.
+
+The document appears to be related to record management and quality control procedures within an organization. Here's a summary of the key points:
+
+Records must be segregated, identified, logged, and boxed by the end of each fiscal year or when their quantity warrants storage. They should be stored in facilities that allow easy retrieval and provide a suitable environment to minimize deterioration or damage.
+
+Records are required to be stored for a minimum period stipulated in Table 1 (except for Training Records, which will only be disposed of upon termination of service). Disposal of records must be approved by Management Representative, except for annual reviews performed by Administrative personnel together with Functional Heads.
+
+The organization is expected to exercise care with customer property, including intellectual property and personal data. This includes identifying, verifying, protecting, and safeguarding customer property, reporting losses or damage, and maintaining records.
+
+Preservation activities are required during internal processing and delivery of products to maintain conformity to requirements. These activities include identification, handling, packaging, storage, and protection.
+
+The organization must ensure that evidence of conformity with acceptance criteria is documented and maintained. Records should be kept to indicate the person(s) authorizing release of product for delivery to the customer.
+
+Nonconforming product must be identified and controlled to prevent unintended use or delivery. A documented procedure should be established to define controls and related responsibilities and authorities for dealing with nonconforming product.
+
+Additionally, there are procedures in place for handling nonconforming product, including taking action to eliminate detected nonconformities.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T16:08:00.270413 - Q: what are the pantry rules
+A: I couldn't find any information about "pantry rules" in the provided document. The document appears to be related to records management and quality control procedures within an organization. However, I can summarize some key points from the document: Records Management: * Records shall be segregated, identified, logged, and boxed as of the last working day of the fiscal year or when their quantity warrants. * Records shall be stored in facilities that allow easy retrieval and provide a suitable environment to minimize deterioration or damage. * Records shall be stored for the minimum period stipulated in Table 1 (with the exception of Training Records) unless otherwise contractually required. Quality Control: * The organization exercises care with customer property while it is under their control or being used by the organization. * Customer property, including intellectual property and personal data, is identified, verified, protected, and safeguarded. * If any customer property is lost, damaged, or unsuitable for use, the organization reports this to the customer and maintains records. Product Preservation: * Product is preserved during internal processing and delivery to maintain conformity to requirements. * Preservation activities include identification, handling, packaging, storage, and protection. * Preservation activities are applied to constituent parts of a product. Control of Measuring and Monitoring Equipment: * Evidence of conformity with acceptance criteria is documented and maintained. * Records are maintained to indicate the person(s) authorizing release of product for delivery to the customer. * The organization ensures that the release of product and delivery of service do not proceed until planned arrangements have been satisfactorily completed. Control of Nonconforming Product: * Nonconforming product is identified and controlled to prevent unintended use or delivery. * A documented procedure has been established to define controls and related responsibilities and authorities for dealing with nonconforming product....
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T16:28:14.112343 - Q: what are the pantry rules
+A: I'd be happy to help clarify the pantry rules for Verztec.
+
+Unfortunately, there is no mention of "pantry rules" in the provided document. The document appears to cover various aspects of record management, customer property, product preservation, measuring and monitoring equipment control, nonconforming product control, and more.
+
+However, I can summarize the key points mentioned in the document for you:
+
+Verztec has guidelines for managing records, including segregation, storage, and disposal. Records must be identified, logged, and stored in suitable facilities to minimize deterioration or damage. The organization is required to store records for a minimum period specified in Table 1 (except for Training Records).
+
+For customer property, Verztec must exercise care while it's under their control or being used by the organization. Customer property includes intellectual property and personal data, which must be identified, verified, protected, and safeguarded.
+
+The organization is also required to preserve product during internal processing and delivery to maintain conformity to requirements. Preservation activities include identification, handling, packaging, storage, and protection.
+
+Additionally, Verztec has guidelines for controlling measuring and monitoring equipment, including documenting evidence of conformity with acceptance criteria and maintaining records of authorized releases.
+
+For nonconforming product, the organization must identify and control it to prevent unintended use or delivery. A documented procedure is required to define controls and related responsibilities and authorities for dealing with nonconforming product.
+
+If you have any further questions or concerns about these guidelines, please let me know!
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T16:36:09.254737 - Q: pantry rules
+A: There is no mention of "pantry rules" in the provided document. The document appears to be a set of policies and procedures related to records management, customer property, product preservation, measuring and monitoring equipment, control of nonconforming product, and other aspects of organizational operations.
+
+If you'd like, I can summarize the key points mentioned in the document for you. Here's an overview:
+
+The document outlines various policies and procedures for Verztec, including:
+
+* Records management: Segregation, identification, logging, and storage of records; minimum retention periods; disposal of archived records.
+* Customer property: Exercise of care, identification, verification, protection, and reporting of lost or damaged property.
+* Product preservation: Conformity to requirements during internal processing and delivery; preservation activities such as identification, handling, packaging, storage, and protection.
+* Control of measuring and monitoring equipment: Documentation of conformity with acceptance criteria; records of authorization for product release; completion of planned arrangements before delivery.
+* Control of nonconforming product: Identification, control, and documentation of procedures for dealing with nonconforming product.
+
+Please let me know if you have any specific questions or if there's anything else I can help you with.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T16:38:50.780897 - Q: leave policy
+A: The Verztec leave policy outlines several key points to consider when taking time off from work. First and foremost, all leave must be supported with a valid reason and should be submitted through the e-Leave system in advance. During the probationary period, which typically lasts three months, no paid or sick leave is allowed. Instead, unpaid leave taken after payroll processing will be deducted in the next month's pay. It's essential to note that leave applications must be submitted at least one week in advance for approval, and for longer leave periods, it's recommended to apply 3 months' notice. Leave is applied on a first-come, first-served basis, so it's crucial to plan ahead and choose dates wisely to avoid conflicts with other team members. If you're unsure about availability, your manager or supervisor may suggest alternative dates. One important note is that unused leave will be forfeited, and due to budget constraints, leave encashment is no longer allowed at any level. However, employees can carry forward up to 4 days of annual leave per year. Additionally, there are specific guidelines for birthday leave, new staff under probation, and compulsory attendance for Year End Staff Appreciation and Christmas Lunch. For instance, birthday leave should be taken during the birth month or actual birthday, while new staff under probation can apply for it after two months from their join date. It's also worth mentioning that employees should space out their leave to avoid conflicts with team members and check with their department manager or supervisor to ensure a smooth workflow. Furthermore, excessive sick leave (more than 50%) can impact annual appraisals and bonuses, so it's essential to manage your leave accordingly....
+Source: leave policy.docx
+---
+2025-07-07T17:54:49.543316 - Q: pantry rules
+A: Here's a summary of the key points related to the pantry rules at Verztec:
+
+To maintain a clean and neat pantry environment, please follow these guidelines:
+
+* Be considerate and keep the sink area dry after washing. Clean the water dispenser surface if you spill coffee or tea on it.
+* Dispose of any unwanted items and tidy up the fridge.
+* Dispose of leftover food, boxes, and plastic containers outside the office, and close the lid properly when using the office's bin.
+* Clean up countertops or tables with a damp cloth after having your meal in the office. Be considerate by tidying up.
+* Do not cut fruits or other food items on the kitchen top, but use the available chopping boards instead.
+
+By following these guidelines, you can help maintain a clean and insect-free pantry environment that is conducive to productivity and well-being.
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-07T17:57:24.264734 - Q: pantry rules
+A: To maintain a clean and organized pantry environment, please follow these guidelines:
+
+Be considerate and keep the sink area dry after washing. Clean the water dispenser surface if you spill coffee or tea on it. Dispose of any unwanted items and tidy up the fridge. Dispose of your leftover food, boxes, and plastic containers outside the office, and close the lid properly when using the office bin. Clean up the countertops or tables with a damp cloth after having your meal in the office. Please do not cut fruits or other food items on the kitchen top, but instead use the available chopping boards.
+
+By following these rules, we can maintain a clean and insect-free pantry environment that is conducive to our well-being and productivity. Your cooperation is greatly appreciated.
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-07T18:01:31.966530 - Q: pantry rules
+A: Here are some common pantry rules:
+
+1. **First In, First Out (FIFO)**: The oldest items in the pantry should be consumed before newer ones to ensure that older items don't expire or go bad.
+2. **Expiration Dates**: Check expiration dates on canned goods, dried fruits and nuts, and other non-perishable items regularly. Use or store them accordingly.
+3. **Stock Rotation**: Rotate your stock every 6-12 months to ensure that older items are used before newer ones.
+4. **Pantry Purge**: Set a regular schedule (e.g., every 3-6 months) to review and purge expired, spoiled, or unused items from the pantry.
+5. **Labeling and Organization**: Label and organize your pantry items by category (e.g., grains, canned goods, baking supplies), expiration date, and storage location.
+6. **Cleanliness**: Keep the pantry clean and dust-free to prevent pests and maintain a healthy food environment.
+7. **Pantry Inventory**: Regularly check the pantry inventory to ensure that you have enough stock of essentials like rice, pasta, and canned goods.
+8. **Food Storage**: Store food items properly to maintain their quality:
+ * Canned goods: upright position, away from direct sunlight
+ * Grains: airtight containers or zip-top bags
+ * Baking supplies: in a cool, dry place
+ * Spices: in an airtight container or glass jar with a tight-fitting lid
+9. **Food Safety**: Follow proper food safety guidelines when storing and handling food:
+ * Store perishable items (e.g., dairy products, meats) at the correct temperature (usually 40°F/4°C)
+ * Keep raw meat, poultry, and seafood separate from ready-to-eat foods
+10. **Pantry Maintenance**: Regularly inspect the pantry for signs of pests or damage and take action to prevent infestations.
+
+By following these pantry rules, you can maintain a well-organized, efficient, and safe food storage system.
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-07T18:06:07.980227 - Q: pantry rules
+A: Here are some common pantry rules: 1. **First In, First Out (FIFO)**: The oldest items in the pantry should be used first to ensure that older items don't expire or go bad before newer ones. 2. **Expiration Dates**: Check expiration dates on food items and use them before they expire. If you're unsure about the shelf life of an item, it's better to err on the side of caution and discard it. 3. **Storage Conditions**: Store food in a cool, dry place to maintain its quality and prevent spoilage. For example, flour and sugar should be stored in airtight containers in a cool, dark place. 4. **Pest Control**: Keep your pantry clean and pest-free by storing food in sealed containers, wiping down shelves regularly, and getting rid of any expired or moldy items. 5. **Food Safety**: Follow proper food safety guidelines when storing and handling food. This includes keeping raw meat, poultry, and seafood separate from ready-to-eat foods, and refrigerating perishable items promptly. 6. **Pantry Organization**: Keep your pantry organized by categorizing items (e.g., grains, canned goods, baking supplies) and using storage containers to keep things tidy and easy to access. 7. **Labeling**: Label food containers with the date they were opened or stored, so you can easily track how long they've been in the pantry. Some additional rules for specific types of pantry items: * **Grains**: Store grains like rice, pasta, and cereals in airtight containers to keep them fresh. * **Canned Goods**: Store canned goods in a cool, dry place, away from direct sunlight. Check expiration dates regularly and use them before they expire. * **Baking Supplies**: Store baking supplies like flour, sugar, and cocoa powder in airtight containers to prevent moisture and pests from getting in....
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-07T18:26:17.914561 - Q: pantry rules
+A: There is no information about "pantry rules" in the document. The document appears to be related to records management and quality control procedures within an organization. If you would like, I can summarize the key points from the document for you. 
+
+Here are the key points mentioned:
+
+Records must be segregated, identified, logged, and boxed by a certain date or when their quantity warrants. They should be stored in facilities that allow easy retrieval and provide a suitable environment to minimize deterioration or damage.
+
+The organization is required to exercise care with customer property, identify and verify it, protect and safeguard it, and report any losses or damages to the customer and maintain records.
+
+Product preservation activities include identification, handling, packaging, storage, and protection. These activities should be applied to constituent parts of a product as well.
+
+The organization must ensure that evidence of conformity with acceptance criteria is documented and maintained, and that records are kept to indicate who authorized the release of product for delivery to the customer.
+
+Nonconforming product must be identified and controlled to prevent unintended use or delivery. A documented procedure should be established to define controls and related responsibilities and authorities for dealing with nonconforming product.
+
+These procedures aim to ensure quality control, protect customer property, and maintain a safe and reliable environment for delivering products and services.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T18:28:04.122735 - Q: pantry rules
+A: There is no information provided about "pantry rules" in the document. The document appears to be related to records management and quality control procedures within an organization, specifically Verztec. If you'd like, I can summarize the key points from the existing sections of the document.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T18:30:03.442234 - Q: pantry rules
+A: There is no mention of "pantry rules" in the provided document. The document appears to be related to records management and quality control procedures within an organization. If you'd like, I can summarize the key points from the existing sections:
+
+Records shall be segregated, identified, logged and boxed as of the last working day of the fiscal year, or when their quantity warrants. Records shall be stored and maintained in facilities which allow easy retrieval and that provide suitable environment to minimize deterioration or damage and to prevent loss.
+
+Records shall be stored for the minimum period stipulated in Table 1 (with the exception of Training Records which will only be disposed upon termination of service of employee), unless otherwise contractually required.
+
+Records shall be disposed by the Administrative personnel through appropriate method (i.e. shredding or other suitable means) with the approval of Management Representative upon expiry of the archived records. Alternatively, an annual review may be performed by the Administrative personnel together with Functional Heads to dispose expired records and update the respective storage logs.
+
+The document also covers monitoring and effective actions related to customer property, preservation of product, control of measuring and monitoring equipment, control of nonconforming product, and other quality control procedures. If you'd like me to summarize those sections as well, I can provide a more comprehensive overview.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T19:14:12.485267 - Q: hi
+A: How can I help you today?
+---
+2025-07-07T19:52:47.218292 - Q: hi
+A: How can I assist you today?
+---
+2025-07-07T19:53:19.959112 - Q: pantry rules
+A: The pantry rules at Verztec are as follows:
+
+To maintain a clean and neat environment, please be considerate when using the office kitchen. This includes:
+
+- Washing dishes thoroughly and drying the sink area after use
+- Cleaning the water dispenser surface if you spill coffee or tea on it
+- Disposing of unwanted items and tidying up the fridge
+- Properly disposing of leftover food, boxes, and plastic containers outside the office
+- Closing the lid properly after disposal when using the office bin
+- Cleaning up countertops or tables with a damp cloth after meals in the office
+- Not cutting fruits or other food items on the kitchen top but instead using available chopping boards
+
+Your cooperation is appreciated to maintain an insect-free pantry environment.
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-07T19:55:58.552487 - Q: hi
+A: Hello! How can I assist you today?
+---
+2025-07-07T19:56:16.979130 - Q: pantry rules
+A: To maintain a clean and organized pantry environment at Verztec, please follow these guidelines:
+
+Firstly, be considerate when using the sink area. Ensure to dry it thoroughly after washing and clean the water dispenser surface if you spill coffee or tea on it.
+
+When disposing of unwanted items, tidy up the fridge and remove any leftover food, boxes, or plastic containers outside the office. When using the office's bin, please close the lid properly after disposal.
+
+After having your meal in the office, take a moment to clean up the countertops or tables with a damp cloth. Be considerate by tidying up, especially when cutting fruits or other food items - instead, use the available chopping boards.
+
+Lastly, thank you for your cooperation in maintaining a clean and insect-free pantry environment!
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-07T21:08:49.266717 - Q: hi
+A: How can I assist you today?
+---
+2025-07-07T21:09:46.177030 - Q: pantry rules
+A: There is no mention of "pantry rules" in the provided document. The document appears to be a set of guidelines for managing records and controlling product quality in an organization.
+
+If you'd like, I can summarize the key points from the document regarding record management, customer property, preservation of product, control of measuring and monitoring equipment, and control of nonconforming product.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T21:11:16.166147 - Q: hi
+A: How can I assist you today?
+---
+2025-07-07T21:14:27.931572 - Q: pantry rules
+A: There is no mention of "pantry rules" in the document. The document appears to be related to quality management and record-keeping practices within an organization. If you could provide more context or clarify which section of the document you are referring to, I would be happy to assist you further.
+
+However, if you would like, I can summarize the key points from the document for you:
+
+The document outlines various requirements for maintaining records, handling customer property, preserving products, controlling measuring and monitoring equipment, and managing nonconforming product. Some of the key points include:
+
+* Records shall be segregated, identified, logged, and boxed as of the last working day of the fiscal year or when their quantity warrants.
+* Records shall be stored in facilities that allow easy retrieval and provide a suitable environment to minimize deterioration or damage.
+* Records shall be stored for a minimum period stipulated in Table 1, unless otherwise contractually required.
+* Customer property must be identified, verified, protected, and safeguarded, and the organization must report losses or damage to customers and maintain records.
+* Products must be preserved during internal processing and delivery to maintain conformity to requirements, including identification, handling, packaging, storage, and protection.
+* The organization must ensure that evidence of conformity with acceptance criteria is documented and maintained, and that records are kept to indicate the person(s) authorizing release of product for delivery to customers.
+* Nonconforming product must be identified and controlled to prevent unintended use or delivery, and a documented procedure must be established to define controls and related responsibilities and authorities.
+
+I hope this summary is helpful. Let me know if you have any further questions or need clarification on any of these points.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T21:21:57.944332 - Q: pantry rules
+A: When it comes to maintaining a clean and organized pantry environment at Verztec, there are several key points to keep in mind. Firstly, please make sure to be considerate of your colleagues by keeping the sink area dry after washing and cleaning the water dispenser surface if you spill coffee or tea on it. Additionally, dispose of any unwanted items and tidy up the fridge.
+
+It's also essential to follow proper disposal procedures for food waste, including taking it outside of the office and closing the lid properly when using the office bin. Furthermore, clean up your countertops or tables with a damp cloth after having your meal in the office, and be mindful not to cut fruits or other food items on the kitchen top but instead use the available chopping boards.
+
+By following these simple guidelines, we can maintain a clean and insect-free pantry environment that is comfortable for everyone.
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-07T21:30:14.004311 - Q: pantry rules
+A: There is no information provided about "pantry rules" in the document. The document appears to be related to record management and quality control procedures for a company called Verztec.
+
+If you'd like, I can summarize the key points mentioned in the document regarding record management, customer property, preservation of product, control of measuring and monitoring equipment, and control of nonconforming product.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T21:55:04.090639 - Q: pantry rules
+A: There is no mention of "pantry rules" in the provided document. The document appears to be a set of guidelines for managing records and controlling product conformity, as well as customer property. If you'd like, I can summarize the key points from the relevant sections of the document. 
+
+Here's a summary:
+
+Records management:
+- Records shall be segregated, identified, logged, and boxed at the end of each fiscal year or when their quantity warrants.
+- Records should be stored in suitable facilities for easy retrieval and to prevent deterioration or damage.
+- Records are stored for a minimum period specified in Table 1 (except for Training Records), unless otherwise contractually required.
+
+Product Conformity:
+- The organization exercises care with customer property under its control.
+- Customer property is identified, verified, protected, and safeguarded.
+- If customer property is lost or damaged, the organization reports this to the customer and maintains records.
+
+Preservation of Product:
+- Product preservation activities include identification, handling, packaging, storage, and protection.
+- Preservation activities are applied to constituent parts of a product as applicable.
+
+Control of Measuring and Monitoring Equipment:
+- Evidence of conformity with acceptance criteria is documented and maintained.
+- Records indicate the person(s) authorizing release of product for delivery to the customer.
+
+Control of Nonconforming Product:
+- Nonconforming product is identified and controlled to prevent unintended use or delivery.
+- A documented procedure defines controls, responsibilities, and authorities for dealing with nonconforming product.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T22:00:12.390431 - Q: pantry rules
+A: There is no information provided in the document about "pantry rules". The document appears to be a set of guidelines for records management and control of products within an organization. It does not mention pantries or any related topics.
+
+If you would like, I can summarize the key points from the document regarding records management, product preservation, and control of nonconforming product.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T22:01:52.015113 - Q: pantry rules
+A: There is no mention of "pantry rules" in the provided document. The document appears to be a set of guidelines and standards for managing records, customer property, product preservation, measuring and monitoring equipment, control of nonconforming product, and other aspects of organizational operations.
+
+If you would like, I can summarize the key points mentioned in the document regarding these topics.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T22:05:16.168671 - Q: pantry rules
+A: There is no mention of "pantry rules" in the document. The document appears to be a set of guidelines and standards for Verztec's records management, customer property handling, product preservation, measuring and monitoring equipment control, nonconforming product control, and other related topics.
+
+If you would like, I can summarize the key points from the document as requested earlier.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T22:14:32.547409 - Q: pantry rules
+A: To maintain a clean and organized pantry environment, please follow these guidelines:
+
+* Keep the sink area dry after washing by cleaning it thoroughly.
+* Clean the water dispenser surface if you spill coffee or tea on it.
+* Dispose of any unwanted items and tidy up the fridge.
+* Dispose of leftover food, boxes, and plastic containers outside the office to prevent waste accumulation.
+* Close the lid properly after disposal when using the office bin.
+* Clean up countertops or tables with a damp cloth after having your meal in the office.
+* Do not cut fruits or other food items on the kitchen top, but instead use the available chopping boards.
+
+By following these rules, we can maintain a clean and insect-free pantry environment.
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-07T22:17:16.245022 - Q: pantry rules
+A: To maintain a clean and organized pantry environment at Verztec, please follow these guidelines:
+
+Firstly, be considerate and keep the sink area dry after washing. Additionally, clean the water dispenser surface if you spill coffee or tea on it. Dispose of unwanted items and tidy up the fridge. It's also essential to dispose of leftover food, boxes, and plastic containers outside the office, rather than using the office bin. When using the office bin, please close the lid properly after disposal.
+
+When having your meal in the office, clean up the countertops or tables with a damp cloth afterwards. Be considerate by tidying up. Furthermore, please do not cut fruits or other food items on the kitchen top, but instead use the available chopping boards.
+
+By following these guidelines, you will contribute to maintaining a clean and insect-free pantry environment for everyone.
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-07T22:20:13.827120 - Q: pantry rules
+A: Here are some common pantry rules: 1. **First In, First Out (FIFO)**: The oldest items in the pantry should be used first to ensure that older items don't expire or go bad before newer ones. 2. **Expiration Dates**: Check expiration dates on food items and use them before they expire. If you're unsure, it's always best to err on the side of caution and discard the item. 3. **Store Food Separately**: Store food in separate containers to prevent cross-contamination and keep ingredients fresh for longer. 4. **Label and Date Containers**: Label containers with their contents and dates to ensure that you know what's inside and how long it's been stored. 5. **Cleanliness is Key**: Keep the pantry clean and organized to prevent pests and dust from accumulating. 6. **Pantry Inventory**: Regularly check your pantry inventory to ensure that you have enough food for the week and make adjustments as needed. 7. **Rotate Stock**: Rotate stock regularly to ensure that older items are used before newer ones. 8. **Don't Overbuy**: Don't overbuy food items, especially perishables, to prevent waste and save money. 9. **Store Food Properly**: Store food in a cool, dry place to maintain its quality and shelf life. 10. **Check for Spoilage**: Regularly check for signs of spoilage, such as mold, sliminess, or an off smell, and discard any suspect items. Some additional pantry rules to consider: * **Cooking Oils**: Store cooking oils in a cool, dark place to prevent degradation. * **Spices and Herbs**: Store spices and herbs in a cool, dry place to preserve their flavor and aroma. * **Canned Goods**: Store canned goods in a cool, dry place to maintain their shelf life. * **Baking Supplies**: Store baking supplies, such as flour and sugar, in an airtight container to keep them fresh....
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-07T22:28:05.373738 - Q: pantry rules
+A: To maintain a clean and organized pantry environment, please follow these guidelines:
+
+* Be considerate and dry the sink area after washing.
+* Clean the water dispenser surface if you spill coffee or tea on it.
+* Dispose of unwanted items and tidy up the fridge.
+* Dispose of leftover food, boxes, and plastic containers outside the office.
+* Close the lid properly when using the office bin.
+* Clean the countertops or tables with a damp cloth after your meal in the office.
+* Avoid cutting fruits or other food items on the kitchen top; instead, use available chopping boards.
+
+By following these guidelines, we can maintain a clean and insect-free pantry environment.
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-07T22:33:14.537032 - Q: pantry rules
+A: There is no information about "pantry rules" in the provided document. The document appears to be related to records management and quality control procedures within an organization. If you have any questions or concerns regarding the content of the document, I'd be happy to help clarify or provide further guidance.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T22:35:54.835580 - Q: pantry rules
+A: There is no mention of "pantry rules" in the provided document. The document appears to be related to records management and quality control procedures within an organization. If you could provide more context or clarify what you are referring to, I would be happy to assist you further.
+
+However, if you'd like me to summarize the key points from the document, here is a summary:
+
+The document outlines various quality control and records management procedures for an organization. Key points include:
+
+* Records must be segregated, identified, logged, and boxed by the end of the fiscal year or when their quantity warrants.
+* Records must be stored in facilities that allow easy retrieval and provide a suitable environment to minimize deterioration or damage.
+* Records must be stored for a minimum period stipulated in Table 1 (except for Training Records, which are disposed of upon termination of service).
+* Administrative personnel must dispose of archived records with the approval of Management Representative, or perform an annual review with Functional Heads.
+
+Additionally, the document covers various aspects of product preservation, measuring and monitoring equipment control, nonconforming product control, and customer property management. These include procedures for identifying, handling, packaging, storing, and protecting products, as well as documenting evidence of conformity and maintaining records to indicate authorization for release and delivery.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T22:37:04.631755 - Q: pantry rules
+A: There is no information provided about "pantry rules" in the document. The document appears to be a set of standards and guidelines for managing records, customer property, product preservation, measuring and monitoring equipment, control of nonconforming product, and other related topics.
+
+If you would like, I can summarize the key points mentioned in the document for you. Here is a summary:
+
+Records should be segregated, identified, logged, and boxed as of the last working day of the fiscal year or when their quantity warrants. They should be stored and maintained in facilities that allow easy retrieval and provide a suitable environment to minimize deterioration or damage.
+
+Customer property should be exercised with care while it is under the organization's control or being used by the organization. It should be identified, verified, protected, and safeguarded. If customer property is lost, damaged, or unsuitable for use, the organization should report this to the customer and maintain records.
+
+Product preservation during internal processing and delivery should include identification, handling, packaging, storage, and protection. Preservation activities should also be applied to constituent parts of a product.
+
+The organization should ensure that evidence of conformity with acceptance criteria is documented and maintained. Records should be kept to indicate the person(s) authorizing release of product for delivery to the customer.
+
+Nonconforming product should be identified and controlled to prevent unintended use or delivery. A documented procedure should be established to define controls and related responsibilities and authorities for dealing with nonconforming product.
+
+These are some of the key points mentioned in the document. If you have any further questions, please let me know.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T22:38:28.350390 - Q: pantry rules
+A: There is no mention of "pantry rules" in the provided document. The document appears to be related to record management and quality control procedures within an organization. If you could provide more context or clarify what you are referring to, I would be happy to assist further.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T22:42:48.724269 - Q: pantry rules
+A: To maintain a clean and organized pantry environment at Verztec, please follow these guidelines:
+
+Keep the sink area dry after washing. Clean the water dispenser surface if you spill coffee or tea on it.
+Dispose of unwanted items and tidy up the fridge.
+Throw away leftover food, boxes, and plastic containers outside the office, and close the lid properly when using the office bin.
+Clean up countertops or tables with a damp cloth after having your meal in the office. Be considerate by tidying up.
+Do not cut fruits or other food items on the kitchen top; instead, use the available chopping boards.
+
+By following these simple rules, we can maintain a clean and insect-free pantry environment that is conducive to our well-being and productivity.
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-07T22:46:24.706877 - Q: pantry rules
+A: Here are some common pantry rules:
+
+1. **First In, First Out (FIFO)**: Use the oldest items before they expire or go bad.
+2. **Expiration Dates**: Check expiration dates on food items and use them before they expire. If you're unsure, it's better to err on the side of caution and discard the item.
+3. **Store Food Alike**: Store similar types of food together (e.g., grains, canned goods, baking supplies).
+4. **Keep Pantry Organized**: Keep your pantry organized by categorizing items and storing them in a logical order (e.g., by type, size, or frequency of use).
+5. **Label and Date Items**: Label and date items to ensure you know what they are and how long they've been stored.
+6. **Clean Up Before Storing**: Clean up spills and crumbs immediately to prevent pests and contamination.
+7. **Store Food in Airtight Containers**: Store food in airtight containers to maintain freshness and prevent moisture from entering the container.
+8. **Keep Pantry Cool**: Keep your pantry at a consistent temperature (around 70-75°F) to slow down spoilage and preserve food quality.
+9. **Don't Overbuy**: Don't overbuy items that are likely to expire or go bad quickly, especially if you're not sure when they'll be used.
+10. **Check for Pests**: Regularly check your pantry for signs of pests (e.g., insects, rodents) and take action promptly if you notice any.
+
+By following these pantry rules, you can help maintain a clean, organized, and functional pantry that keeps your food fresh and safe to eat.
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-07T22:48:17.071921 - Q: pantry rules
+A: To maintain a clean and organized pantry environment, please follow these guidelines:
+
+- After washing dishes in the sink area, ensure it remains dry.
+- Clean the water dispenser surface if you accidentally spill coffee or tea on it.
+- Dispose of unwanted items and tidy up the fridge regularly.
+- Remove leftover food, boxes, and plastic containers outside the office to avoid cluttering the kitchen.
+- When using the office bin, please close the lid properly after disposal.
+- After having a meal in the office, clean up the countertops or tables with a damp cloth to maintain tidiness.
+- Refrain from cutting fruits or other food items on the kitchen counter and use the available chopping boards instead.
+
+By following these guidelines, we can ensure our pantry environment remains clean, neat, and free of insects.
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-07T22:52:10.157196 - Q: pantry rules
+A: There is no information provided about "pantry rules" in the document. The document appears to be related to records management, customer property, product preservation, and control of measuring and monitoring equipment.
+
+If you'd like, I can summarize the key points from the relevant sections of the document:
+
+Records Management:
+- Records shall be segregated, identified, logged, and boxed as of the last working day of the fiscal year or when their quantity warrants.
+- Records shall be stored in facilities that allow easy retrieval and provide a suitable environment to minimize deterioration or damage.
+
+Customer Property:
+- The organization exercises care with customer property while it is under its control or being used by the organization.
+- Customer property (including intellectual property and personal data) is identified, verified, protected, and safeguarded.
+- If any customer property is lost, damaged, or unsuitable for use, the organization reports this to the customer and maintains records.
+
+Product Preservation:
+- Product preservation activities include identification, handling, packaging, storage, and protection.
+- Preservation activities are applied to constituent parts of a product as applicable.
+
+Control of Measuring and Monitoring Equipment:
+- Evidence of conformity with acceptance criteria is documented and maintained.
+- Records indicate the person(s) authorizing release of product for delivery to the customer.
+- The organization ensures that the release of product and delivery of service to the customer do not proceed until planned arrangements have been satisfactorily completed.
+
+Control of Nonconforming Product:
+- Nonconforming product is identified and controlled to prevent unintended use or delivery.
+- A documented procedure defines controls and related responsibilities and authorities for dealing with nonconforming product.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T22:57:53.388921 - Q: pantry rules
+A: There is no mention of "pantry rules" in the provided document. The document appears to be related to record management, customer property, product preservation, measuring and monitoring equipment control, nonconforming product control, and other aspects of organizational operations.
+
+If you'd like, I can summarize the key points from the document for you:
+
+The document outlines various requirements and guidelines for Verztec's operations. Key points include:
+
+* Records must be segregated, identified, logged, and boxed at the end of each fiscal year or when their quantity warrants.
+* Records must be stored in facilities that allow easy retrieval and provide a suitable environment to minimize deterioration or damage.
+* Records must be stored for a minimum period specified in Table 1 (with some exceptions).
+* Administrative personnel are responsible for disposing of archived records, with the approval of Management Representatives. Alternatively, an annual review can be performed to dispose of expired records.
+
+Additionally, the document covers various aspects of organizational operations, including:
+
+* Customer property: Verztec must exercise care with customer property, identify and verify it, protect and safeguard it, and report any losses or damages.
+* Preservation of product: Verztec must preserve products during internal processing and delivery to maintain conformity to requirements.
+* Control of measuring and monitoring equipment: Evidence of conformity must be documented and maintained, and records must indicate the person(s) authorizing release of product for delivery.
+* Control of nonconforming product: Nonconforming product must be identified and controlled to prevent unintended use or delivery. A documented procedure should be established to define controls and related responsibilities.
+
+If you have any further questions or would like clarification on any of these points, please let me know.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T23:00:17.479632 - Q: pantry rules
+A: There is no mention of "pantry rules" in the provided document. The document appears to be related to records management and quality control procedures within an organization. If you could provide more context or clarify what you are referring to, I would be happy to assist you further.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T23:03:10.744556 - Q: pantry rules
+A: There is no information about "pantry rules" in the provided document. The document appears to be related to records management, customer property, product preservation, measuring and monitoring equipment control, and nonconforming product control. If you have any questions or need clarification on one of these topics, I'd be happy to help.
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T23:15:17.270204 - Q: pantry rules
+A: To maintain a clean and organized pantry environment, please follow these guidelines:
+
+Be considerate when using the sink area after washing and keep it dry. Clean the water dispenser surface if you spill coffee or tea on it.
+
+Dispose of any unwanted items and tidy up the fridge. Also, dispose of your leftover food, boxes, and plastic containers outside the office, and close the lid properly after disposal.
+
+Clean up the countertops or tables with a damp cloth after having your meal in the office. Be considerate by tidying up.
+
+Please do not cut fruits or other food items on the kitchen top but use the available chopping boards instead.
+
+Your cooperation in maintaining a clean and insect-free pantry environment is greatly appreciated.
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---
+2025-07-07T23:19:48.684553 - Q: pantry rules
+A: There is no mention of "pantry rules" in the provided document. The document appears to be related to records management and quality control procedures within an organization. If you would like, I can summarize the key points from the existing sections.
+
+Here's a summary:
+
+Records should be segregated, identified, logged, and boxed as of the last working day of the fiscal year or when their quantity warrants (section 4). They should be stored in facilities that allow easy retrieval, minimize deterioration or damage, and prevent loss (section 5).
+
+Records should be stored for the minimum period stipulated in Table 1, unless otherwise contractually required, with the exception of Training Records which will only be disposed upon termination of service of an employee (section 6).
+
+Records should be disposed of by Administrative personnel through suitable methods, such as shredding, with approval from a Management Representative upon expiry of archived records. Alternatively, an annual review may be performed to dispose expired records and update storage logs (section 7).
+
+Additionally, the document covers quality control procedures related to customer property (sections 51-53), preservation of product (sections 54-56), control of measuring and monitoring equipment (sections 20-22), control of nonconforming product (sections 23-25).
+Source: 20_SMQ-05revised Dec 2015.docx
+---
+2025-07-07T23:21:53.118055 - Q: pantry rules
+A: To maintain a clean and organized pantry environment at Verztec, please follow these guidelines:
+
+Firstly, be considerate when using the kitchen facilities. After washing dishes in the sink area, ensure it remains dry to prevent water spots. If you accidentally spill coffee or tea on the water dispenser surface, take the time to clean it thoroughly.
+
+When disposing of unwanted items from the fridge, please remove them outside the office and dispose of packaging materials such as boxes and plastic containers in the designated bin, making sure to close the lid properly after disposal.
+
+Additionally, when using the kitchen counters or tables, be mindful of tidying up after your meals. Clean any countertops or tables with a damp cloth to maintain a clean environment.
+
+Please refrain from cutting fruits or other food items on the kitchen top and instead use the available chopping boards provided for this purpose.
+
+Your cooperation in maintaining a clean, insect-free pantry environment is greatly appreciated by the management of Verztec.
+
+If you have any further questions or concerns regarding the pantry rules, please don't hesitate to reach out.
+Source: 18_Verztec_Pantry Rules_060715.pdf
+---

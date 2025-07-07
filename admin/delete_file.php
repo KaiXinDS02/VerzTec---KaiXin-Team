@@ -45,8 +45,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['file_id'])) {
                 $details = "Deleted file: $filename";
                 log_action($conn, $_SESSION['user_id'], 'files', 'delete', $details);
             }
-            // Trigger re-indexing after deletion
-            //exec("python3 /var/www/html/chatbot/chatbot/ingest.py");
+            
+            // Purge vectors for the deleted file
+            $delete_filename = escapeshellarg($baseName);  // no extension
+            exec("cd /var/www/html/chatbot && python3 chatbot/purge_vectors.py $delete_filename 2>&1", $output, $return_code);
+
+            error_log("=== data_cleaning output ===\n" . implode("\n", $output));
+            error_log("data_cleaning exit code: " . $return_code);
+
+            // Trigger vectorstore reload in chatbot backend
+            $reload_url = 'http://host.docker.internal:8000/reload_vectorstore';
+            $ch = curl_init($reload_url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $reload_response = curl_exec($ch);
+            $curl_error = curl_error($ch);
+            $reload_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            error_log("Reload vectors POST to $reload_url");
+            error_log("Reload vectors cURL error: $curl_error");
+            error_log("Reload vectors response: $reload_response (HTTP $reload_http_code)");
 
             echo 'success';
         } else {
