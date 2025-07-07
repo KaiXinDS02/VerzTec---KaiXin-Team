@@ -3872,3 +3872,29 @@ Key points that were answered "Yes" for preservation activities also included:
 Additionally, the organization has established planned arrangements to verify products and services at each stage and confirm if product and service requirements were met at appropriate stages.
 Source: 9001_2008 Audit Checklist-old.docx
 ---
+2025-07-07T09:17:27.466596 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-07T09:17:44.500780 - Q: hi pretty lady
+A: Thank you for the compliment, but I'm not a physical person. I'm an AI assistant, here to help answer your questions and provide information on a wide range of topics. How can I assist you today?
+---
+2025-07-07T09:22:03.782257 - Q: hello
+A: Hello! How can I assist you today?
+---
+2025-07-07T09:24:53.919293 - Q: what is the company leave policy
+A: The company's leave policy requires that all leave be supported with a valid reason and must be submitted to the supervisor or manager at least one week in advance for approval. There are specific guidelines for different types of leave, including half-day leave, minimum leave application periods, and paid/unpaid leave.
+
+For probationary employees, no paid leave is allowed during the first three months, and unpaid leave taken after payroll processing will be deducted from the next month's pay. For regular employees, leave applications must be submitted at least one week in advance for approval, except for leave applications of one week or more, which should be applied for three months in advance to accommodate capacity planning.
+
+Unused leave will be forfeited, and leave encashment is no longer allowed due to budgeting reasons. Employees can carry forward a maximum of four days of annual leave per year, but must plan their leave utilization properly and inform their team manager in advance.
+
+There are also specific guidelines for attendance at company events, such as the Year End Staff Appreciation and Christmas Lunch, which require compulsory attendance. Additionally, there is a bereavement leave policy allowing two days off per year for immediate family members following the death of a family member.
+Source: leave policy.docx
+---
+2025-07-07T09:29:45.058366 - Q: tell me about company leave policy
+A: Our company's leave policy is quite detailed. To start with, all leave must be supported by a valid reason and should be informed to your supervisor or manager before applying via e-Leave. It's also important to note that half-day leaves are from 9am -1pm (AM) or 2pm – 6pm (PM), and the minimum period for applying leave is half a day, which is equivalent to five days. During the probationary period, typically lasting three months, no paid leave or sick leave is allowed. If an unpaid leave is taken after payroll processing, it will be deducted from the next month's pay. For leave applications of one week and above, it's recommended to apply at least three months in advance for approval purposes, as this helps with capacity planning. This means that if many team members are going on leave together, it can impact others' ability to take time off. There are some special considerations during the festive season. Chinese New Year Eve and December 31st will be half days, except when these fall on a weekend. In such cases, there will be no half-day off. For vacation or personal matters, it's essential to check with your team head or manager for approval before booking plane tickets or tour packages. You should then apply officially on e-Leave for management approval and try to minimize overlap with colleagues in the same department. Keep in mind that leave is applied on a first-come-first-served basis, so if you want to take specific dates, there's a 50/50 chance of getting approved, especially when there are overlapping dates. In such cases, we ask you to choose another date or period for your leave. Unused leave will be forfeited, and due to budget constraints, leave encashment is no longer allowed at any level....
+Source: leave policy.docx
+---
+2025-07-07T12:28:58.578723 - Q: hi
+A: How can I assist you today?
+---
