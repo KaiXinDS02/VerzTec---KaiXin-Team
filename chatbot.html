@@ -989,72 +989,76 @@
         }
       }
       
-      /* Avatar Selection Dropdown Styles */
-      .avatar-selection-dropdown {
-        position: relative;
-        display: inline-block;
-      }
-      
-      .avatar-selection-dropdown .avatar-menu {
+      /* Avatar Selection Circular Buttons */
+      .avatar-selection-circular {
         position: absolute;
-        top: 100%;
-        right: 0;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 6px;
-        padding: 4px 0;
-        margin-top: 4px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        display: none;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 15px;
         z-index: 1000;
-        min-width: 160px;
+        pointer-events: auto;
       }
       
-      .avatar-selection-dropdown .avatar-menu.show {
-        display: block;
-      }
-      
-      .avatar-menu-item {
+      .avatar-circle-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
         display: flex;
         align-items: center;
-        gap: 10px;
-        padding: 10px 12px;
-        color: #333;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-size: 0.85rem;
+        justify-content: center;
+        font-size: 18px;
         position: relative;
+        pointer-events: auto;
+        z-index: 1001;
+        outline: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
       }
       
-      .avatar-menu-item:hover {
-        background: rgba(0,0,0,0.1);
+      .avatar-circle-btn:focus {
+        outline: 2px solid #007bff;
+        outline-offset: 2px;
       }
       
-      .avatar-menu-item.active {
-        background: rgba(0,123,255,0.1);
+      .avatar-circle-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 1);
+        transform: scale(1.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      }
+      
+      .avatar-circle-btn.active {
+        background: rgba(0, 123, 255, 0.3);
+        border-color: #007bff;
         color: #007bff;
-        font-weight: 600;
+        box-shadow: 0 0 15px rgba(0, 123, 255, 0.4);
       }
       
-      .avatar-menu-item i:first-child {
-        width: 16px;
-        text-align: center;
-        flex-shrink: 0;
+      .avatar-circle-btn.active:hover {
+        background: rgba(0, 123, 255, 0.4);
+        transform: scale(1.1);
       }
       
-      .avatar-menu-item span {
-        flex: 1;
+      /* Special styling for customize button */
+      .avatar-circle-btn#customize-avatar-btn {
+        background: rgba(74, 144, 226, 0.2);
+        border-color: #4a90e2;
       }
       
-      .avatar-checkmark {
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        font-size: 0.8rem;
-      }
-      
-      .avatar-menu-item.active .avatar-checkmark {
-        opacity: 1;
+      .avatar-circle-btn#customize-avatar-btn:hover {
+        background: rgba(74, 144, 226, 0.3);
+        border-color: #4a90e2;
+        transform: scale(1.1);
       }
       
       /* Avatar customization selection modals */
@@ -1661,39 +1665,6 @@
                 </div>
               </div>
               <div class="avatar-controls">
-                <button id="customize-avatar-btn" class="btn btn-sm btn-outline-light">
-                  <i class="fa fa-user"></i> Customize Avatar
-                </button>
-                
-                <div class="avatar-selection-dropdown">
-                  <button id="avatar-toggle" class="btn btn-sm btn-outline-light">
-                    <i class="fa fa-users"></i> <span id="current-avatar-name">Female Avatar</span>
-                    <i class="fa fa-chevron-down" style="margin-left: 5px; font-size: 0.7rem;"></i>
-                  </button>
-                  <div class="avatar-menu" id="avatar-selection-menu">
-                    <div class="avatar-menu-item active" data-avatar="female">
-                      <i class="fa fa-female"></i>
-                      <span>Female Avatar</span>
-                      <i class="fa fa-check avatar-checkmark"></i>
-                    </div>
-                    <div class="avatar-menu-item" data-avatar="male">
-                      <i class="fa fa-male"></i>
-                      <span>Male Avatar</span>
-                      <i class="fa fa-check avatar-checkmark"></i>
-                    </div>
-                  </div>
-                </div>
-                
-                <button id="revert-avatar-btn" class="btn btn-sm btn-outline-light">
-                  <i class="fa fa-undo"></i> Reset to Default
-                </button>
-                
-                <button id="force-male-animations-btn" class="btn btn-sm btn-outline-light" style="display: none;">
-                  <i class="fa fa-male"></i> Use Male Animations
-                </button>
-                
-
-                
                 <div class="volume-control">
                   <i class="fa fa-volume-down" style="font-size: 0.8rem;"></i>
                   <input type="range" id="avatar-volume-slider" class="volume-slider" 
@@ -1718,6 +1689,19 @@
                 <h3 class="avatar-name">VerzTec AI Assistant</h3>
                 <p class="avatar-status">Ready to help</p>
               </div>
+            </div>
+            
+            <!-- Avatar Selection Circular Buttons -->
+            <div class="avatar-selection-circular">
+              <button class="avatar-circle-btn active" data-avatar="female" title="Female Avatar">
+                <i class="fa fa-female"></i>
+              </button>
+              <button class="avatar-circle-btn" data-avatar="male" title="Male Avatar">
+                <i class="fa fa-male"></i>
+              </button>
+              <button class="avatar-circle-btn" id="customize-avatar-btn" title="Customize Avatar">
+                <i class="fa fa-plus"></i>
+              </button>
             </div>
           </div>
         </div>
@@ -2301,48 +2285,71 @@
           console.warn('⚠️ Show avatar button not found');
         }
         
-        // Revert to original avatar
-        const revertAvatarBtn = document.getElementById('revert-avatar-btn');
-        if (revertAvatarBtn) {
-          revertAvatarBtn.addEventListener('click', function() {
-            revertToOriginalAvatar();
+        // Avatar circular button selection
+        console.log('🎯 Setting up avatar circular buttons...');
+        const avatarButtons = document.querySelectorAll('.avatar-circle-btn[data-avatar]');
+        console.log('Found avatar buttons:', avatarButtons.length);
+        
+        avatarButtons.forEach((btn, index) => {
+          console.log(`Button ${index + 1}:`, btn.dataset.avatar, btn);
+          
+          // Add both click and touchstart events for better mobile support
+          btn.addEventListener('click', function(e) {
+            console.log('🔴 Avatar button clicked:', this.dataset.avatar);
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const selectedAvatar = this.dataset.avatar;
+            
+            // Remove active class from all avatar buttons
+            document.querySelectorAll('.avatar-circle-btn[data-avatar]').forEach(b => {
+              b.classList.remove('active');
+            });
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Switch to the selected avatar
+            switchAvatar(selectedAvatar);
           });
-          console.log('✅ Revert avatar button listener added');
-        } else {
-          console.warn('⚠️ Revert avatar button not found');
-        }
-      
-      // Force male animations (for when detection is wrong)
-      document.getElementById('force-male-animations-btn').addEventListener('click', function() {
-        forceMaleAnimations();
-      });
-      
-      // Avatar selection dropdown
-      const avatarToggle = document.getElementById('avatar-toggle');
-      const avatarSelectionMenu = document.getElementById('avatar-selection-menu');
-      
-      avatarToggle.addEventListener('click', function(e) {
-        e.stopPropagation();
-        avatarSelectionMenu.classList.toggle('show');
-      });
-      
-      // Close avatar dropdown when clicking outside
-      document.addEventListener('click', function() {
-        avatarSelectionMenu.classList.remove('show');
-      });
-      
-      // Prevent dropdown from closing when clicking inside
-      avatarSelectionMenu.addEventListener('click', function(e) {
-        e.stopPropagation();
-      });
-      
-      // Handle avatar selection
-      document.querySelectorAll('#avatar-selection-menu .avatar-menu-item').forEach(item => {
-        item.addEventListener('click', function() {
-          const selectedAvatar = this.dataset.avatar;
-          switchAvatar(selectedAvatar);
+          
+          btn.addEventListener('touchstart', function(e) {
+            console.log('🔴 Avatar button touched:', this.dataset.avatar);
+            e.preventDefault();
+          });
         });
-      });
+        
+        // Customize avatar button
+        const customizeBtn = document.getElementById('customize-avatar-btn');
+        console.log('Found customize button:', customizeBtn);
+        if (customizeBtn) {
+          customizeBtn.addEventListener('click', function(e) {
+            console.log('🔴 Customize button clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            openAvatarCreator();
+          });
+          
+          customizeBtn.addEventListener('touchstart', function(e) {
+            console.log('🔴 Customize button touched');
+            e.preventDefault();
+          });
+        }
+        
+        // Test function to verify buttons are accessible
+        setTimeout(() => {
+          console.log('🧪 Testing button accessibility...');
+          avatarButtons.forEach((btn, index) => {
+            const rect = btn.getBoundingClientRect();
+            console.log(`Button ${index + 1} position:`, {
+              top: rect.top,
+              left: rect.left,
+              width: rect.width,
+              height: rect.height,
+              visible: rect.width > 0 && rect.height > 0
+            });
+          });
+        }, 1000);
       
       // Volume control functionality
       let isMuted = false;
@@ -2928,23 +2935,17 @@
       currentAvatarGender = selectedAvatar.gender;
       currentAvatarUrl = selectedAvatar.avatarUrl;
       
-      // Update UI
-      document.getElementById('current-avatar-name').textContent = selectedAvatar.name;
-      
-      // Update active avatar in menu
-      document.querySelectorAll('#avatar-selection-menu .avatar-menu-item').forEach(item => {
-        item.classList.remove('active');
+      // Update active circular button
+      document.querySelectorAll('.avatar-circle-btn[data-avatar]').forEach(btn => {
+        btn.classList.remove('active');
       });
-      document.querySelector(`[data-avatar="${avatarType}"]`).classList.add('active');
+      document.querySelector(`.avatar-circle-btn[data-avatar="${avatarType}"]`).classList.add('active');
       
       // Auto-switch voice to match gender
       const matchingVoice = availableVoices[selectedAvatar.gender];
       if (matchingVoice && currentVoiceId !== matchingVoice.id) {
         currentVoiceId = matchingVoice.id;
       }
-      
-      // Close dropdown
-      document.getElementById('avatar-selection-menu').classList.remove('show');
       
       // Update status and load new avatar
       updateAvatarStatus('🔄 Switching to ' + selectedAvatar.name + '...');
@@ -3093,8 +3094,8 @@
         avatarManager.setVoice(currentVoiceId);
       }
       
-      // Hide the force button
-      document.getElementById('force-male-animations-btn').style.display = 'none';
+      // Hide the force button (button removed from UI)
+      // document.getElementById('force-male-animations-btn').style.display = 'none';
       
       updateAvatarStatus('✅ Switched to male animations and voice');
       setTimeout(() => {
@@ -3119,13 +3120,12 @@
       
       // Reset voice to default female
       currentVoiceId = availableVoices.female.id;
-      document.getElementById('current-avatar-name').textContent = defaultAvatar.name;
       
-      // Update menu selections
-      document.querySelectorAll('#avatar-selection-menu .avatar-menu-item').forEach(item => {
-        item.classList.remove('active');
+      // Update circular button selections
+      document.querySelectorAll('.avatar-circle-btn[data-avatar]').forEach(btn => {
+        btn.classList.remove('active');
       });
-      document.querySelector('[data-avatar="female"]').classList.add('active');
+      document.querySelector('.avatar-circle-btn[data-avatar="female"]').classList.add('active');
       
       // Check if avatar manager has a method to reload
       if (typeof avatarManager.loadNewAvatar === 'function') {
@@ -3183,11 +3183,6 @@
       // Event listeners for Ready Player Me
       window.addEventListener('message', handleReadyPlayerMeMessage);
       document.addEventListener('message', handleReadyPlayerMeMessage);
-      
-      // Customize button click handler
-      customizeBtn.addEventListener('click', function() {
-        openAvatarCreator();
-      });
       
       // Close modal when clicking outside
       modal.addEventListener('click', function(e) {
