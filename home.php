@@ -176,6 +176,11 @@ $capitalizedName = capitalizeName($_SESSION['username']);
       color: #000;
       margin: 0;
       flex: 1;
+      max-width: 75%; /* Limit the title width so it wraps before hitting the button */
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      white-space: normal;
+      line-height: 1.4;
     }
     .priority-btn {
       border: none;
@@ -365,45 +370,76 @@ $capitalizedName = capitalizeName($_SESSION['username']);
               $formattedDate = $date->format('M d, Y h:i A');
               $targetAudience = htmlspecialchars($row['target_audience']);
             ?>
-  <div class="announcement">
-    <div class="announcement-header">
-      <h4><?= $safeTitle ?></h4>
-      <button class="priority-btn <?= $priorityClass ?>"><?= ucfirst($priority) ?></button>
-    </div>
-    <p class="mb-1">Date: <?= $formattedDate ?></p>
-    <p>
-      <?= $shortContent ?>
-      <a href="#" class="read-more" 
-         data-bs-toggle="modal" 
-         data-bs-target="#announcementModal"
-         data-title="<?= $safeTitle ?>"
-         data-full="<?= $safeFullContent ?>"
-         data-priority="<?= ucfirst($priority) ?>"
-         data-audience="<?= $targetAudience ?>"
-         data-timestamp="<?= $formattedDate ?>">
-         Read More
-      </a>
-    </p>
-  </div>
-<?php endwhile; else:
-  echo "<p style='font-size: 1rem; padding: 1rem;'>No announcements found.</p>";
-endif;
-$conn->close();
-?>
+
+            <div class="announcement">
+              <div class="announcement-header">
+                <h4><?= $safeTitle ?></h4>
+                <button class="priority-btn <?= $priorityClass ?>"><?= ucfirst($priority) ?></button>
+              </div>
+              <p class="mb-1">Date: <?= $formattedDate ?></p>
+              <p>
+                <?= $shortContent ?>
+                <a href="#" class="read-more" 
+                  data-bs-toggle="modal" 
+                  data-bs-target="#announcementModal"
+                  data-title="<?= $safeTitle ?>"
+                  data-full="<?= $safeFullContent ?>"
+                  data-priority="<?= ucfirst($priority) ?>"
+                  data-audience="<?= $targetAudience ?>"
+                  data-timestamp="<?= $formattedDate ?>">
+                  Read More
+                </a>
+              </p>
+            </div>
+          <?php endwhile; else:
+            echo "<p style='font-size: 1rem; padding: 1rem;'>No announcements found.</p>";
+          endif;
+          $conn->close();
+          ?>
+
             </div>
           </div>
           
           <!-- Modal with additional fields -->
           <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
+              <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none;">
                 <div class="modal-header" style="background-color:#81869E; color:#fff; border-radius: 12px 12px 0 0;">
-                  <h5 class="modal-title" id="announcementModalLabel" style="font-family: 'Gudea', sans-serif; font-weight: normal;">Announcement</h5>
+                  <h5 class="modal-title" id="announcementModalLabel" style="
+                    font-family: 'Gudea', sans-serif;
+                    font-weight: normal;
+                    white-space: normal;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
+                  ">Announcement</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" style="font-family: 'Open Sans', sans-serif; color:#000; line-height:1.6; font-size:1rem; padding: 1rem 1.5rem;">
-                  <h5 id="modalTitle"></h5>
-                  <p id="modalContent"></p>
+
+                <div class="modal-body" style="
+                  font-family: 'Open Sans', sans-serif;
+                  color:#000;
+                  font-size:1rem;
+                  padding: 1.5rem 1.75rem;
+                  word-wrap: break-word;
+                  overflow-wrap: break-word;
+                  white-space: normal;
+                ">
+                  <h5 id="modalTitle" style="
+                    margin-bottom: 1rem;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
+                    white-space: pre-wrap;
+                  "></h5>
+
+                  <p id="modalContent" style="
+                    margin: 0;
+                    padding: 0;
+                    text-align: left;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
+                    white-space: normal;
+                  "></p>
+
                   <hr>
                   <p><strong>Target Audience:</strong> <span id="modalAudience"></span></p>
                   <p><strong>Priority:</strong> <span id="modalPriority"></span></p>
@@ -534,5 +570,4 @@ $conn->close();
   <script src="js/inactivity.js"></script>
 </body>
 </html>
-
 

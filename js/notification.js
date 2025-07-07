@@ -1,10 +1,8 @@
 function parseTimestampAsUTC(dateStr) {
-  // Add 'Z' to treat input as UTC time string
   return new Date(dateStr + "Z");
 }
 
 function showNotificationPopup(announcement) {
-  // Only show if not already dismissed
   if (document.querySelector('.custom-alert')) return;
 
   const alert = document.createElement('div');
@@ -24,11 +22,30 @@ function showNotificationPopup(announcement) {
     width: 90%;
     font-size: 1rem;
     cursor: pointer;
+    box-sizing: border-box;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
   `;
+
   alert.innerHTML = `
-    <strong>New Announcement:</strong><br>
-    <span style="font-size: 1.1rem; font-weight: 600;">${announcement.title}</span><br>
-    <small style="color:gray;">Click to view</small>
+    <div style="font-weight: bold; margin-bottom: 0.5rem;">New Announcement:</div>
+    <div style="
+      font-size: 1.1rem;
+      font-weight: 600;
+      line-height: 1.4;
+      white-space: normal;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      display: block;
+      max-width: 100%;
+    ">
+      ${announcement.title}
+    </div>
+    <div style="color: gray; font-size: 0.875rem; margin-top: 0.25rem;">Click to view</div>
   `;
 
   alert.onclick = function () {
@@ -54,6 +71,8 @@ function showNotificationPopup(announcement) {
     const modal = new bootstrap.Modal(document.getElementById('announcementModal'));
     modal.show();
     alert.remove();
+
+    // Update last seen only when popup is shown
     localStorage.setItem('lastSeenAnnouncement', announcement.timestamp);
   };
 
@@ -62,11 +81,29 @@ function showNotificationPopup(announcement) {
   setTimeout(() => {
     if (document.body.contains(alert)) {
       alert.remove();
+      // Also update last seen if alert disappears without click
       localStorage.setItem('lastSeenAnnouncement', announcement.timestamp);
     }
   }, 10000);
 }
 
+// Initialize last seen timestamp once at page load
+(function initializeLastSeen() {
+  fetch('/admin/latest_announcement.php')
+    .then(res => res.json())
+    .then(announcement => {
+      if (!announcement) return;
+      // Only set if localStorage is empty (first time)
+      if (!localStorage.getItem('lastSeenAnnouncement')) {
+        localStorage.setItem('lastSeenAnnouncement', announcement.timestamp);
+      }
+    })
+    .catch(() => {
+      // Fail silently, or handle error as needed
+    });
+})();
+
+// Then poll every 10 seconds for new announcements
 setInterval(() => {
   fetch('/admin/latest_announcement.php')
     .then(res => res.json())
@@ -77,4 +114,4 @@ setInterval(() => {
         showNotificationPopup(announcement);
       }
     });
-}, 5000); // every 5 seconds
+}, 10000);
