@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 				<h5 class="modal-title" id="inactivityModalLabel">Session Expired</h5>
 			</div>
 			<div class="modal-body">
-				You were logged out due to 5 minutes of inactivity.
+				You were logged out due to 30 minutes of inactivity.
 			</div>
 			<div class="modal-footer justify-content-center">
 				<a href="login.php" class="btn btn-primary">OK</a>
