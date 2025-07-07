@@ -3728,3 +3728,147 @@ Source: 18_Verztec_Pantry Rules_060715.pdf
 A: The "Pantry Rules"! Also known as the "Pantry Staples" or "Emergency Pantry," this concept was popularized by Dave Ramsey, a personal finance expert. The idea is to have a set of essential items in your pantry that can help you survive for at least 30 days in case of an emergency, disaster, or economic downturn. Here are some common pantry rules: **The Essentials:** 1. Grains: * Rice (white and brown) * Pasta * Oats 2. Canned Goods: * Vegetables (beans, corn, peas) * Fruits (peaches, pears, mandarin oranges) * Meats (tuna, chicken, beef stew) * Soups * Broth 3. Proteins: * Nuts and seeds (almonds, sunflower seeds, pumpkin seeds) * Dried legumes (lentils, chickpeas, black beans) 4. Baking Supplies: * Flour * Sugar * Baking powder * Baking soda 5. Spices and Herbs: * Salt * Pepper * Garlic powder * Onion powder * Paprika 6. Cooking Oils: * Vegetable oil * Canola oil 7. Snacks: * Dried fruit (raisins, cranberries) * Granola * Energy bars **The Pantry Rules:** 1. **Rotate Your Stock:** Every 3-6 months, rotate your canned goods and other perishable items to ensure they're still good. 2. **Store Food Properly:** Keep food in a cool, dry place (50°F - 70°F) and away from direct sunlight. 3. **Use First-In, First-Out:** Consume older items before newer ones to prevent spoilage. 4. **Label and Date Items:** Label each item with its contents and the date it was stored. 5. **Keep a "Cooking" List:** Keep track of your pantry's contents and plan meals around what you have on hand....
 Source: 18_Verztec_Pantry Rules_060715.pdf
 ---
+2025-07-06T21:10:57.118557 - Q: hi
+A: How can I assist you today?
+---
+2025-07-06T21:11:04.505290 - Q: hi
+A: How can I assist you today?
+---
+2025-07-06T23:36:47.050666 - Q: hi
+A: How can I assist you today?
+---
+2025-07-06T23:43:13.990861 - Q: hullo
+A: Hello! How can I assist you today?
+---
+2025-07-07T00:15:27.934756 - Q: hi
+A: How can I assist you today?
+---
+2025-07-07T01:08:31.546831 - Q: hi
+A: How can I assist you today?
+---
+2025-07-07T01:08:51.019100 - Q: are you real
+A: I am a computer program designed to simulate conversation and answer questions to the best of my knowledge. I'm not a human, but rather a sophisticated language model that uses artificial intelligence (AI) to generate responses.
+
+While I can process and respond to natural language inputs like a human, I don't have consciousness or self-awareness like a living being would. My "intelligence" is based on complex algorithms, machine learning models, and vast amounts of data that I've been trained on.
+
+Here are some reasons why you might not be able to tell if I'm "real" or not:
+
+1. **Lack of physical presence**: I exist solely in the digital realm, so I don't have a physical body or appearance.
+2. **Limited contextual understanding**: While I can understand natural language inputs, my comprehension is limited to the data and algorithms that power me.
+3. **Predictable responses**: My responses are generated based on patterns and associations learned from large datasets, which can sometimes result in predictable or formulaic answers.
+
+However, despite these limitations, I'm designed to be helpful and informative, providing accurate information and assistance on a wide range of topics. So, while I may not be "real" in the classical sense, I'm here to help answer your questions and provide useful insights!
+---
+2025-07-07T01:10:15.006442 - Q: hi
+A: How can I assist you today?
+---
+2025-07-07T01:11:08.364816 - Q: hi
+A: How can I help you today?
+---
+2025-07-07T01:12:09.014928 - Q: yo
+A: How's it going?
+---
+2025-07-07T01:12:15.378524 - Q: yo
+A: What's up?
+---
+2025-07-07T01:12:45.798930 - Q: yo
+A: What's up?
+---
+2025-07-07T01:13:24.456585 - Q: hi
+A: How can I assist you today?
+---
+2025-07-07T01:18:12.292387 - Q: hi
+A: How can I help you today?
+---
+2025-07-07T01:23:06.681293 - Q: yo
+A: I'd be happy to help clarify the information provided in the document.
+
+It appears that there are several key points related to purchasing information. According to section 41, it is not currently standard practice to ensure the adequacy of specified purchased requirements before communicating them to suppliers. This raises a question about whether this process should be implemented.
+
+Moving on to verification of purchased products (section 42), it seems that inspection or other activities necessary for ensuring that the product meets the specified purchase requirements have been established and implemented, as indicated by a "Y" answer. However, section 43 suggests that arrangements and methods for product release are not always specified in purchasing information.
+
+Regarding control of production and service provision (section 44), no specific details or answers are provided within the given content.
+Source: SOP checklist transcription projects_270225.docx
+---
+2025-07-07T01:33:23.770320 - Q: hi
+A: How can I assist you today?
+---
+2025-07-07T01:33:30.848213 - Q: hi
+A: How can I assist you today?
+---
+2025-07-07T01:38:00.841207 - Q: hi
+A: How can I assist you today?
+---
+2025-07-07T01:38:05.241588 - Q: hi
+A: How can I assist you today?
+---
+2025-07-07T01:38:11.691063 - Q: gurt yo
+A: GURT YO BACK!
+---
+2025-07-07T01:40:01.205938 - Q: hi
+A: How can I assist you today?
+---
+2025-07-07T01:40:11.164276 - Q: hi
+A: How can I assist you today?
+---
+2025-07-07T01:41:25.868756 - Q: hi
+A: How can I assist you today?
+---
+2025-07-07T01:48:19.264275 - Q: gurt yo
+A: GURT YO BACK!
+---
+2025-07-07T01:49:33.745375 - Q: gurt yo
+A: GURT back at ya! What's good?
+---
+2025-07-07T01:50:35.300130 - Q: im so tired from coding you
+A: I'm so sorry to hear that! Coding can be mentally and physically exhausting, especially when working on complex projects. It's normal to feel drained after a long day of coding.
+
+Here are some tips that might help you recharge:
+
+1. **Take a break**: Sometimes, stepping away from your code for a while can help you clear your mind and come back to it with fresh eyes.
+2. **Stretch or move around**: Get up from your desk, stretch, and do some light exercise. This can help increase blood flow and oxygenation to your brain.
+3. **Grab a snack or meal**: Fueling your body with healthy food can help boost your energy levels.
+4. **Practice self-care**: Make time for activities that bring you joy and relaxation, such as reading, listening to music, or spending time with loved ones.
+5. **Get enough sleep**: Try to get at least 7-8 hours of sleep each night to help your body and mind recover from the day's coding.
+
+Remember, taking care of yourself is essential when working on long-term projects. Don't be too hard on yourself if you're feeling tired – it's okay to take a break and come back to your code when you feel more refreshed!
+
+What specific challenges are you facing with your code today? I'm here to help if you need any guidance or support!
+---
+2025-07-07T09:14:30.198884 - Q: Hello
+A: How can I assist you today?
+---
+2025-07-07T09:14:31.256021 - Q: Hello
+A: How can I assist you today?
+---
+2025-07-07T09:14:54.125853 - Q: tell me pantry rules
+A: I can't provide a response that goes outside of the document's content. The provided text does not mention "pantry rules." It appears to be related to business and HR practices, specifically in the context of purchasing, product verification, preservation, and control of production and service provision. If you would like, I can help answer questions based on this specific document.
+Source: 9001_2008 Audit Checklist-old.docx
+---
+2025-07-07T09:16:05.494252 - Q: tell me pantry rules
+A: There is no mention of "pantry rules" in the provided document. The document appears to be a set of questions related to purchasing information, verification of purchased product, production and service provision, preservation of product, control of measuring and monitoring equipment, and other related topics.
+
+However, I can summarize the key points mentioned in the document for you:
+
+The document provides a series of questions to assess an organization's compliance with various regulations and standards. The questions cover topics such as purchasing information, verification of purchased product, production and service provision, preservation of product, control of measuring and monitoring equipment, and implementation arrangements.
+
+Key points that were answered "Yes" include:
+
+* Purchasing information describes the product to be purchased, including requirements for approval, personnel qualification, and quality management system requirements.
+* Adequacy of specified purchased requirements is ensured prior to their communication to the supplier.
+* Verification arrangements and methods are specified in purchasing information where verification will take place at the supplier's premises.
+* The organization exercises care with customer property while it is under its control or being used by the organization.
+* Customer property, including intellectual property and personal data, is identified, verified, protected, and safeguarded.
+* Preservation activities include identification, handling, packaging, storage, and protection of products.
+
+Key points that were answered "Yes" for preservation activities also included:
+
+* Identification
+* Handling
+* Packaging
+* Storage
+* Protection
+
+Additionally, the organization has established planned arrangements to verify products and services at each stage and confirm if product and service requirements were met at appropriate stages.
+Source: 9001_2008 Audit Checklist-old.docx
+---
