@@ -551,6 +551,56 @@ $userCount = $res->fetch_assoc()['cnt'];
     </div>
   </div>
 
+    <!-- notification -->
+    <!-- Modal with additional fields -->
+    <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
+        <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none;">
+          <div class="modal-header" style="background-color:#81869E; color:#fff; border-radius: 12px 12px 0 0;">
+            <h5 class="modal-title" id="announcementModalLabel" style="
+              font-family: 'Gudea', sans-serif;
+              font-weight: normal;
+              white-space: normal;
+              word-wrap: break-word;
+              overflow-wrap: break-word;
+            ">Announcement</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body" style="
+            font-family: 'Open Sans', sans-serif;
+            color:#000;
+            font-size:1rem;
+            padding: 1.5rem 1.75rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+          ">
+            <h5 id="modalTitle" style="
+              margin-bottom: 1rem;
+              word-wrap: break-word;
+              overflow-wrap: break-word;
+              white-space: pre-wrap;
+            "></h5>
+
+            <p id="modalContent" style="
+              margin: 0;
+              padding: 0;
+              text-align: left;
+              word-wrap: break-word;
+              overflow-wrap: break-word;
+              white-space: pre-wrap;
+            "></p>
+
+            <hr>
+            <p><strong>Target Audience:</strong> <span id="modalAudience"></span></p>
+            <p><strong>Priority:</strong> <span id="modalPriority"></span></p>
+            <p><strong>Posted:</strong> <span id="modalTimestamp"></span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
   
 
   <script src="js/jquery-3.4.1.min.js"></script>
@@ -558,6 +608,7 @@ $userCount = $res->fetch_assoc()['cnt'];
   <script src="js/scripts.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+  <script src="js\notification.js"></script> <!-- script for handling announcements -->
   <script>
     // Add User AJAX
     $('#addUserForm').on('submit', function(e){
