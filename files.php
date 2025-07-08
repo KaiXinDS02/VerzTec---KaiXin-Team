@@ -795,6 +795,36 @@ function getFriendlyFileType($mimeType) {
     </div>
 
 
+  <!-- LOADING MODAL -->
+  <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background:transparent; box-shadow:none; border:none;">
+        <div class="d-flex flex-column align-items-center justify-content-center p-5">
+          <div class="spinner-border text-dark mb-3" style="width:3rem;height:3rem;"></div>
+          <div class="fw-bold text-dark">Processing...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COUNTRY SUCCESS MESSAGE MODAL -->
+  <div class="modal fade" id="countryMessageModal" tabindex="-1" aria-labelledby="countryMessageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="countryMessageModalLabel">Status</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="countryMessageBody">
+          <!-- Message inserted dynamically -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- SCRIPTS -->
   <script src="js/jquery-3.4.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
@@ -845,10 +875,28 @@ function getFriendlyFileType($mimeType) {
       });
       $('#confirmDeleteBtn').on('click',function(){
         if(!toDelete) return;
+        // Show loading modal
+        var loadingModal = new bootstrap.Modal($('#loadingModal'));
+        loadingModal.show();
         $.post('admin/delete_file.php',{file_id:toDelete},res=>{
-          if(res.trim()==='success') location.reload();
-          else alert('Delete failed: '+res);
-        }).fail(()=>alert('Server error'));
+          loadingModal.hide();
+          if(res.trim()==='success') {
+            // Show countryMessageModal with success message, then reload
+            $('#countryMessageBody').text('File deleted successfully.');
+            var countryModal = new bootstrap.Modal($('#countryMessageModal'));
+            countryModal.show();
+            setTimeout(()=>location.reload(), 1200);
+          } else {
+            $('#countryMessageBody').text('Delete failed: '+res);
+            var countryModal = new bootstrap.Modal($('#countryMessageModal'));
+            countryModal.show();
+          }
+        }).fail(()=>{
+          loadingModal.hide();
+          $('#countryMessageBody').text('Server error');
+          var countryModal = new bootstrap.Modal($('#countryMessageModal'));
+          countryModal.show();
+        });
         bootstrap.Modal.getInstance($('#deleteConfirmModal')).hide();
       });
     });
