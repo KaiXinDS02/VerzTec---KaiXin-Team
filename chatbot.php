@@ -10,6 +10,7 @@ header('Content-Type: text/html; charset=utf-8');
 $role    = $_SESSION['role']    ?? '';
 $dept = $_SESSION['department'] ?? 'Your Department';
 $country = $_SESSION['country'] ?? 'Your Country';
+$user_id = $_SESSION['user_id'] ?? 1;
 ?>
 
 
@@ -2723,6 +2724,8 @@ $country = $_SESSION['country'] ?? 'Your Country';
         }
       }
 
+      const userId = <?php echo json_encode($user_id); ?>;
+
       // Send message to chatbot API
       try {
         console.log('🔄 Sending message to API:', message);
@@ -2731,7 +2734,7 @@ $country = $_SESSION['country'] ?? 'Your Country';
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ question: message })
+          body: JSON.stringify({ user_id: userId, question: message })
         });
         
         console.log('📡 API Response status:', response.status);

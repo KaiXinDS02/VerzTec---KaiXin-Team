@@ -94,9 +94,9 @@ def save_chat_to_db(user_id, question, answer):
     try:
         connection = mysql.connector.connect(
             host="db",
-            user="root",
-            password="yourpassword",
-            database="verztec"
+            user="user",
+            password="password",
+            database="Verztec"
         )
         cursor = connection.cursor()
         query = "INSERT INTO chat_history (user_id, question, answer) VALUES (%s, %s, %s)"
@@ -127,6 +127,7 @@ def chat(question: Question):
         docs_and_scores = []
         if is_hr_like or is_llm_hr:
             docs_and_scores = vectorstore.similarity_search_with_score(question.question, k=3)
+
             user_query = question.question.strip().lower()
             is_physical = any(term in user_query for term in ["physical meeting", "in person", "face to face", "onsite"])
             is_digital = any(term in user_query for term in ["digital meeting", "online meeting", "virtual meeting", "zoom", "teams"])
@@ -184,9 +185,9 @@ def get_chat_history(user_id: int):
     try:
         connection = mysql.connector.connect(
             host="db",
-            user="root",
-            password="yourpassword",
-            database="verztec"
+            user="user",
+            password="password",
+            database="Verztec"
         )
         cursor = connection.cursor(dictionary=True)
         cursor.execute("SELECT question, answer, timestamp FROM chat_history WHERE user_id = %s ORDER BY timestamp DESC", (user_id,))
@@ -206,6 +207,18 @@ def index():
 def favicon():
     return FileResponse("static/favicon.ico")
 
+# Added this to enable reload of model after change is made - charmaine
+@app.post("/reload_vectorstore")
+def reload_vectorstore():
+    global qa_chain, vectorstore
+    print("🔄 [RELOAD] /reload_vectorstore endpoint called")
+    qa_chain, vectorstore = load_chain()
+    try:
+        doc_count = len(vectorstore.index_to_docstore_id)
+    except Exception:
+        doc_count = "unknown"
+    print(f"✅ [RELOAD] Reloaded vectorstore. Document count: {doc_count}")
+    return {"status": "reloaded", "doc_count": doc_count}
 
 # import os
 # import re

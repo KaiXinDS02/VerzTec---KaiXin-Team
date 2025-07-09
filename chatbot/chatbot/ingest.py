@@ -9,6 +9,53 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.docstore.document import Document as LangchainDocument
 from config import EMBEDDING_MODEL_NAME, CHUNK_SIZE, CHUNK_OVERLAP, CLEANED_DIR, PDF_DIR, VECTORSTORE_DIR
 
+# Add File Visibility to Metadata For RBAC purposes - Charmaine
+import mysql.connector
+
+DB_CONFIG = {
+    'host': 'localhost',
+    'user': 'user',
+    'password': 'password',
+    'database': 'Verztec'
+}
+
+def get_visibility_for_file(file_base_name):
+    connection = mysql.connector.connect(**DB_CONFIG)
+    cursor = connection.cursor(dictionary=True)
+    # Get file ID (assuming file_name in DB is like 'filename.pdf')
+    cursor.execute("SELECT id FROM files WHERE LOWER(REPLACE(filename, '.pdf', '')) = %s", (file_base_name.lower(),))
+    file_row = cursor.fetchone()
+    if not file_row:
+        cursor.close()
+        connection.close()
+        return {"visibility_scope": "UNKNOWN", "visibility_category": None}
+
+    file_id = file_row["id"]
+
+    # Get visibility settings
+    cursor.execute("SELECT visibility_scope, category FROM file_visibility WHERE file_id = %s", (file_id,))
+    rows = cursor.fetchall()
+    cursor.close()
+    connection.close()
+
+    if not rows:
+        return {"visibility_scope": "UNKNOWN", "visibility_category": None}
+
+    # If ALL, return directly
+    if any(row["visibility_scope"] == "ALL" for row in rows):
+        return {"visibility_scope": "ALL", "visibility_category": None}
+
+    # If COUNTRY or DEPARTMENT
+    for row in rows:
+        if row["visibility_scope"] == "COUNTRY":
+            return {"visibility_scope": "COUNTRY", "visibility_category": row["category"]}
+
+    # # For DEPARTMENT: return list of departments
+    # departments = [row["category"] for row in rows if row["visibility_scope"] == "DEPARTMENT"]
+    # return {"visibility_scope": "DEPARTMENT", "visibility_category": departments}
+
+
+
 # 🔍 Read DOCX files
 def read_docx(file_path):
     doc = Document(file_path)
@@ -62,11 +109,16 @@ def ingest_documents():
         else:
             doc_type = "general"
 
+        # get Visibility info of file for RBAC (Charmaine)
+        visibility = get_visibility_for_file(base_name)
+
         # 📎 Attach metadata to each chunk
         for chunk in chunks:
             chunk.metadata["source"] = source_file
             chunk.metadata["title"] = base_name.replace("_", " ").lower().strip()
             chunk.metadata["doc_type"] = doc_type
+            chunk.metadata["visibility_scope"] = visibility["visibility_scope"] # RBAC (Charmaine)
+            chunk.metadata["visibility_category"] = visibility["visibility_category"] # RBAC (Charmaine)
             docs.append(chunk)
 
     # 💾 Save to FAISS
