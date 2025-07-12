@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         $escaped_filename = escapeshellarg($originalName);
         $output = [];
         exec("cd /var/www/html/chatbot && python3 chatbot/data_cleaning.py $escaped_filename 2>&1", $output, $return_code);
-        error_log("data_cleaning output: " . implode("\n", $output));
+        file_put_contents('/var/www/html/logs/ingest_single_debug.log', implode("\n", $output), FILE_APPEND);
         error_log("data_cleaning exit code: $return_code");
 
         // Wait for cleaned file to exist (max 10 seconds)
@@ -79,28 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         $cleaned_txt = $_SERVER['DOCUMENT_ROOT'] . '/chatbot/data/cleaned/' . $baseNoExt . '.txt';
         $cleaned_docx = $_SERVER['DOCUMENT_ROOT'] . '/chatbot/data/cleaned/' . $baseNoExt . '.docx';
         $wait_time = 0;
-        while (!file_exists($cleaned_txt) && !file_exists($cleaned_docx) && $wait_time < 10) {
+        while (!file_exists($cleaned_txt) && !file_exists($cleaned_docx) && $wait_time < 100) {
             usleep(200000); // 0.2 seconds
             $wait_time += 0.2;
         }
-
-        $output = [];
-        exec("cd /var/www/html/chatbot && python3 chatbot/ingest_single.py $escaped_filename 2>&1", $output, $return_code);
-        error_log("ingest_single output: " . implode("\n", $output));
-        error_log("ingest_single exit code: $return_code");
-
-        // Trigger vectorstore reload in chatbot backend
-        $reload_url = 'http://host.docker.internal:8000/reload_vectorstore';
-        $ch = curl_init($reload_url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $reload_response = curl_exec($ch);
-        $curl_error = curl_error($ch);
-        $reload_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        error_log("Reload vectors POST to $reload_url");
-        error_log("Reload vectors cURL error: $curl_error");
-        error_log("Reload vectors response: $reload_response (HTTP $reload_http_code)");
 
         // Get file details for database storage
         $fileSizeKb = round(filesize($targetPath) / 1024);
@@ -189,6 +171,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
                 $mStmt->close();
             }
         }
+
+        $escaped_filename = escapeshellarg($originalName);
+        $output = [];
+        exec("cd /var/www/html/chatbot && python3 chatbot/ingest_single.py $escaped_filename 2>&1", $output, $return_code);
+        file_put_contents('/var/www/html/logs/ingest_single_debug.log', implode("\n", $output), FILE_APPEND);
+        file_put_contents('/var/www/html/logs/ingest_single_debug.log', "ingest_single exit code: $return_code\n", FILE_APPEND);
+
+        // Trigger vectorstore reload in chatbot backend
+        $reload_url = 'http://host.docker.internal:8000/reload_vectorstore';
+        $ch = curl_init($reload_url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $reload_response = curl_exec($ch);
+        $curl_error = curl_error($ch);
+        $reload_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        error_log("Reload vectors POST to $reload_url");
+        error_log("Reload vectors cURL error: $curl_error");
+        error_log("Reload vectors response: $reload_response (HTTP $reload_http_code)");
 
         // Log this upload action
         log_action($conn, $user_id, 'files', 'add',

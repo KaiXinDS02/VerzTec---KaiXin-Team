@@ -15,6 +15,22 @@ $role    = $_SESSION['role']    ?? '';
 $dept = $_SESSION['department'] ?? 'Your Department';
 $country = $_SESSION['country'] ?? 'Your Country';
 
+// Manager-specific visibility logic
+if ($role === 'MANAGER') {
+    $visibility = 'restricted';
+    $managerVisibility = $_POST['manager_visibility'] ?? 'department'; // 'department' or 'country'
+
+    if ($managerVisibility === 'department') {
+        // Only department visibility
+        $departments = [$_POST['departments'][0] ?? '']; // manager's department from hidden input
+        $countries = [];
+    } else {
+        // Whole country visibility
+        $departments = [];
+        $countries = [$_POST['countries'][0] ?? '']; // manager's country from hidden input
+    }
+}
+
 // Fetch unique departments
 $deptResult = $conn->query("
   SELECT DISTINCT department
@@ -590,7 +606,7 @@ function getFriendlyFileType($mimeType) {
 
                           <?php elseif($role === 'MANAGER'): ?>
                             <input type="hidden" name="visibility" value="restricted">
-                            <input type="hidden" name="departments[]" value="<?= htmlspecialchars($dept) ?>">
+
                             <div class="mb-3">
                               <label class="form-label fw-bold">Visibility</label><br>
                               <div class="form-check">
@@ -600,9 +616,12 @@ function getFriendlyFileType($mimeType) {
                                   name="manager_visibility"
                                   id="onlyDept<?= $file['id'] ?>"
                                   value="department"
-                                  <?= !empty($fv['DEPARTMENT']) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="onlyDept<?= $file['id'] ?>">Only Department: <?= htmlspecialchars($dept) ?></label>
+                                  <?= !empty($fv['DEPARTMENT']) && empty($fv['COUNTRY']) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="onlyDept<?= $file['id'] ?>">
+                                  Only Department: <?= htmlspecialchars($dept) ?>
+                                </label>
                               </div>
+
                               <div class="form-check">
                                 <input
                                   class="form-check-input"
@@ -611,11 +630,17 @@ function getFriendlyFileType($mimeType) {
                                   id="wholeCtry<?= $file['id'] ?>"
                                   value="country"
                                   <?= !empty($fv['COUNTRY']) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="wholeCtry<?= $file['id'] ?>">Whole Country: <?= htmlspecialchars($country) ?></label>
+                                <label class="form-check-label" for="wholeCtry<?= $file['id'] ?>">
+                                  Whole Country: <?= htmlspecialchars($country) ?>
+                                </label>
                               </div>
                             </div>
-                            <input type="hidden" name="countries[]" value="<?= htmlspecialchars($country) ?>" id="mgrCtry<?= $file['id'] ?>" <?= !empty($fv['COUNTRY']) ? '' : 'disabled' ?>>
+
+                            <!-- Hidden inputs always sent -->
+                            <input type="hidden" name="departments[]" value="<?= htmlspecialchars($dept) ?>">
+                            <input type="hidden" name="countries[]" value="<?= htmlspecialchars($country) ?>">
                           <?php endif; ?>
+
                         </div>
                         <div class="modal-footer">
                           <button type="submit" class="btn btn-primary">Save</button>
@@ -949,6 +974,7 @@ function getFriendlyFileType($mimeType) {
         document.getElementById('fileInput').files = files;
       }
     }
+    
 
     // EDIT VISIBILITY
     document.addEventListener('DOMContentLoaded', () => {

@@ -23,12 +23,16 @@ def get_visibility_for_file(file_base_name):
     connection = mysql.connector.connect(**DB_CONFIG)
     cursor = connection.cursor(dictionary=True)
     # Get file ID (assuming file_name in DB is like 'filename.pdf')
-    cursor.execute("SELECT id FROM files WHERE LOWER(REPLACE(filename, '.pdf', '')) = %s", (file_base_name.lower(),))
+    # Remove .pdf, .docx, .txt (case-insensitive) from filename for matching
+    cursor.execute(
+        "SELECT id FROM files WHERE LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(filename, '.pdf', ''), '.docx', ''), '.doc', ''), '.txt', ''), '.xlsx', '')) = %s",
+        (file_base_name.lower(),)
+    )
     file_row = cursor.fetchone()
     if not file_row:
         cursor.close()
         connection.close()
-        return {"visibility_scope": "UNKNOWN", "visibility_category": None}
+        return {"visibility_scope": "UNKNOWN", "category": None}
 
     file_id = file_row["id"]
 
@@ -39,21 +43,16 @@ def get_visibility_for_file(file_base_name):
     connection.close()
 
     if not rows:
-        return {"visibility_scope": "UNKNOWN", "visibility_category": None}
+        return {"visibility_scope": "UNKNOWN", "category": None}
 
     # If ALL, return directly
     if any(row["visibility_scope"] == "ALL" for row in rows):
-        return {"visibility_scope": "ALL", "visibility_category": None}
+        return {"visibility_scope": "ALL", "category": None}
 
     # If COUNTRY or DEPARTMENT
     for row in rows:
         if row["visibility_scope"] == "COUNTRY":
-            return {"visibility_scope": "COUNTRY", "visibility_category": row["category"]}
-
-    # # For DEPARTMENT: return list of departments
-    # departments = [row["category"] for row in rows if row["visibility_scope"] == "DEPARTMENT"]
-    # return {"visibility_scope": "DEPARTMENT", "visibility_category": departments}
-
+            return {"visibility_scope": "COUNTRY", "category": row["category"]}
 
 
 # 🔍 Read DOCX files
@@ -118,7 +117,7 @@ def ingest_documents():
             chunk.metadata["title"] = base_name.replace("_", " ").lower().strip()
             chunk.metadata["doc_type"] = doc_type
             chunk.metadata["visibility_scope"] = visibility["visibility_scope"] # RBAC (Charmaine)
-            chunk.metadata["visibility_category"] = visibility["visibility_category"] # RBAC (Charmaine)
+            chunk.metadata["category"] = visibility["category"] # RBAC (Charmaine)
             docs.append(chunk)
 
     # 💾 Save to FAISS

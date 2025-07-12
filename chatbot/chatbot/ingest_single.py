@@ -39,6 +39,51 @@ def load_clean_file(base):
         return read_docx(docx_path), base + ".docx"
     raise FileNotFoundError(f"cleaned file not found for base='{base}'")
 
+import mysql.connector
+
+DB_CONFIG = {
+    'host': 'db',
+    'user': 'user',
+    'password': 'password',
+    'database': 'Verztec'
+}
+
+def get_visibility_for_file(file_base_name):
+    connection = mysql.connector.connect(**DB_CONFIG)
+    cursor = connection.cursor(dictionary=True)
+    # Get file ID (assuming file_name in DB is like 'filename.pdf')
+    # Remove .pdf, .docx, .txt (case-insensitive) from filename for matching
+    cursor.execute(
+        "SELECT id FROM files WHERE LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(filename, '.pdf', ''), '.docx', ''), '.doc', ''), '.txt', ''), '.xlsx', '')) = %s",
+        (file_base_name.lower(),)
+    )
+    file_row = cursor.fetchone()
+    if not file_row:
+        cursor.close()
+        connection.close()
+        return {"visibility_scope": "UNKNOWN", "category": None}
+
+    file_id = file_row["id"]
+
+    # Get visibility settings
+    cursor.execute("SELECT visibility_scope, category FROM file_visibility WHERE file_id = %s", (file_id,))
+    rows = cursor.fetchall()
+    cursor.close()
+    connection.close()
+
+    if not rows:
+        return {"visibility_scope": "UNKNOWN", "category": None}
+
+    # If ALL, return directly
+    if any(row["visibility_scope"] == "ALL" for row in rows):
+        return {"visibility_scope": "ALL", "category": None}
+
+    # If COUNTRY or DEPARTMENT
+    for row in rows:
+        if row["visibility_scope"] == "COUNTRY":
+            return {"visibility_scope": "COUNTRY", "category": row["category"]}
+
+
 # ---------- Main -------------------------------------------------------------
 if len(sys.argv) != 2:
     print("Usage: ingest_single.py <filename or base_name>")
@@ -74,11 +119,15 @@ elif "etiquette" in base_name.lower() or "physical" in base_name.lower():
 else:
     doc_type = "general"
 
+visibility = get_visibility_for_file(base_name)
+
 # 🧷 Tag metadata
-for c in chunks:
-    c.metadata["source"] = source_file
-    c.metadata["title"] = base_name.replace("_", " ").lower().strip()
-    c.metadata["doc_type"] = doc_type  
+for chunk in chunks:
+    chunk.metadata["source"] = source_file
+    chunk.metadata["title"] = base_name.replace("_", " ").lower().strip()
+    chunk.metadata["doc_type"] = doc_type  
+    chunk.metadata["visibility_scope"] = visibility["visibility_scope"] # RBAC (Charmaine)
+    chunk.metadata["category"] = visibility["category"] # RBAC (Charmaine)
 
 # 🧠 Embedding and indexing
 embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)

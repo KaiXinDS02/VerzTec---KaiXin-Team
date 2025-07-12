@@ -92,8 +92,9 @@ def is_hr_question_via_llm(query: str) -> bool:
 
 def save_chat_to_db(user_id, question, answer):
     try:
+        # Establish a connection to the MySQL database
         connection = mysql.connector.connect(
-            host="db",
+            host="localhost",
             user="user",
             password="password",
             database="Verztec"
@@ -106,6 +107,43 @@ def save_chat_to_db(user_id, question, answer):
         connection.close()
     except Exception as e:
         print("Database error:", e)
+
+##################################🔐 START - RBAC (Charmaine)##################################
+
+# helper function to fetch the user's role and country for RBAC (Charmaine)
+def get_user_role_and_country(user_id):
+    try:
+        # Establish a connection to the MySQL database
+        connection = mysql.connector.connect(
+            host="localhost",  
+            user="user",
+            password="password",
+            database="Verztec"
+        )
+
+        # Create a cursor with dictionary output to access column names easily
+        cursor = connection.cursor(dictionary=True)
+
+        # Execute a query to retrieve the user's role and country from the 'users' table
+        cursor.execute("SELECT role, country FROM users WHERE user_id = %s", (user_id,))
+        result = cursor.fetchone()
+
+        # Close the cursor and database connection to release resources
+        cursor.close()
+        connection.close()
+
+        # If a user was found, return their role and country
+        if result:
+            return result["role"], result["country"]
+        else:
+            return None, None
+    
+    # ⚠️ Log any error encountered during the process
+    except Exception as e:
+        print("Error fetching user role/country:", e)
+        return None, None
+
+##################################🔐 END - RBAC (Charmaine)##################################
 
 @app.post("/chat")
 def chat(question: Question):
@@ -127,6 +165,48 @@ def chat(question: Question):
         docs_and_scores = []
         if is_hr_like or is_llm_hr:
             docs_and_scores = vectorstore.similarity_search_with_score(question.question, k=3)
+
+##################################🔐 START - RBAC (Charmaine)##################################
+            
+            # Retrieve the user's role and country based on their user ID
+            role, user_country = get_user_role_and_country(question.user_id)
+
+            # Apply RBAC if the user is not an ADMIN
+            if role != "ADMIN":
+                filtered_docs = []
+                rbac_filtered_out = False # Flag to track if any relevant docs were filtered out due to access restrictions
+
+                for doc, score in docs_and_scores:
+                    visibility_scope = doc.metadata.get("visibility_scope")
+                    category = (doc.metadata.get("category") or "").strip().lower() # Normalize category metadata
+                    user_country_norm = (user_country or "").strip().lower() # Normalize user's country
+                    allowed = False
+
+                    # Check if the document is universally accessible or restricted to the user’s country
+                    if visibility_scope == "ALL":
+                        allowed = True
+                    elif visibility_scope == "COUNTRY" and category == user_country_norm:
+                        allowed = True
+
+                    # If access is allowed, keep the document; otherwise, mark as filtered
+                    if allowed:
+                        filtered_docs.append((doc, score))
+                    else:
+                        rbac_filtered_out = True
+                    
+
+                # 🚫 If any relevant documents were excluded due to RBAC, return a permission denial message
+                if rbac_filtered_out:
+                    return {
+                        "answer": (
+                            f"The system found relevant information, but you do not have permission to access the document(s) "
+                            f"based on your role or country ({user_country}). Please contact HR or your administrator for access."
+                        ),
+                        "reference_file": None
+                    }
+                docs_and_scores = filtered_docs
+
+##################################🔐 END - RBAC (Charmaine)##################################
 
             user_query = question.question.strip().lower()
             is_physical = any(term in user_query for term in ["physical meeting", "in person", "face to face", "onsite"])
@@ -150,6 +230,7 @@ def chat(question: Question):
             "Be clear, concise, and human — not robotic or overly formal."
         )
 
+        reference_file = None
         if docs_and_scores:
             top_doc, top_score = docs_and_scores[0]
             content = "\n".join([doc.page_content.strip() for doc, _ in docs_and_scores])
@@ -159,21 +240,24 @@ def chat(question: Question):
                 full_prompt = f"{system_prefix}\n---\n{content}\n---\nBased only on the content above, how would you answer this question?\n{question.question}"
                 result = llama_pipeline.invoke(full_prompt)
                 answer = truncate_answer(result.content)
+                reference_file = {
+                    "url": f"http://localhost:8000/pdfs/{quote(source_file)}",
+                    "name": source_file
+                }
             else:
                 result = llama_pipeline.invoke(question.question)
                 answer = truncate_answer(result.content)
+                reference_file = None
         else:
             result = llama_pipeline.invoke(question.question)
             answer = truncate_answer(result.content)
+            reference_file = None
 
         save_chat_to_db(question.user_id, question.question, answer)
 
         return {
             "answer": answer,
-            "reference_file": {
-                "url": f"http://localhost:8000/pdfs/{quote(source_file)}",
-                "name": source_file
-            } if source_file else None
+            "reference_file": reference_file
         }
 
     except Exception as e:
