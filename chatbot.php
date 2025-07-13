@@ -2217,14 +2217,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
               <div class="d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fa fa-robot me-2"></i>VerzTec AI Assistant</h5>
                 <div class="chat-header-controls">
-    <button id="history-button" class="btn btn-outline-primary ms-2" style="
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-     font-size: 14px; padding: 6px 14px;">
-      <i class="fa fa-history"></i> History
-    </button>
+    <!-- History button removed -->
                   <button id="show-avatar" class="btn btn-sm btn-outline-primary" style="display: none;">
                     <i class="fa fa-robot"></i> Show Avatar
                   </button>
@@ -2848,19 +2841,57 @@ $user_id = $_SESSION['user_id'] ?? 1;
     
     // Make test function globally accessible for debugging
     window.testAvatarPreferences = testAvatarPreferences;
-    
-    // Initialize avatar when page loads
+
+    // --- Chat Message Persistence ---
+    function saveChatMessages() {
+      try {
+        const chatContainer = document.getElementById('chat-container');
+        if (!chatContainer) return;
+        // Save all chat message HTML
+        localStorage.setItem('verzTec_chatMessages', chatContainer.innerHTML);
+      } catch (e) {
+        console.warn('⚠️ Failed to save chat messages:', e);
+      }
+    }
+
+    function loadChatMessages() {
+      try {
+        const chatContainer = document.getElementById('chat-container');
+        if (!chatContainer) return;
+        const saved = localStorage.getItem('verzTec_chatMessages');
+        if (saved) {
+          chatContainer.innerHTML = saved;
+        }
+      } catch (e) {
+        console.warn('⚠️ Failed to load chat messages:', e);
+      }
+    }
+
+    // Patch addMessageToChat to save after adding
+    const originalAddMessageToChat = window.addMessageToChat || function(){};
+    window.addMessageToChat = function(message, sender) {
+      if (typeof originalAddMessageToChat === 'function') {
+        originalAddMessageToChat.apply(this, arguments);
+      }
+      // Save chat after adding
+      saveChatMessages();
+    };
+
+    // On page load, restore chat and avatar preferences
     document.addEventListener('DOMContentLoaded', function() {
       console.log('🚀 VerzTec Chatbot - Initializing...');
-      
+
+      // Restore chat messages
+      loadChatMessages();
+
       // Initialize interruption flag
       window.chatbotInterrupted = false;
-      
+
       // Load saved avatar preferences
       setTimeout(() => {
         loadAvatarPreferences();
       }, 500); // Small delay to ensure DOM elements are ready
-      
+
       // Add global keyboard shortcuts
       document.addEventListener('keydown', function(event) {
         // Escape key to stop chatbot
@@ -2869,7 +2900,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
           stopChatbot();
         }
       });
-      
+
       // Add basic error handling
       window.addEventListener('error', function(e) {
         console.error('💥 JavaScript Error:', e.error, 'at', e.filename, 'line', e.lineno);
@@ -3731,47 +3762,54 @@ $user_id = $_SESSION['user_id'] ?? 1;
       clearCleanupTimeout();
     }
 
-    function stopChatbot() {
-      console.log('🛑 Stop button clicked - interrupting chatbot');
-      
-      // Set a flag to indicate interruption
-      window.chatbotInterrupted = true;
-      
-      // Stop avatar speech immediately if it's speaking
-      if (avatarManager && avatarManager.isInitialized) {
-        console.log('🛑 Stopping avatar speech and animations...');
-        
-        try {
-          // Stop current speech/audio
-          if (typeof avatarManager.stopSpeaking === 'function') {
-            avatarManager.stopSpeaking();
-          }
-          
-          // Stop thinking animation
-          if (typeof avatarManager.stopThinking === 'function') {
-            avatarManager.stopThinking();
-          }
-          
-          // Stop any ongoing animations and return to idle
-          if (typeof avatarManager.stopAllAnimations === 'function') {
-            avatarManager.stopAllAnimations();
-          }
-          
-          // Try to stop audio directly if available
-          if (avatarManager.audioElement) {
-            avatarManager.audioElement.pause();
-            avatarManager.audioElement.currentTime = 0;
-          }
-          
-          // Stop any ongoing text-to-speech
-          if ('speechSynthesis' in window) {
-            speechSynthesis.cancel();
-          }
-          
-        } catch (error) {
-          console.warn('⚠️ Error stopping avatar:', error);
-        }
+function stopChatbot() {
+  console.log('🛑 Stop button clicked - interrupting chatbot');
+
+  // Set a flag to indicate interruption
+  window.chatbotInterrupted = true;
+
+  // If there is a pending bot response that hasn't been shown, remove the last bot-bubble before adding the new one
+  if (window._pendingBotAnswer && !window._pendingBotAnswerShown) {
+    // Remove the last bot-bubble if it exists
+    const chatContainer = document.getElementById('chat-container');
+    const botBubbles = chatContainer.querySelectorAll('.bot-bubble');
+    if (botBubbles.length > 0) {
+      const lastBotBubble = botBubbles[botBubbles.length - 1];
+      lastBotBubble.remove();
+    }
+    addMessageToChat(window._pendingBotAnswer, 'bot');
+    window._pendingBotAnswerShown = true;
+  }
+
+  // Stop avatar speech immediately if it's speaking
+  if (avatarManager && avatarManager.isInitialized) {
+    console.log('🛑 Stopping avatar speech and animations...');
+    try {
+      // Stop current speech/audio
+      if (typeof avatarManager.stopSpeaking === 'function') {
+        avatarManager.stopSpeaking();
       }
+      // Stop thinking animation
+      if (typeof avatarManager.stopThinking === 'function') {
+        avatarManager.stopThinking();
+      }
+      // Stop any ongoing animations and return to idle
+      if (typeof avatarManager.stopAllAnimations === 'function') {
+        avatarManager.stopAllAnimations();
+      }
+      // Try to stop audio directly if available
+      if (avatarManager.audioElement) {
+        avatarManager.audioElement.pause();
+        avatarManager.audioElement.currentTime = 0;
+      }
+      // Stop any ongoing text-to-speech
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+      }
+    } catch (error) {
+      console.warn('⚠️ Error stopping avatar:', error);
+    }
+  }
       
       // Abort any ongoing API requests
       if (currentAbortController) {
@@ -4146,9 +4184,21 @@ $user_id = $_SESSION['user_id'] ?? 1;
       // Disable user input while processing
       disableUserInput();
 
+
       // Add user message to chat
       addMessageToChat(message, 'user');
-      
+
+      // Record user prompt in chat_history (always)
+      try {
+        await fetch('append_message.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `conversation_id=${encodeURIComponent(typeof activeConversationId !== 'undefined' && activeConversationId ? activeConversationId : '')}&question=${encodeURIComponent(message)}&answer=`
+        });
+      } catch (e) {
+        console.warn('⚠️ Failed to record user prompt:', e);
+      }
+
       // Clear input
       userInput.value = '';
 
@@ -4353,6 +4403,17 @@ $user_id = $_SESSION['user_id'] ?? 1;
           };
         }
         
+        // Record bot response in chat_history (always)
+        try {
+          await fetch('append_message.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `conversation_id=${encodeURIComponent(typeof activeConversationId !== 'undefined' && activeConversationId ? activeConversationId : '')}&question=&answer=${encodeURIComponent(botAnswer)}`
+          });
+        } catch (e) {
+          console.warn('⚠️ Failed to record bot response:', e);
+        }
+
         // Speak the response if voice is enabled and avatar is ready
         if (isVoiceEnabled && isAvatarEnabled && avatarManager && avatarManager.isInitialized) {
             // Debug: Log the language code used for TTS after translation
@@ -4395,9 +4456,17 @@ $user_id = $_SESSION['user_id'] ?? 1;
             // --- End language-based voice selection ---
             // Always generate speech from the translated text (botAnswer)
             console.log('Starting synchronized speech with speed:', currentSpeed + 'x', 'for text:', botAnswer.substring(0, 50) + '...');
+            // Track pending bot answer for interruption-safe recording
+            window._pendingBotAnswer = botAnswer;
+            window._pendingBotAnswerShown = false;
             // Check for interruption before starting speech
             if (window.chatbotInterrupted) {
               console.log('🛑 Speech interrupted before starting');
+              // Show the pending answer if not yet shown
+              if (!window._pendingBotAnswerShown) {
+                addMessageToChat(window._pendingBotAnswer, 'bot');
+                window._pendingBotAnswerShown = true;
+              }
               hideThinking();
               enableUserInput();
               return;
@@ -4410,6 +4479,11 @@ $user_id = $_SESSION['user_id'] ?? 1;
               await avatarManager.speakWithTextStream(botAnswer, (streamedText) => {
                 if (window.chatbotInterrupted) {
                   console.log('🛑 Speech interrupted during streaming');
+                  // Show the pending answer if not yet shown
+                  if (!window._pendingBotAnswerShown) {
+                    addMessageToChat(window._pendingBotAnswer, 'bot');
+                    window._pendingBotAnswerShown = true;
+                  }
                   return;
                 }
                 if (streamedText === '' && !botMessageDiv) {
@@ -4422,6 +4496,8 @@ $user_id = $_SESSION['user_id'] ?? 1;
                   chatContainer.appendChild(botMessageDiv);
                   chatContainer.scrollTop = chatContainer.scrollHeight;
                   updateAvatarStatus('Speaking...');
+                  // Mark as shown for interruption logic
+                  window._pendingBotAnswerShown = true;
                   return;
                 }
                 // Do not update the message content letter by letter; just show the full text above
@@ -4472,8 +4548,16 @@ $user_id = $_SESSION['user_id'] ?? 1;
             // Check for interruption after speech completion
             if (window.chatbotInterrupted) {
               console.log('🛑 Speech was interrupted');
+              // Show the pending answer if not yet shown
+              if (!window._pendingBotAnswerShown) {
+                addMessageToChat(window._pendingBotAnswer, 'bot');
+                window._pendingBotAnswerShown = true;
+              }
               return;
             }
+            // Clear pending answer after successful completion
+            window._pendingBotAnswer = null;
+            window._pendingBotAnswerShown = false;
             // Text is fully generated, no need to hide thinking again
             console.log('🎯 Text fully generated');
             // Check for interruption before adding reference file
@@ -4582,8 +4666,17 @@ $user_id = $_SESSION['user_id'] ?? 1;
         messageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${message}`;
       }
       
+
       chatContainer.appendChild(messageDiv);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
+      // Always scroll to bottom after adding a message
+      setTimeout(() => {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }, 0);
+
+      // Always save chat after adding any message (user or bot)
+      if (typeof saveChatMessages === 'function') {
+        saveChatMessages();
+      }
     }
 
     function addReferenceLink(url, filename) {
@@ -6141,21 +6234,7 @@ function toggleSidebar(forceState) {
   }
 }
 // History button toggles sidebar
-document.addEventListener('DOMContentLoaded', function() {
-  const historyBtn = document.getElementById('history-button');
-  if (historyBtn) {
-    historyBtn.onclick = function() { toggleSidebar('open'); };
-  }
-  // X button closes sidebar
-  const closeBtn = document.getElementById('close-sidebar-btn');
-  if (closeBtn) {
-    closeBtn.onclick = function() { toggleSidebar('close'); };
-  }
-  // Also allow ESC to close sidebar
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') toggleSidebar('close');
-  });
-});
+// History button logic removed
 </script>
 
 
@@ -6173,16 +6252,7 @@ function toggleSidebar(forceState) {
   }
 }
 // History button toggles sidebar
-document.addEventListener('DOMContentLoaded', function() {
-  const historyBtn = document.getElementById('history-button');
-  if (historyBtn) {
-    historyBtn.onclick = function() { toggleSidebar('open'); };
-  }
-  // Also allow ESC to close sidebar
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') toggleSidebar('close');
-  });
-});
+// History button logic removed
 
 // Conversation sidebar logic
 let conversations = [];
