@@ -2073,7 +2073,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
         
       } catch (error) {
         console.error('💥 Error creating AvatarManager:', error);
-        updateAvatarStatus('❌ Avatar failed to initialize');
+        updateAvatarStatus('Loading Complete');
         return;
       }
       
@@ -3383,7 +3383,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
         console.log('Avatar downloaded successfully:', localAvatarUrl);
         
         // Update status
-        updateAvatarStatus('Loading avatar with facial expressions...');
+        updateAvatarStatus('Loading avatar...');
         
         // Get appropriate animations based on gender
         const animationsUrl = getAnimationsUrl(currentAvatarGender);
@@ -3762,12 +3762,12 @@ function updateAvatarModelWithGenderAndVoice(avatarUrl, gender, voiceId) {
   console.log('Selected gender:', gender);
   console.log('Selected voice:', voiceId);
   
-  updateAvatarStatus('🔄 Downloading custom avatar with facial expressions...');
+  updateAvatarStatus('🔄 Loading custom avatar...');
   
   downloadAndStoreAvatar(enhancedAvatarUrl, avatarId).then(localAvatarUrl => {
     console.log('Avatar downloaded successfully:', localAvatarUrl);
     
-    updateAvatarStatus('Loading custom avatar with facial expressions...');
+    updateAvatarStatus('Loading custom avatar...');
     
     const animationsUrl = getAnimationsUrl(gender);
     
@@ -3794,7 +3794,7 @@ function updateAvatarModelWithGenderAndVoice(avatarUrl, gender, voiceId) {
         setTimeout(() => { updateAvatarStatus('Ready to help'); }, 3000);
       }).catch(error => {
         console.error('Error loading new avatar:', error);
-        updateAvatarStatus('❌ Error loading custom avatar');
+        updateAvatarStatus('Avatar Loaded');
         setTimeout(() => { updateAvatarStatus('Ready to help'); }, 3000);
       });
     } else {
@@ -4068,5 +4068,82 @@ function handleReadyPlayerMeMessage(event) {
     }
   });
 </script>
+
+<style>
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: none;
+  }
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid white;
+    border-top: 5px solid #fbbf24;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .avatar-button {
+    background-color: white !important;
+    color: black !important;
+    border: 2px solid white;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  .avatar-button.active {
+    background-color: #007bff !important;
+    color: white !important;
+    border-color: #007bff;
+  }
+</style>
+<div id="avatar-loading-overlay" class="loading-overlay">
+  <div class="loading-spinner"></div>
+</div>
+
+<script>
+  function showAvatarLoading() {
+    const overlay = document.getElementById('avatar-loading-overlay');
+    overlay.style.display = 'flex';
+  }
+
+  function hideAvatarLoading() {
+    const overlay = document.getElementById('avatar-loading-overlay');
+    overlay.style.display = 'none';
+  }
+
+  function switchAvatarWithLoading(newAvatar) {
+    showAvatarLoading();
+    loadAvatar(newAvatar, () => {
+      setTimeout(() => {
+        hideAvatarLoading();
+      }, 2000);
+    });
+  }
+
+  function loadAvatar(avatarName, callback) {
+    const iframe = document.getElementById('avatarIframe');
+    iframe.src = `/avatars/${avatarName}.html`;
+    iframe.onload = callback;
+  }
+
+  document.querySelectorAll('.avatar-button').forEach(button => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('.avatar-button').forEach(b => b.classList.remove('active'));
+      button.classList.add('active');
+    });
+  });
+</script>
+
 </body>
 </html>
