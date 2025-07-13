@@ -1735,12 +1735,12 @@ $user_id = $_SESSION['user_id'] ?? 1;
               <div class="d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fa fa-robot me-2"></i>VerzTec AI Assistant</h5>
                 <div class="chat-header-controls">
-    <button id="history-button" class="btn btn-sm btn-outline-primary ms-2" style="
+    <button id="history-button" class="btn btn-outline-primary ms-2" style="
       display: inline-flex;
       align-items: center;
       gap: 6px;
       font-size: 13px;
-    ">
+     font-size: 14px; padding: 6px 14px;">
       <i class="fa fa-history"></i> History
     </button>
                   <button id="show-avatar" class="btn btn-sm btn-outline-primary" style="display: none;">
