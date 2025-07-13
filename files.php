@@ -832,7 +832,7 @@ function getFriendlyFileType($mimeType) {
     </div>
   </div>
 
-  <!-- COUNTRY SUCCESS MESSAGE MODAL -->
+  <!-- SUCCESS MESSAGE MODAL -->
   <div class="modal fade" id="countryMessageModal" tabindex="-1" aria-labelledby="countryMessageModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -890,6 +890,7 @@ function getFriendlyFileType($mimeType) {
       $('#typeFilterBtn').text('File Type: '+(chosen.length?chosen.join(', '):'All'));
     });
 
+
     // DELETE CONFIRM
     $(document).ready(function(){
       let toDelete=null;
@@ -923,6 +924,60 @@ function getFriendlyFileType($mimeType) {
           countryModal.show();
         });
         bootstrap.Modal.getInstance($('#deleteConfirmModal')).hide();
+      });
+
+      // RENAME FILE: Show loading modal and success modal
+      $('#renameModal form').on('submit', function(e){
+        e.preventDefault();
+        // Close the rename modal before showing loading
+        var renameModalInstance = bootstrap.Modal.getInstance($('#renameModal'));
+        if(renameModalInstance) renameModalInstance.hide();
+        var loadingModal = new bootstrap.Modal($('#loadingModal'));
+        loadingModal.show();
+        var form = this;
+        $.post($(form).attr('action'), $(form).serialize(), function(res){
+          loadingModal.hide();
+          $('#countryMessageBody').text('File renamed successfully.');
+          var countryModal = new bootstrap.Modal($('#countryMessageModal'));
+          countryModal.show();
+          setTimeout(()=>location.reload(), 1200);
+        }).fail(function(){
+          loadingModal.hide();
+          $('#countryMessageBody').text('Rename failed.');
+          var countryModal = new bootstrap.Modal($('#countryMessageModal'));
+          countryModal.show();
+        });
+      });
+
+      // UPLOAD FILE: Show loading modal and success modal
+      $('#uploadFileForm').on('submit', function(e){
+        e.preventDefault();
+        // Close the upload modal before showing loading
+        var uploadModalInstance = bootstrap.Modal.getInstance($('#uploadFileModal'));
+        if(uploadModalInstance) uploadModalInstance.hide();
+        var loadingModal = new bootstrap.Modal($('#loadingModal'));
+        loadingModal.show();
+        var formData = new FormData(this);
+        $.ajax({
+          url: $(this).attr('action'),
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function(res){
+            loadingModal.hide();
+            $('#countryMessageBody').text('File uploaded successfully.');
+            var countryModal = new bootstrap.Modal($('#countryMessageModal'));
+            countryModal.show();
+            setTimeout(()=>location.reload(), 1200);
+          },
+          error: function(){
+            loadingModal.hide();
+            $('#countryMessageBody').text('Upload failed.');
+            var countryModal = new bootstrap.Modal($('#countryMessageModal'));
+            countryModal.show();
+          }
+        });
       });
     });
 
@@ -1013,19 +1068,41 @@ function getFriendlyFileType($mimeType) {
       });
     });
 
-    // 6C. Front‑end validation: restricted but no scope selected
+    // Front‑end validation: restricted but no scope selected, and handle loading/success modals
     $('form[action="admin/edit_visibility.php"]').on('submit', function (e) {
       const $form = $(this);
       const fileId = $form.find('input[name="file_id"]').val();
       const restricted = $form.find(`#vRest${fileId}`).is(':checked');
-      if (!restricted) return; // "All" is OK
-
-      const deptChecked = $form.find(`#deptDiv${fileId} input:checked`).length;
-      const ctryChecked = $form.find(`#countryDiv${fileId} input:checked`).length;
-      if (!deptChecked && !ctryChecked) {
-        alert('Please choose at least one department or country for restricted access.');
-        e.preventDefault();
+      if (!restricted) {
+        // Not restricted, proceed
+      } else {
+        const deptChecked = $form.find(`#deptDiv${fileId} input:checked`).length;
+        const ctryChecked = $form.find(`#countryDiv${fileId} input:checked`).length;
+        if (!deptChecked && !ctryChecked) {
+          alert('Please choose at least one department or country for restricted access.');
+          e.preventDefault();
+          return;
+        }
       }
+      // Intercept submit for AJAX, close modal, show loading, then show success modal
+      e.preventDefault();
+      // Close the edit visibility modal
+      var editVisModal = bootstrap.Modal.getInstance(document.getElementById('editVisibilityModal'+fileId));
+      if(editVisModal) editVisModal.hide();
+      var loadingModal = new bootstrap.Modal($('#loadingModal'));
+      loadingModal.show();
+      $.post($form.attr('action'), $form.serialize(), function(res){
+        loadingModal.hide();
+        $('#countryMessageBody').text('Visibility updated successfully.');
+        var countryModal = new bootstrap.Modal($('#countryMessageModal'));
+        countryModal.show();
+        setTimeout(()=>location.reload(), 1200);
+      }).fail(function(){
+        loadingModal.hide();
+        $('#countryMessageBody').text('Visibility update failed.');
+        var countryModal = new bootstrap.Modal($('#countryMessageModal'));
+        countryModal.show();
+      });
     });
   });
   </script>

@@ -164,16 +164,8 @@ $output = [];
 // Run the vector purge Python script to remove old vector data for this file
 exec("cd /var/www/html/chatbot && python3 chatbot/purge_vectors.py $escaped_filename 2>&1", $output, $return_code);
 
-// Log the purge output and exit code for debugging
-file_put_contents('/var/www/html/logs/ingest_single_debug.log', implode("\n", $output), FILE_APPEND);
-file_put_contents('/var/www/html/logs/ingest_single_debug.log', "ingest_single (edit_visibility) exit code: $return_code\n", FILE_APPEND);
-
 // Run the ingest_single Python script to re-ingest the updated file content
 exec("cd /var/www/html/chatbot && python3 chatbot/ingest_single.py $escaped_filename 2>&1", $output, $return_code);
-
-// Log the ingestion output and exit code for debugging
-file_put_contents('/var/www/html/logs/ingest_single_debug.log', implode("\n", $output), FILE_APPEND);
-file_put_contents('/var/www/html/logs/ingest_single_debug.log', "ingest_single (edit_visibility) exit code: $return_code\n", FILE_APPEND);
 
 // Trigger vectorstore reload in the chatbot backend via HTTP POST request
 $reload_url = 'http://host.docker.internal:8000/reload_vectorstore';
@@ -185,10 +177,6 @@ $curl_error = curl_error($ch);
 $reload_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
-// Log the result of the vectorstore reload request
-error_log("Reload vectors POST to $reload_url (edit_visibility)");
-error_log("Reload vectors cURL error: $curl_error");
-error_log("Reload vectors response: $reload_response (HTTP $reload_http_code)");
 
 // After completion, redirect user back to files listing page
 header("Location: ../files.php");

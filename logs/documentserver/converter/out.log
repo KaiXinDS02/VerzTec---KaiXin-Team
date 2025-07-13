@@ -608,3 +608,8 @@
 [2025-07-12T10:19:33.956] [WARN] [localhost] [docId] [userId] nodeJS - worker 821 started.
 [2025-07-12T10:19:33.957] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: 12
 [2025-07-12T10:19:33.958] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-07-13T11:33:27.973] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: 12
+[2025-07-13T11:33:28.004] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-07-13T11:33:28.096] [WARN] [localhost] [docId] [userId] nodeJS - worker 815 started.
+[2025-07-13T11:33:28.101] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: 12
+[2025-07-13T11:33:28.103] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
