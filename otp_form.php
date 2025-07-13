@@ -1,34 +1,62 @@
 <?php
+// ---------------------------------------------------------------------------
+// otp_form.php (Charmaine)
+//
+// Validates the OTP sent to users during login or recovery.
+// Checks session OTP and user input, redirects on success or failure.
+//
+// Inputs: $_POST['otp']
+// Access: Requires OTP and email in session.
+// Side Effects: Unsets OTP on success, redirects to home or login.
+//
+// Error Handling: Shows error messages and countdown timer.
+//
+// ---------------------------------------------------------------------------
+
 session_start();
 include 'admin/auto_log_function.php';
+
+// Redirect if OTP or email not set in session
 if (!isset($_SESSION['otp']) || !isset($_SESSION['email'])) {
     header("Location: login.php");
     exit();
 }
 
 $otpError = "";
-// OTP valid for 45 seconds
+
+// Define how long the OTP is valid (in seconds)
 $otpValiditySeconds = 45;
+
+// If no timestamp was set yet, set it now
 if (!isset($_SESSION['otp_time'])) {
     $_SESSION['otp_time'] = time();
 }
-$timeRemaining = ($_SESSION['otp_time'] + $otpValiditySeconds) - time();
-$timeRemaining = max($timeRemaining, 0);
 
+// Calculate remaining time before OTP expires
+$timeRemaining = ($_SESSION['otp_time'] + $otpValiditySeconds) - time();
+$timeRemaining = max($timeRemaining, 0); // Prevent negative time
+
+// Handle form submission (OTP check)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['otp'])) {
-        $enteredOtp = trim($_POST['otp']);
+        $enteredOtp = trim($_POST['otp']); // Get user input and trim whitespace
+
+        // Compare input OTP with session OTP (as strings)
         if ($enteredOtp === (string)$_SESSION['otp']) {
-            // success: clear OTP and go to home
+            // OTP matches: clear OTP data from session
             unset($_SESSION['otp'], $_SESSION['otp_time']);
+
+            // Redirect to home page
             header("Location: home.php");
             exit();
         } else {
+            // OTP mismatch: show error message
             $otpError = "Invalid OTP. Please try again.";
         }
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en-US">
 <head>

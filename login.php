@@ -1,56 +1,71 @@
 <?php
+// ---------------------------------------------------------------------------
+// login.php (Charmaine)
+//
+// Handles user login authentication and OTP email sending.
+// Verifies credentials, sets session variables, sends OTP via email, and redirects to otp_form.php.
+//
+// Inputs: username, password (POST)
+// Outputs: session variables, email OTP, redirects or error messages.
+//
+// ---------------------------------------------------------------------------
+
 ini_set('session.cookie_path', '/');
 session_start();
-// Database Connection for Login System 
-include('connect.php'); 
+
+// Include database connection and logging function
+include('connect.php');
 include 'admin/auto_log_function.php';
 require __DIR__ . '/vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-
+// Check for timeout logout message
 $logout_reason = $_GET['reason'] ?? '';
 $show_modal = ($logout_reason === 'timeout');
 
+// Initialize error message variable
 $error = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Retrieve username and password from form
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Authenticate user
+    // Prepare and execute user query
     $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
 
+    // If user exists
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
+
+        // Verify password hash
         if (password_verify($password, $user['password'])) {
-            // Password is correct
-
-            // Store session variables
-			$_SESSION['user_id'] = $user['user_id']; // or whatever your PK column is
+            // Successful login — set session variables
+            $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['username'] = $user['username'];
-            $_SESSION['email'] = $user['email']; 
-            $_SESSION['role'] = $user['role'];  
-			$_SESSION['department'] = $user['department'];  
-			$_SESSION['country'] = $user['country']; 
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['department'] = $user['department'];
+            $_SESSION['country'] = $user['country'];
 
-            // Generate OTP
+            // Generate and store 6-digit OTP
             $otp = rand(100000, 999999);
             $_SESSION['otp'] = $otp;
-            $_SESSION['otp_time'] = time(); // Track when OTP was sent
+            $_SESSION['otp_time'] = time();
 
-            // Send OTP via PHPMailer
+            // Setup PHPMailer to send OTP email
             $mail = new PHPMailer(true);
             try {
                 $mail->isSMTP();
                 $mail->Host       = 'smtp.gmail.com';
                 $mail->SMTPAuth   = true;
-                $mail->Username   = 'spamacc2306@gmail.com';       
-                $mail->Password   = 'lfvc kyov oife mwze';         
+                $mail->Username   = 'spamacc2306@gmail.com'; // Gmail username
+                $mail->Password   = 'lfvc kyov oife mwze';   // App password
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port       = 587;
 
@@ -62,26 +77,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 $mail->send();
 
-                // Redirect to OTP verification page
+                // Redirect to OTP verification form
                 header("Location: otp_form.php");
                 exit();
 
             } catch (Exception $e) {
+                // Handle email send failure
                 $error = "Could not send OTP. Mail error: {$mail->ErrorInfo}";
             }
+
         } else {
+            // Incorrect password
             $error = "Invalid username or password.";
         }
+
     } else {
+        // User not found
         $error = "Invalid username or password.";
     }
 
     $stmt->close();
 }
 ?>
-<!-- Database Connection for Login System -->
-
-
 
 
 

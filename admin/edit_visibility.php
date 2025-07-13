@@ -1,39 +1,78 @@
 <?php
 session_start();
+// ---------------------------------------------------------------------------
+// edit_visibility.php (charmaine)
+//
+// Purpose:
+//   Allows ADMIN and MANAGER users to update file visibility scope:
+//   - 'ALL' (public), restricted by DEPARTMENT(s), or COUNTRY(ies).
+//
+// Features:
+//   - Validates user role and session.
+//   - Clears old visibility and applies new settings.
+//   - MANAGER can restrict by department or country; ADMIN can select multiple.
+//   - Updates file timestamp and logs changes.
+//   - Runs Python scripts to update vector store and reloads backend.
+//
+// Inputs (POST):
+//   - file_id, visibility, departments, countries, manager_visibility.
+//
+// Access:
+//   - ADMIN and MANAGER only.
+//
+// Side Effects:
+//   - DB updates, vector store re-ingestion, logging.
+//
+// Redirect:
+//   - Back to files.php.
+//
+// ---------------------------------------------------------------------------
+
+
+// Include database connection
 require_once __DIR__ . '/../connect.php';
+
+// Include audit logging functions
 include 'auto_log_function.php';
 
+// Get user ID and role from session
 $user_id = $_SESSION['user_id'] ?? null;
 $role = $_SESSION['role'] ?? '';
+
+// Redirect unauthorized users (not ADMIN or MANAGER) back to files page
 if (!$user_id || !in_array($role, ['ADMIN', 'MANAGER'])) {
     header("Location: ../files.php");
     exit;
 }
 
+// Get file ID and visibility settings from POST request
 $file_id = intval($_POST['file_id'] ?? 0);
-$visibility = $_POST['visibility'] ?? 'all';
-$departments = $_POST['departments'] ?? [];
-$countries = $_POST['countries'] ?? [];
+$visibility = $_POST['visibility'] ?? 'all';        // 'all' or 'restricted'
+$departments = $_POST['departments'] ?? [];         // array of departments (if any)
+$countries = $_POST['countries'] ?? [];             // array of countries (if any)
 
+// Validate file ID, redirect if invalid
 if ($file_id <= 0) {
     header("Location: ../files.php");
     exit;
 }
 
-// Delete old visibility
+// Delete all existing visibility settings for this file to reset before new inserts
 $deleteStmt = $conn->prepare("DELETE FROM file_visibility WHERE file_id = ?");
 $deleteStmt->bind_param("i", $file_id);
 $deleteStmt->execute();
 $deleteStmt->close();
 
 if ($role === 'ADMIN') {
-    // Admin can set 'all' or multiple departments/countries
+    // ADMIN users can set visibility to ALL or multiple departments/countries
     if ($visibility === 'all') {
+        // Insert a single visibility record with scope 'ALL'
         $stmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope) VALUES (?, 'ALL')");
         $stmt->bind_param("i", $file_id);
         $stmt->execute();
         $stmt->close();
     } else {
+        // If restricted, insert multiple DEPARTMENT and COUNTRY visibility entries if provided
         if (!empty($departments)) {
             $stmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope, category) VALUES (?, 'DEPARTMENT', ?)");
             foreach ($departments as $dept) {
@@ -59,12 +98,12 @@ if ($role === 'ADMIN') {
         }
     }
 } elseif ($role === 'MANAGER') {
-    // Manager selects which visibility applies
-    $managerVisibility = $_POST['manager_visibility'] ?? 'department'; // default to department
+    // MANAGER users can restrict visibility by either department or country
+    $managerVisibility = $_POST['manager_visibility'] ?? 'department'; // default to 'department'
 
     if ($visibility === 'restricted') {
         if ($managerVisibility === 'department') {
-            // Insert only department
+            // Insert visibility records for departments selected by manager
             if (!empty($departments)) {
                 $depts = is_array($departments) ? $departments : [$departments];
                 $stmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope, category) VALUES (?, 'DEPARTMENT', ?)");
@@ -78,7 +117,7 @@ if ($role === 'ADMIN') {
                 $stmt->close();
             }
         } elseif ($managerVisibility === 'country') {
-            // Insert only country
+            // Insert visibility records for countries selected by manager
             if (!empty($countries)) {
                 $ctrys = is_array($countries) ? $countries : [$countries];
                 $stmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope, category) VALUES (?, 'COUNTRY', ?)");
@@ -93,7 +132,7 @@ if ($role === 'ADMIN') {
             }
         }
     } else {
-        // If MANAGER sets visibility to all
+        // If MANAGER chooses 'all' visibility, insert single record with 'ALL' scope
         $stmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope) VALUES (?, 'ALL')");
         $stmt->bind_param("i", $file_id);
         $stmt->execute();
@@ -101,13 +140,13 @@ if ($role === 'ADMIN') {
     }
 }
 
-// Update the uploaded_at timestamp
+// Update the uploaded_at timestamp to current time after changes
 $updateTimeStmt = $conn->prepare("UPDATE files SET uploaded_at = NOW() WHERE id = ?");
 $updateTimeStmt->bind_param("i", $file_id);
 $updateTimeStmt->execute();
 $updateTimeStmt->close();
 
-// Get the filename for logging
+// Retrieve the filename for logging purposes
 $nameStmt = $conn->prepare("SELECT filename FROM files WHERE id = ?");
 $nameStmt->bind_param("i", $file_id);
 $nameStmt->execute();
@@ -115,22 +154,28 @@ $nameStmt->bind_result($filename);
 $nameStmt->fetch();
 $nameStmt->close();
 
-
-// Logging
+// Log the visibility edit action with user info and file details
 log_action($conn, $user_id, 'files', 'edit', "Edited visibility for $filename (file ID: $file_id)");
 
-// === Trigger re-ingestion and vectorstore reload ===
+// Prepare the filename argument for shell commands safely
 $escaped_filename = escapeshellarg($filename);
 $output = [];
+
+// Run the vector purge Python script to remove old vector data for this file
 exec("cd /var/www/html/chatbot && python3 chatbot/purge_vectors.py $escaped_filename 2>&1", $output, $return_code);
+
+// Log the purge output and exit code for debugging
 file_put_contents('/var/www/html/logs/ingest_single_debug.log', implode("\n", $output), FILE_APPEND);
 file_put_contents('/var/www/html/logs/ingest_single_debug.log', "ingest_single (edit_visibility) exit code: $return_code\n", FILE_APPEND);
 
+// Run the ingest_single Python script to re-ingest the updated file content
 exec("cd /var/www/html/chatbot && python3 chatbot/ingest_single.py $escaped_filename 2>&1", $output, $return_code);
+
+// Log the ingestion output and exit code for debugging
 file_put_contents('/var/www/html/logs/ingest_single_debug.log', implode("\n", $output), FILE_APPEND);
 file_put_contents('/var/www/html/logs/ingest_single_debug.log', "ingest_single (edit_visibility) exit code: $return_code\n", FILE_APPEND);
 
-// Trigger vectorstore reload in chatbot backend
+// Trigger vectorstore reload in the chatbot backend via HTTP POST request
 $reload_url = 'http://host.docker.internal:8000/reload_vectorstore';
 $ch = curl_init($reload_url);
 curl_setopt($ch, CURLOPT_POST, 1);
@@ -139,9 +184,12 @@ $reload_response = curl_exec($ch);
 $curl_error = curl_error($ch);
 $reload_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
+
+// Log the result of the vectorstore reload request
 error_log("Reload vectors POST to $reload_url (edit_visibility)");
 error_log("Reload vectors cURL error: $curl_error");
 error_log("Reload vectors response: $reload_response (HTTP $reload_http_code)");
 
+// After completion, redirect user back to files listing page
 header("Location: ../files.php");
 exit;

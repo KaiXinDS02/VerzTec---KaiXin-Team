@@ -1,11 +1,28 @@
 <?php
+// ---------------------------------------------------------------------------
+// fetch_users.php (charmaine)
+// Purpose:
+//   Returns JSON list of users based on current user's role and department.
+//
+// Behavior:
+//   - ADMIN: returns all users.
+//   - MANAGER: returns users in same department.
+//   - Others or missing dept: returns empty array.
+//
+// Dependencies:
+//   - Requires DB connection and active session.
+//
+// Output:
+//   - JSON array of user data.
+// ---------------------------------------------------------------------------
+
 require __DIR__ . '/../connect.php';
 session_start(); // Needed to access session data
 header('Content-Type: application/json');
 
 $users = [];
 
-// Default: return nothing if session not valid
+// Default: return empty array if session role not set
 if (!isset($_SESSION['role'])) {
     echo json_encode($users);
     exit;
@@ -14,14 +31,14 @@ if (!isset($_SESSION['role'])) {
 $role = $_SESSION['role'];
 
 if ($role === 'ADMIN') {
-    // Admin sees all users
+    // Admins can see all users
     $stmt = $conn->prepare("SELECT user_id, username, email, department, role, country FROM users ORDER BY user_id DESC");
 } elseif ($role === 'MANAGER' && isset($_SESSION['department'])) {
-    // Manager sees users from the same department
+    // Managers see users only in their department
     $stmt = $conn->prepare("SELECT user_id, username, email, department, role, country FROM users WHERE department = ? ORDER BY user_id DESC");
     $stmt->bind_param("s", $_SESSION['department']);
 } else {
-    // Any other case: return empty
+    // Other roles or missing department get empty list
     echo json_encode($users);
     exit;
 }
