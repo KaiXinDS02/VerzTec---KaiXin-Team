@@ -1735,6 +1735,14 @@ $user_id = $_SESSION['user_id'] ?? 1;
               <div class="d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fa fa-robot me-2"></i>VerzTec AI Assistant</h5>
                 <div class="chat-header-controls">
+    <button id="history-button" class="btn btn-sm btn-outline-primary ms-2" style="
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+    ">
+      <i class="fa fa-history"></i> History
+    </button>
                   <button id="show-avatar" class="btn btn-sm btn-outline-primary" style="display: none;">
                     <i class="fa fa-robot"></i> Show Avatar
                   </button>
@@ -3976,5 +3984,89 @@ function handleReadyPlayerMeMessage(event) {
   <script src="js/jquery-3.4.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/scripts.js"></script>
+
+<!-- Sidebar for History -->
+<div id="chat-history-sidebar" style="
+  position: fixed;
+  top: 0;
+  right: -350px;
+  width: 350px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -4px 0 12px rgba(0,0,0,0.2);
+  z-index: 999;
+  padding: 20px;
+  overflow-y: auto;
+  transition: right 0.3s ease;
+">
+  <button onclick="document.getElementById('chat-history-sidebar').style.right='-350px'" style="
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 4px;
+  ">X</button>
+  <h5>Chat History</h5>
+  <div id="chat-history-list">
+    <p>Loading...</p>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const historySidebar = document.getElementById('chat-history-sidebar');
+    const historyList = document.getElementById('chat-history-list');
+    const historyButton = document.getElementById('history-button');
+
+    if (historyButton) {
+      historyButton.addEventListener('click', () => {
+        if (historySidebar.style.right === '0px') {
+          historySidebar.style.right = '-350px';
+        } else {
+          historySidebar.style.right = '0px';
+          fetchChatHistory();
+        }
+      });
+    }
+
+    function fetchChatHistory() {
+      fetch('fetch_chat_history.php')
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            historyList.innerHTML = `<p>${data.error}</p>`;
+            return;
+          }
+
+          if (data.length === 0) {
+            historyList.innerHTML = '<p>No chat history yet.</p>';
+            return;
+          }
+
+          historyList.innerHTML = '';
+          data.forEach(entry => {
+            const item = document.createElement('div');
+            item.style.marginBottom = '15px';
+            item.innerHTML = `
+              <strong>You:</strong> ${entry.question}<br>
+              <strong>Bot:</strong> ${entry.answer}<br>
+              <small>${new Date(entry.timestamp).toLocaleString()}</small>
+              <hr>
+            `;
+            historyList.appendChild(item);
+          });
+        })
+        .catch(err => {
+          console.error('Error fetching chat history:', err);
+          historyList.innerHTML = '<p>Error loading history.</p>';
+        });
+    }
+  });
+</script>
 </body>
 </html>
