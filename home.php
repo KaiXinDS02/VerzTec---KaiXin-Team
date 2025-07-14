@@ -167,22 +167,25 @@ $capitalizedName = capitalizeName($_SESSION['username']);
     .announcement-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
+      align-items: flex-start; /* ✅ top-align so badge doesn't shift down */
+      gap: 1rem;
     }
+
     .announcement-header h4 {
       font-size: 1.2rem;
       font-weight: 600;
       color: #000;
       margin: 0;
-      flex: 1;
-      max-width: 75%; /* Limit the title width so it wraps before hitting the button */
+      flex: 1 1 auto;
       word-wrap: break-word;
       overflow-wrap: break-word;
       white-space: normal;
       line-height: 1.4;
+      min-width: 0;
     }
+
     .priority-btn {
+      flex-shrink: 0;
       border: none;
       border-radius: 20px;
       padding: 0.45rem 1.2rem;
@@ -190,10 +193,9 @@ $capitalizedName = capitalizeName($_SESSION['username']);
       font-weight: bold;
       color: #fff;
       cursor: default;
-      user-select: none;
       white-space: nowrap;
-      margin-left: 1rem;
-      flex-shrink: 0;
+      margin-left: 0.5rem;
+      height: fit-content;
     }
     .priority-high { background-color: #d9534f; }
     .priority-medium { background-color: #f0ad4e; }
@@ -204,6 +206,9 @@ $capitalizedName = capitalizeName($_SESSION['username']);
       margin: 0;
       line-height: 1.5;
       white-space: normal;
+      overflow-wrap: break-word;
+      word-wrap: break-word; /* legacy fallback */
+      word-break: break-word; /* optional reinforcement */
     }
     .read-more {
       font-family: 'Gudea', sans-serif;
