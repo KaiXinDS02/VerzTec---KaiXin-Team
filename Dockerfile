@@ -32,3 +32,4 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Run composer install
 #RUN composer install
+#gurt yo
