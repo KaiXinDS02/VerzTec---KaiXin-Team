@@ -40,10 +40,10 @@ services:
     networks:
       - appnet
 
-# networks:
-#   appnet:
-#     driver: bridge
-
+networks:
+  appnet:
+    driver: bridge
+    
 # version: '3.8'
 
 # services:
