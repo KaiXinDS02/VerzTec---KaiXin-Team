@@ -256,58 +256,76 @@ def chat(question: Question):
             content = "\n".join([doc.page_content.strip() for doc, _ in docs_and_scores])
             source_file = top_doc.metadata.get("source", None)
             file_path = os.path.join("data/pdfs", source_file) if source_file else ""
-            if top_score >= score_threshold and os.path.exists(file_path):
-                full_prompt = f"{system_prefix}\n---\n{content}\n---\nBased only on the content above, how would you answer this question?\n{question.question}"
-                if top_doc.metadata.get("doc_type") == "cover_page":
 
-                    # title = (top_doc.metadata.get("title") or "").strip().upper()
-                    content_snippet = top_doc.page_content.lower()
+            # 🚫 Reject if query terms do not meaningfully overlap with top document
+            query_terms = set(re.findall(r'\w+', question.question.lower()))
+            doc_terms = set(re.findall(r'\w+', top_doc.page_content.lower()))
+            overlap = query_terms & doc_terms
 
-                    if "quality manual" in content_snippet:
-                        answer = (
-                            "Yes, I can retrieve the cover page.\n"
-                            "It is titled \"QUALITY MANUAL\" and includes Verztec’s corporate address and a confidentiality notice. "
-                            "The document also has placeholders for both Controlled Copy Number and Uncontrolled Copy Number to track versioning."
-                        )
-                    elif "quality procedure" in content_snippet:
-                        answer = (
-                            "Yes, I can retrieve the cover page.\n"
-                            "The title of the document is \"QUALITY PROCEDURE\", and it contains Verztec’s business address, "
-                            "a proprietary use disclaimer, and version control sections for Controlled and Uncontrolled copies."
-                        )
-                    else:
-                        # Fallback generic response
-                        answer = (
-                                "Yes, I can retrieve the cover page. "
-                                "It includes version control sections for both Controlled and Uncontrolled Copy Numbers."
-                            )
+            if len(overlap) < 2:
+                return {
+                    "answer": (
+                        "I'm sorry, I couldn’t find any relevant document to answer your question. "
+                        "You may want to contact HR at <strong>HR@verztec.com</strong>."
+                    ),
+                    "reference_file": None
+                }
 
+            # 💡 Perform score and file existence check
+            if top_score < score_threshold or not os.path.exists(file_path):
+                return {
+                    "answer": (
+                        "I'm sorry, I don’t have this information in my documents. "
+                        "You may want to contact HR at <strong>HR@verztec.com</strong>."
+                    ),
+                    "reference_file": None
+                }
 
-                    reference_file = {
-                        "url": f"http://localhost:8000/pdfs/{quote(source_file)}",
-                        "name": source_file
-                    }
-                    save_chat_to_db(question.user_id, question.question, answer)
-                    return {
-                        "answer": answer,
-                        "reference_file": reference_file
-                    }
+            # ✅ Passed checks — continue
+            full_prompt = f"{system_prefix}\n---\n{content}\n---\nBased only on the content above, how would you answer this question?\n{question.question}"
 
+            # 🔍 Special handling for cover pages
+            if top_doc.metadata.get("doc_type") == "cover_page":
+                content_snippet = top_doc.page_content.lower()
+
+                if "quality manual" in content_snippet:
+                    answer = (
+                        "Yes, I can retrieve the cover page.\n"
+                        "It is titled \"QUALITY MANUAL\" and includes Verztec’s corporate address and a confidentiality notice. "
+                        "The document also has placeholders for both Controlled Copy Number and Uncontrolled Copy Number to track versioning."
+                    )
+                elif "quality procedure" in content_snippet:
+                    answer = (
+                        "Yes, I can retrieve the cover page.\n"
+                        "The title of the document is \"QUALITY PROCEDURE\", and it contains Verztec’s business address, "
+                        "a proprietary use disclaimer, and version control sections for Controlled and Uncontrolled copies."
+                    )
+                else:
+                    answer = (
+                        "Yes, I can retrieve the cover page. "
+                        "It includes version control sections for both Controlled and Uncontrolled Copy Numbers."
+                    )
+            else:
                 result = llama_pipeline.invoke(full_prompt)
                 answer = truncate_answer(result.content)
-                reference_file = {
-                    "url": f"http://localhost:8000/pdfs/{quote(source_file)}",
-                    "name": source_file
-                }
-            else:
-                result = llama_pipeline.invoke(question.question)
-                answer = truncate_answer(result.content)
-                reference_file = None
-        else:
-            result = llama_pipeline.invoke(question.question)
-            answer = truncate_answer(result.content)
-            reference_file = None
 
+            # 💡 File reference is only attached if score passed and file exists
+            reference_file = {
+                "url": f"http://localhost:8000/pdfs/{quote(source_file)}",
+                "name": source_file
+            }
+
+        else:
+            # 💡 Fallback when vectorstore returns no documents at all
+            return {
+                "answer": (
+                    "I'm sorry, I couldn’t find any relevant document to answer your question. "
+                    "You may want to contact HR at <strong>HR@verztec.com</strong>."
+                ),
+                "reference_file": None
+            }
+
+        # ✅ Save and return response
         save_chat_to_db(question.user_id, question.question, answer)
 
         return {
