@@ -11,7 +11,7 @@ load_dotenv()
 llama_pipeline = ChatOllama(
     # model = "llama3.2-vision",
     model="llama3.2", # llama3.2-vision
-    temperature=0.5,  # Lower temperature = more focused and factual
+    temperature=0.4,  # Lower temperature = more focused and factual
     max_tokens=300,
     system=(
         "You are Verztec's friendly and knowledgeable HR assistant.\n"

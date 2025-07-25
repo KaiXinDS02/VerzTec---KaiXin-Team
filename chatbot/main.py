@@ -90,6 +90,29 @@ def is_hr_question_via_llm(query: str) -> bool:
     result = llama_pipeline.invoke(prompt)
     return "yes" in result.content.lower()
 
+def is_retrieval_question(question: str) -> bool:
+    retrieval_phrases = ["retrieve", "get me", "where is", "download", "fetch", "access", "view", "give me"]
+    return any(p in question.lower() for p in retrieval_phrases)
+
+
+def is_generic_or_restricted_response(answer, threshold=85):
+    normalized = answer.strip().lower()
+    generic_phrases = [
+        "i'm sorry",
+        "i can't provide advice",
+        "i don't have the information",
+        "based on the documents i have access to, i don't have the information",
+        "you may want to contact the hr department at hr@verztec.com for further assistance."
+    ]
+    
+    for phrase in generic_phrases:
+        if phrase in normalized:
+            return True
+        if fuzz.partial_ratio(phrase, normalized) >= threshold:
+            return True
+    return False
+
+
 def save_chat_to_db(user_id, question, answer):
     try:
         # Establish a connection to the MySQL database
@@ -159,11 +182,16 @@ def chat(question: Question):
             "reference_file": None
         }
 
-        # ❌ Block unrelated non-HR queries
-    if not is_hr_query(question.question) and not is_hr_question_via_llm(question.question):
+    # ✅ If it's a retrieval request, proceed without HR check
+    if is_retrieval_question(question.question):
+        pass  # Let it proceed to vectorstore and fallback handling
+
+    # ❌ Block unrelated non-HR queries
+    elif not is_hr_query(question.question) and not is_hr_question_via_llm(question.question):
         return {
             "answer": (
                 "I'm sorry, I can only assist with Verztec's HR-related questions. "
+                "Please ensure your queries are related to HR matters. "
                 "You may want to contact the HR department at <strong>HR@verztec.com</strong> for further assistance."
             ),
             "reference_file": None
@@ -265,7 +293,7 @@ def chat(question: Question):
             if len(overlap) < 2:
                 return {
                     "answer": (
-                        "I'm sorry, I couldn’t find any relevant document to answer your question. "
+                        "Sorry, based on the documents I have access to, I don't have the information to answer your question. "
                         "You may want to contact HR at <strong>HR@verztec.com</strong>."
                     ),
                     "reference_file": None
@@ -275,7 +303,7 @@ def chat(question: Question):
             if top_score < score_threshold or not os.path.exists(file_path):
                 return {
                     "answer": (
-                        "I'm sorry, I don’t have this information in my documents. "
+                        "Sorry, based on the documents I have access to, I don't have the information to answer your question "
                         "You may want to contact HR at <strong>HR@verztec.com</strong>."
                     ),
                     "reference_file": None
@@ -309,21 +337,41 @@ def chat(question: Question):
                 result = llama_pipeline.invoke(full_prompt)
                 answer = truncate_answer(result.content)
 
-            # 💡 File reference is only attached if score passed and file exists
-            reference_file = {
-                "url": f"http://localhost:8000/pdfs/{quote(source_file)}",
-                "name": source_file
-            }
+            # # 💡 File reference is only attached if score passed and file exists
+            # reference_file = {
+            #     "url": f"http://localhost:8000/pdfs/{quote(source_file)}",
+            #     "name": source_file
+            # }
 
-        else:
-            # 💡 Fallback when vectorstore returns no documents at all
-            return {
-                "answer": (
-                    "I'm sorry, I couldn’t find any relevant document to answer your question. "
-                    "You may want to contact HR at <strong>HR@verztec.com</strong>."
-                ),
-                "reference_file": None
-            }
+            reference_file = None
+            if not is_generic_or_restricted_response(answer):
+                reference_file = {
+                    "url": f"http://localhost:8000/pdfs/{quote(source_file)}",
+                    "name": source_file
+                }
+
+
+        
+        # Fallback when vectorstore returns no documents at all
+        if not docs_and_scores:
+            if is_retrieval_question(question.question):
+                return {
+                    "answer": (
+                        "Sorry, I couldn’t retrieve the document you’re referring to. "
+                        "It may not exist or I don’t have access to it. "
+                        "You may want to contact HR at <strong>HR@verztec.com</strong> for assistance."
+                    ),
+                    "reference_file": None
+                }
+            else:
+                return {
+                    "answer": (
+                        "I'm sorry, I couldn’t find any relevant document to answer your question. "
+                        "You may want to contact HR at <strong>HR@verztec.com</strong>."
+                    ),
+                    "reference_file": None
+                }
+
 
         # ✅ Save and return response
         save_chat_to_db(question.user_id, question.question, answer)
@@ -376,5 +424,4 @@ def reload_vectorstore():
         doc_count = "unknown"
     print(f"✅ [RELOAD] Reloaded vectorstore. Document count: {doc_count}")
     return {"status": "reloaded", "doc_count": doc_count}
-
 
