@@ -164,15 +164,13 @@ def bold_intro_to_bullets(text: str) -> str:
         current = lines[i].strip()
         next_line = lines[i + 1].strip() if i + 1 < len(lines) else ""
 
-        # Check if next line is a bullet (•, -, or *)
-        if re.match(r"^[•\-\*]", next_line) and not current.startswith("<strong>"):
-
-            # Try to only bold the intro phrase (e.g., first 3-5 words)
+        # Check if the next line starts with a bullet (•, -, or *) and current is not already bold
+        if re.match(r"^(\*|-|•)\s+", next_line) and not current.startswith("<strong>"):
             words = current.split()
+
             if len(words) <= 5:
                 current = f"<strong>{current}</strong>"
             else:
-                # Bold only first few words
                 bold_part = " ".join(words[:4])
                 remaining = " ".join(words[4:])
                 current = f"<strong>{bold_part}</strong> {remaining}"
