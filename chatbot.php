@@ -2025,6 +2025,11 @@ $user_id = $_SESSION['user_id'] ?? 1;
     let recordingStartTime = null;
     let recordingTimeout = null;
     
+    // Language translation variables
+    let detectedLanguage = 'en';
+    let userOriginalLanguage = 'en';
+    // Translation is always enabled - no toggle needed
+    
     // Initialize avatar when page loads
     document.addEventListener('DOMContentLoaded', function() {
       console.log('🚀 VerzTec Chatbot - Initializing...');
@@ -2744,6 +2749,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
         sendMessage();
       }
     }
+// ------------------- VOICE INPUT FUNCTIONS START (Charmaine) ------------------- 
 
     // Voice Recording Functions
     function initializeVoiceRecognition() {
@@ -2987,6 +2993,72 @@ $user_id = $_SESSION['user_id'] ?? 1;
         userInput.placeholder = originalPlaceholder;
       }
     }
+// ------------------- VOICE INPUT FUNCTIONS END (Charmaine) ------------------- 
+
+// ------------------- TRANSLATION AND LANGUAGE DETECTION FUNCTIONS START (Charmaine) ------------------- 
+
+    // Language Translation and Detection Functions
+    async function detectLanguage(text) {
+      try {
+        console.log('🌐 Detecting language for text:', text.substring(0, 50) + '...');
+        
+        // Use Google Translate API for language detection
+        const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURIComponent(text)}`);
+        const data = await response.json();
+        
+        // Extract detected language from response
+        let detectedLang = 'en';
+        if (data && data[2]) {
+          detectedLang = data[2];
+        }
+        
+        console.log('🌐 Detected language:', detectedLang);
+        return detectedLang;
+      } catch (error) {
+        console.error('❌ Language detection failed:', error);
+        return 'en'; // Default to English if detection fails
+      }
+    }
+
+    async function translateText(text, fromLang, toLang) {
+      try {
+        console.log(`🔄 Translating from ${fromLang} to ${toLang}:`, text.substring(0, 50) + '...');
+        
+        // Skip translation if same language
+        if (fromLang === toLang) {
+          return text;
+        }
+        
+        // Use Google Translate API
+        const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${fromLang}&tl=${toLang}&dt=t&q=${encodeURIComponent(text)}`);
+        const data = await response.json();
+        
+        // Extract translated text
+        let translatedText = text;
+        if (data && data[0] && data[0][0] && data[0][0][0]) {
+          translatedText = data[0].map(item => item[0]).join('');
+        }
+        
+        console.log('✅ Translation result:', translatedText.substring(0, 50) + '...');
+        return translatedText;
+      } catch (error) {
+        console.error('❌ Translation failed:', error);
+        return text; // Return original text if translation fails
+      }
+    }
+
+    function isEnglish(text) {
+      // Simple fallback function - now mainly used for edge cases
+      // Since we always use Google Translate API for detection, this is just a lightweight backup
+      const basicEnglishPattern = /^[a-zA-Z0-9\s.,!?'"()-]+$/;
+      return basicEnglishPattern.test(text);
+    }
+
+    function showTranslationStatus(message) {
+      updateAvatarStatus(message);
+      console.log('🌐 Translation status:', message);
+    }
+// ------------------- TRANSLATION AND LANGUAGE DETECTION FUNCTIONS END (Charmaine) ------------------- 
 
     async function sendMessage() {
       // Don't send if chatbot is busy
@@ -3032,15 +3104,51 @@ $user_id = $_SESSION['user_id'] ?? 1;
 
       const userId = <?php echo json_encode($user_id); ?>;
 
+      // Language Detection and Translation (always enabled)
+      let processedMessage = message;
+      
+      try {
+        // Always detect language via API for accuracy
+        showTranslationStatus('🌐 Detecting language...');
+        
+        // Detect the language of the user input using Google Translate API
+        detectedLanguage = await detectLanguage(message);
+        userOriginalLanguage = detectedLanguage;
+        
+        console.log('🌐 API detected language:', detectedLanguage, 'for message:', message);
+        
+        if (detectedLanguage !== 'en') {
+          showTranslationStatus(`🔄 Translating from ${detectedLanguage.toUpperCase()} to English...`);
+          
+          // Translate message to English for processing
+          processedMessage = await translateText(message, detectedLanguage, 'en');
+          
+          console.log('🌐 Original message:', message);
+          console.log('🌐 Translated message:', processedMessage);
+          
+          showTranslationStatus('✅ Translation complete, processing...');
+        } else {
+          console.log('🌐 Message detected as English, no translation needed');
+          userOriginalLanguage = 'en';
+          showTranslationStatus('✅ English detected, processing...');
+        }
+      } catch (error) {
+        console.error('❌ Translation error:', error);
+        showTranslationStatus('⚠️ Translation failed, using original message');
+        // Continue with original message if translation fails
+        processedMessage = message;
+        userOriginalLanguage = 'en';
+      }
+
       // Send message to chatbot API
       try {
-        console.log('🔄 Sending message to API:', message);
+        console.log('🔄 Sending message to API:', processedMessage);
         const response = await fetch('http://localhost:8000/chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ user_id: userId, question: message })
+          body: JSON.stringify({ user_id: userId, question: processedMessage })
         });
         
         console.log('📡 API Response status:', response.status);
@@ -3059,8 +3167,22 @@ $user_id = $_SESSION['user_id'] ?? 1;
         }
         
         // Get the answer from the response (try both 'answer' and 'response' fields)
-        const botAnswer = data.answer || data.response || 'Sorry, I could not generate a response.';
-        console.log('🤖 Bot answer:', botAnswer.substring(0, 100) + '...');
+        let botAnswer = data.answer || data.response || 'Sorry, I could not generate a response.';
+        console.log('🤖 Bot answer (English):', botAnswer.substring(0, 100) + '...');
+        
+        // Translate bot response back to user's original language if needed
+        if (userOriginalLanguage !== 'en') {
+          try {
+            showTranslationStatus(`🔄 Translating response to ${userOriginalLanguage.toUpperCase()}...`);
+            botAnswer = await translateText(botAnswer, 'en', userOriginalLanguage);
+            console.log('🤖 Bot answer (translated):', botAnswer.substring(0, 100) + '...');
+            showTranslationStatus('✅ Response translated successfully');
+          } catch (translationError) {
+            console.error('❌ Response translation failed:', translationError);
+            showTranslationStatus('⚠️ Response translation failed, showing in English');
+            // Continue with English response if translation fails
+          }
+        }
         
         // Store reference file info for later use (after text is complete)
         let referenceFile = null;
