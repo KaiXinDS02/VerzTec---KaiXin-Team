@@ -742,7 +742,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
         word-wrap: break-word;
       }
 
-      /* Improve formatting for paragraphs and bullet lists inside bot messages (changed) */
+      /* Improve formatting for paragraphs and bullet lists inside bot messages (changedj) */
       .chat-body .bot-bubble p {
         margin: 0.5em 0;
       }
@@ -757,6 +757,10 @@ $user_id = $_SESSION['user_id'] ?? 1;
         margin-bottom: 0.25em;
       }
 
+      /* Add spacing when a paragraph follows a bullet list (changedj)*/
+      .chat-body .bot-bubble ul + p {
+        margin-top: 1em;
+      }
       
       /* Fix text overflow issues */
       .chat-body .bot-bubble,
@@ -3227,7 +3231,8 @@ $user_id = $_SESSION['user_id'] ?? 1;
                 
                 botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'bot-bubble';
-                botMessageDiv.innerHTML = '<strong>VerzTec Assistant:</strong> ';
+                //botMessageDiv.innerHTML = '<strong>VerzTec Assistant:</strong> ';
+                botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${botAnswer}`;
                 
                 const chatContainer = document.getElementById('chat-container');
                 chatContainer.appendChild(botMessageDiv);

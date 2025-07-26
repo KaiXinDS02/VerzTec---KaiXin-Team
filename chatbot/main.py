@@ -79,17 +79,14 @@ def format_answer_if_needed(answer: str) -> str:
     if bullet_started:
         formatted_lines.append("</ul>")
 
+    # Detect unformatted role list (like org chart)
+    if len(lines) > 1 and all(len(p.strip().split()) <= 5 for p in lines[1:]):
+        items = lines[1:]
+        bullets = "".join(f"<li>{item.strip()}</li>" for item in items if item.strip())
+        return f"<p>{lines[0].strip()}</p><ul>{bullets}</ul>"
+
     return "\n".join(formatted_lines)
 
-# def format_answer_if_needed(answer): # better version? try later
-#     bullets = re.split(r"(?<!\n)(Firstly|Secondly|Additionally|Also|Lastly)", answer, flags=re.IGNORECASE)
-#     if len(bullets) > 1:
-#         # Reassemble with bullets
-#         lines = []
-#         for i in range(1, len(bullets), 2):
-#             lines.append(f"• {bullets[i] + bullets[i+1].strip()}")
-#         return "\n".join(lines)
-#     return answer
 
 def is_rejection_response(text: str) -> bool:
     text = text.lower()
@@ -157,6 +154,32 @@ def is_generic_or_restricted_response(answer, threshold=85):
         if fuzz.partial_ratio(phrase, normalized) >= threshold:
             return True
     return False
+
+
+def bold_intro_to_bullets(text: str) -> str:
+    lines = text.strip().split('\n')
+    updated_lines = []
+
+    for i in range(len(lines)):
+        current = lines[i].strip()
+        next_line = lines[i + 1].strip() if i + 1 < len(lines) else ""
+
+        # Check if next line is a bullet (•, -, or *)
+        if re.match(r"^[•\-\*]", next_line) and not current.startswith("<strong>"):
+
+            # Try to only bold the intro phrase (e.g., first 3-5 words)
+            words = current.split()
+            if len(words) <= 5:
+                current = f"<strong>{current}</strong>"
+            else:
+                # Bold only first few words
+                bold_part = " ".join(words[:4])
+                remaining = " ".join(words[4:])
+                current = f"<strong>{bold_part}</strong> {remaining}"
+
+        updated_lines.append(current)
+
+    return "\n".join(updated_lines)
 
 
 def save_chat_to_db(user_id, question, answer):
@@ -376,6 +399,7 @@ def chat(question: Question):
                 raw_answer = result.content
                 answer = truncate_answer(raw_answer)
                 answer = format_answer_if_needed(answer)
+                answer = bold_intro_to_bullets(answer)
                 # answer = answer.replace("\n", "<br>")
 
 
