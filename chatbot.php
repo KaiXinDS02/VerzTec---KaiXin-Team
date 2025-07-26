@@ -2909,7 +2909,11 @@ $user_id = $_SESSION['user_id'] ?? 1;
       isRecording = false;
       updateVoiceRecordingUI(false);
       
-      // Calculate recording duration
+      // Immediately reset placeholder text
+      const userInput = document.getElementById('user-input');
+      userInput.placeholder = 'Review your message and press Send';
+      
+      // Calculate recording duration and update status
       if (recordingStartTime) {
         const duration = ((Date.now() - recordingStartTime) / 1000).toFixed(1);
         updateVoiceRecordingStatus(`Recording stopped (${duration}s). Review and send your message.`);
@@ -2918,8 +2922,14 @@ $user_id = $_SESSION['user_id'] ?? 1;
         updateVoiceRecordingStatus('Recording stopped. Review and send your message.');
       }
       
+      // Reset placeholder back to original after 3 seconds
+      setTimeout(() => {
+        if (userInput.placeholder !== 'Listening...' && !isChatbotBusy) {
+          userInput.placeholder = 'Ask anything...';
+        }
+      }, 3000);
+      
       // Focus on the input field so user can review the transcription
-      const userInput = document.getElementById('user-input');
       userInput.focus();
       
       console.log('🎤 Voice recording stopped, final text:', userInput.value);
@@ -2958,7 +2968,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
       
       // Also update placeholder text temporarily
       const userInput = document.getElementById('user-input');
-      const originalPlaceholder = userInput.placeholder;
+      const originalPlaceholder = 'Ask anything...'; // Use the default placeholder
       
       if (message.includes('Listening')) {
         userInput.placeholder = 'Listening...';
@@ -2972,6 +2982,9 @@ $user_id = $_SESSION['user_id'] ?? 1;
         setTimeout(() => {
           userInput.placeholder = originalPlaceholder;
         }, 5000);
+      } else {
+        // For any other message, reset to original placeholder
+        userInput.placeholder = originalPlaceholder;
       }
     }
 
