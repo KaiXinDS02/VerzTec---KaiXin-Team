@@ -741,6 +741,22 @@ $user_id = $_SESSION['user_id'] ?? 1;
         color: #333;
         word-wrap: break-word;
       }
+
+      /* Improve formatting for paragraphs and bullet lists inside bot messages (changed) */
+      .chat-body .bot-bubble p {
+        margin: 0.5em 0;
+      }
+
+      .chat-body .bot-bubble ul {
+        margin: 0.5em 0;
+        padding-left: 1.2em;
+        list-style-type: disc;
+      }
+
+      .chat-body .bot-bubble li {
+        margin-bottom: 0.25em;
+      }
+
       
       /* Fix text overflow issues */
       .chat-body .bot-bubble,

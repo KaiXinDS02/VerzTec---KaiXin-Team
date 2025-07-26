@@ -37,13 +37,59 @@ class Question(BaseModel):
     user_id: int
     question: str
 
-def truncate_answer(answer, max_words=MAX_ANSWER_WORDS):
+# def truncate_answer(answer, max_words=MAX_ANSWER_WORDS):
+#     words = answer.split()
+#     if len(words) <= max_words:
+#         return answer
+#     truncated = " ".join(words[:max_words])
+#     truncated = re.sub(r'([.!?])[^.!?]*$', r'\1', truncated.strip())
+#     return truncated + "..."
+
+def truncate_answer(answer, max_words=MAX_ANSWER_WORDS): # changed
     words = answer.split()
     if len(words) <= max_words:
         return answer
     truncated = " ".join(words[:max_words])
-    truncated = re.sub(r'([.!?])[^.!?]*$', r'\1', truncated.strip())
-    return truncated + "..."
+    # Cut at the last complete sentence
+    sentences = re.split(r'(?<=[.!?]) +', truncated)
+    return " ".join(sentences[:-1]) + "..."
+
+def format_answer_if_needed(answer: str) -> str:
+    lines = answer.strip().splitlines()
+    formatted_lines = []
+    bullet_started = False
+
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+
+        # Detect bullets starting with • or hyphens
+        if stripped.startswith("•") or stripped.startswith("- "):
+            if not bullet_started:
+                formatted_lines.append("<ul>")
+                bullet_started = True
+            formatted_lines.append(f"<li>{stripped.lstrip('•').lstrip('-').strip()}</li>")
+        else:
+            if bullet_started:
+                formatted_lines.append("</ul>")
+                bullet_started = False
+            formatted_lines.append(f"<p>{stripped}</p>")
+
+    if bullet_started:
+        formatted_lines.append("</ul>")
+
+    return "\n".join(formatted_lines)
+
+# def format_answer_if_needed(answer): # better version? try later
+#     bullets = re.split(r"(?<!\n)(Firstly|Secondly|Additionally|Also|Lastly)", answer, flags=re.IGNORECASE)
+#     if len(bullets) > 1:
+#         # Reassemble with bullets
+#         lines = []
+#         for i in range(1, len(bullets), 2):
+#             lines.append(f"• {bullets[i] + bullets[i+1].strip()}")
+#         return "\n".join(lines)
+#     return answer
 
 def is_rejection_response(text: str) -> bool:
     text = text.lower()
@@ -259,8 +305,10 @@ def chat(question: Question):
 
         system_prefix = (
             "You are a professional HR assistant at Verztec.\n"
+            "If the question is about policy (e.g., leave, claims), always give a concise summary followed by a short bullet list if the document contains specific breakdowns or exceptions."
             "Answer only using the content provided in the document — do not add anything outside of it.\n"
             "Summarize all key points mentioned in the document, not just one. Keep the tone clear and professional, and do not skip relevant sections.\n"
+            "Where the document lists multiple steps or actions, present them as bullet points using clear formatting (e.g., • or <li>)."
             "Avoid overly casual language like 'just a heads up', 'don’t worry', or 'let them know what’s going on'.\n"
             "Speak as if you're helping a colleague or employee in a business setting.\n"
             "Avoid numbered or overly formatted lists unless they already exist in the document.\n"
@@ -323,8 +371,13 @@ def chat(question: Question):
                         "It includes version control sections for both Controlled and Uncontrolled Copy Numbers."
                     )
             else:
-                result = llama_pipeline.invoke(full_prompt)
-                answer = truncate_answer(result.content)
+                result = llama_pipeline.invoke(full_prompt) # changed
+                # answer = truncate_answer(result.content)
+                raw_answer = result.content
+                answer = truncate_answer(raw_answer)
+                answer = format_answer_if_needed(answer)
+                # answer = answer.replace("\n", "<br>")
+
 
             # # 💡 File reference is only attached if score passed and file exists
             # reference_file = {
@@ -333,12 +386,11 @@ def chat(question: Question):
             # }
 
             reference_file = None
-            if not is_generic_or_restricted_response(answer):
+            if not is_generic_or_restricted_response(answer.strip()):
                 reference_file = {
                     "url": f"http://localhost:8000/pdfs/{quote(source_file)}",
                     "name": source_file
                 }
-
 
         
         # Fallback when vectorstore returns no documents at all
