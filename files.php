@@ -12,8 +12,8 @@ $directory = 'chatbot/data/pdfs';
 // Determine user context
 $user_id = $_SESSION['user_id'] ?? 1;
 $role    = $_SESSION['role']    ?? '';
-$dept = $_SESSION['department'] ?? 'Your Department';
-$country = $_SESSION['country'] ?? 'Your Country';
+$user_dept = $_SESSION['department'] ?? 'Your Department';
+$user_country = $_SESSION['country'] ?? 'Your Country';
 
 // Manager-specific visibility logic
 if ($role === 'MANAGER') {
@@ -50,71 +50,87 @@ while($r = $countryResult->fetch_assoc()){
   $countries[] = $r['country'];
 }
 
-// Build files query based on role
+// Build files query based on new file_visibility table
 if($role==='ADMIN'){
   $stmt = $conn->prepare("SELECT * FROM files ORDER BY uploaded_at DESC");
 }
 elseif($role==='MANAGER'){
   $stmt = $conn->prepare("
-        SELECT DISTINCT f.*
-        FROM   file_visibility v
-        JOIN   files f ON f.id = v.file_id
-        WHERE  v.visibility_scope = 'ALL'
-           OR (v.visibility_scope = 'COUNTRY'
-               AND v.category = ?)
-           OR (v.visibility_scope = 'DEPARTMENT'
-               AND v.category = ?)
-        ORDER  BY f.uploaded_at DESC
-    ");
-    $stmt->bind_param("ss", $country, $dept);   // $country & $department from session
+    SELECT DISTINCT f.*
+    FROM file_visibility v
+    JOIN files f ON f.id = v.file_id
+    WHERE (v.country = 'ALL' AND v.department = 'ALL')
+       OR (v.country = ? AND v.department = 'ALL')
+       OR (v.country = ? AND v.department = ?)
+    ORDER BY f.uploaded_at DESC
+  ");
+  $stmt->bind_param("sss", $user_country, $user_country, $user_dept);
 }
 else {
-  
   $stmt = $conn->prepare("
     SELECT DISTINCT f.*
     FROM files f
-    JOIN file_visibility v ON f.id=v.file_id
-    WHERE v.visibility_scope='ALL'
-      OR (v.visibility_scope='COUNTRY' AND v.category=?)
-      OR (v.visibility_scope='DEPARTMENT' AND v.category=?)
+    JOIN file_visibility v ON f.id = v.file_id
+    WHERE (v.country = 'ALL' AND v.department = 'ALL')
+      OR (v.country = ? AND v.department = 'ALL')
+      OR (v.country = ? AND v.department = ?)
     ORDER BY f.uploaded_at DESC
   ");
-  $stmt->bind_param("ss",$country,$dept);
+  $stmt->bind_param("sss", $user_country, $user_country, $user_dept);
 }
 $stmt->execute();
 
-
 $files = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
+// Fetch unique departments for fallback (optional)
+$deptResult = $conn->query("
+  SELECT DISTINCT department
+  FROM users
+  WHERE department IS NOT NULL AND department != ''
+  ORDER BY department ASC
+");
+$departments = [];
+while($r = $deptResult->fetch_assoc()){
+  $departments[] = $r['department'];
+}
 
-// Build visibility metadata for display
+// Fetch distinct countries from users table and their departments
+$countryDeptMap = [];
+$res = $conn->query("SELECT DISTINCT country, department FROM users WHERE country IS NOT NULL AND country != '' AND department IS NOT NULL AND department != '' ORDER BY country, department");
+
+while ($row = $res->fetch_assoc()) {
+    $c = $row['country'];
+    $d = $row['department'];
+    if (!isset($countryDeptMap[$c])) {
+        $countryDeptMap[$c] = [];
+    }
+    if (!in_array($d, $countryDeptMap[$c])) {
+        $countryDeptMap[$c][] = $d;
+    }
+}
+// Build visibility metadata for display (new schema)
 $fileVisibilities = [];
 if (!empty($files)) {
     $fileIds = array_column($files, 'id');
     $placeholders = str_repeat('?,', count($fileIds) - 1) . '?';
-    
-    $visQuery = $conn->prepare("
-        SELECT file_id, visibility_scope, category
-        FROM file_visibility
-        WHERE file_id IN ($placeholders)
-    ");
-    $visQuery->bind_param(str_repeat('i', count($fileIds)), ...$fileIds);
+    $types = str_repeat('i', count($fileIds));
+    $visQuery = $conn->prepare("SELECT file_id, country, department FROM file_visibility WHERE file_id IN ($placeholders)");
+    $visQuery->bind_param($types, ...$fileIds);
     $visQuery->execute();
     $visResult = $visQuery->get_result();
-    
     while ($row = $visResult->fetch_assoc()) {
         $fid = $row['file_id'];
-        $scope = $row['visibility_scope'];
-        $category = $row['category'];
-        
+        $country = $row['country'];
+        $department = $row['department'];
         if (!isset($fileVisibilities[$fid])) {
-            $fileVisibilities[$fid] = ['ALL' => false, 'DEPARTMENT' => [], 'COUNTRY' => []];
+            $fileVisibilities[$fid] = ['ALL' => false, 'COUNTRY' => [], 'DEPARTMENT' => []];
         }
-        
-        if ($scope === 'ALL') {
+        if ($country === 'ALL' && $department === 'ALL') {
             $fileVisibilities[$fid]['ALL'] = true;
-        } else {
-            $fileVisibilities[$fid][$scope][] = $category;
+        } elseif ($country !== 'ALL' && $department === 'ALL') {
+            $fileVisibilities[$fid]['COUNTRY'][] = $country;
+        } elseif ($country !== 'ALL' && $department !== 'ALL') {
+            $fileVisibilities[$fid]['DEPARTMENT'][] = $department . ' (' . $country . ')';
         }
     }
     $visQuery->close();
@@ -176,33 +192,37 @@ function getFriendlyFileType($mimeType) {
     return $map[$mimeType] ?? 'other';
   }
 
-  // Scan /files and insert if not in DB
+  // Scan chatbot/data/pdfs/ and insert if not in DB
   $inserted = 0;
-
   foreach (scandir($directory) as $file) {
       if ($file === '.' || $file === '..') continue;
 
       $filePath = realpath("$directory/$file");
+      if (!$filePath) continue;
+
       $mimeType = mime_content_type($filePath);
       $fileType = getFriendlyFileType($mimeType);
       $fileSize = round(filesize($filePath) / 1024);
-      $relativePath = 'chatbot/data/pdfs/' . $file; // Use web-safe relative path
+      $relativePath = 'chatbot/data/pdfs/' . $file;
 
+      // Check if already in DB
       $check = $conn->prepare("SELECT id FROM files WHERE file_path = ?");
       $check->bind_param("s", $relativePath);
       $check->execute();
       $check->store_result();
 
       if ($check->num_rows === 0) {
+          // Insert file record
           $stmt = $conn->prepare("INSERT INTO files (user_id, filename, file_path, file_type, file_size) VALUES (?, ?, ?, ?, ?)");
           $stmt->bind_param("isssi", $user_id, $file, $relativePath, $fileType, $fileSize);
 
           if ($stmt->execute()) {
               $file_id = $stmt->insert_id;
 
-              // Insert default visibility: ALL
-              $visStmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope) VALUES (?, 'ALL')");
-              $visStmt->bind_param("i", $file_id);
+              // Insert 'ALL' visibility
+              $visStmt = $conn->prepare("INSERT INTO file_visibility (file_id, country, department) VALUES (?, ?, ?)");
+              $all = 'ALL';
+              $visStmt->bind_param("iss", $file_id, $all, $all);
               $visStmt->execute();
               $visStmt->close();
 
@@ -210,60 +230,9 @@ function getFriendlyFileType($mimeType) {
           }
           $stmt->close();
       }
+
       $check->close();
   }
-
-  if ($role === 'ADMIN') {
-      $stmt = $conn->prepare("
-          SELECT f.*
-          FROM files f
-          ORDER BY f.uploaded_at DESC
-      ");
-  } elseif ($role === 'MANAGER') {
-      $stmt = $conn->prepare("
-        SELECT DISTINCT f.*
-        FROM   files f
-        JOIN   file_visibility v ON f.id = v.file_id
-        WHERE  v.visibility_scope = 'ALL'
-           OR (v.visibility_scope = 'COUNTRY'    AND v.category = ?)
-           OR (v.visibility_scope = 'DEPARTMENT' AND v.category = ?)
-        ORDER  BY f.uploaded_at DESC
-    ");
-    $stmt->bind_param("ss", $country, $dept);
-  } else { // USER
-      $stmt = $conn->prepare("
-        SELECT DISTINCT f.*
-        FROM   files f
-        JOIN   file_visibility v ON f.id = v.file_id
-        WHERE  v.visibility_scope = 'ALL'
-           OR (v.visibility_scope = 'COUNTRY'    AND v.category = ?)
-           OR (v.visibility_scope = 'DEPARTMENT' AND v.category = ?)
-        ORDER  BY f.uploaded_at DESC
-    ");
-    $stmt->bind_param("ss", $country, $dept);
-  }
-
-  // Build a map: $vis[$file_id]['DEPARTMENT'] = [..], $vis[$file_id]['COUNTRY'] = [..], $vis[$file_id]['ALL'] = true/false
-  $vis = [];
-  $q = $conn->query("SELECT file_id, visibility_scope, category
-                    FROM file_visibility
-                    WHERE file_id IN (" . implode(',', array_column($files,'id')) . ")");
-  while ($row = $q->fetch_assoc()) {
-    $fid  = $row['file_id'];
-    $type = $row['visibility_scope'];
-    $cat  = $row['category'];          // NULL if scope = ALL
-    if ($type === 'ALL') {
-        $vis[$fid]['ALL'] = true;
-    } else {
-        $vis[$fid][$type][] = $cat;    // collect departments / countries
-    }
-  }
-
-
-  $stmt->execute();
-  $result = $stmt->get_result();
-  $files = $result->fetch_all(MYSQLI_ASSOC);
-  $stmt->close();
 ?>
 
 
@@ -361,6 +330,27 @@ function getFriendlyFileType($mimeType) {
       font-size:.9rem; color:#333;
     }
     .file-icon { font-size:1.2rem; margin-right:.5rem }
+    
+    /* FORCE MODAL Z-INDEX TO APPEAR ON TOP */
+    .modal {
+      z-index: 99999 !important;
+    }
+    .modal-backdrop {
+      z-index: 99998 !important;
+    }
+    
+    /* ENSURE MODAL HAS MINIMUM DIMENSIONS */
+    .modal-dialog {
+      min-width: 400px !important;
+      min-height: 300px !important;
+    }
+    .modal-content {
+      min-height: 250px !important;
+    }
+    .modal-body {
+      min-height: 150px !important;
+      padding: 20px !important;
+    }
   </style>
 </head>
 <body>
@@ -453,47 +443,85 @@ function getFriendlyFileType($mimeType) {
                 $color= getIconColor($file['file_type']);
 
                 $fileId = $file['id'];
-                $visibilityText = 'ALL';  // default
-
-                // Check if visibility is not "ALL"
+                // Build visibility string as country/department pairs
+                $visibilityText = '-';
                 if (!empty($fileVisibilities[$fileId])) {
                   if (!empty($fileVisibilities[$fileId]['ALL'])) {
-                      $visibilityText = 'ALL';
-                  } elseif (!empty($fileVisibilities[$fileId]['DEPARTMENT'])) {
-                      $visibilityText = 'DEPT - ' . implode(', ', $fileVisibilities[$fileId]['DEPARTMENT']);
-                  } elseif (!empty($fileVisibilities[$fileId]['COUNTRY'])) {
-                      // Assuming only one country for this
-                      $country = $fileVisibilities[$fileId]['COUNTRY'][0] ?? '-';
-                      $visibilityText = 'COUNTRY - ' . $country;
+                    $visibilityText = 'ALL';
                   } else {
-                      $visibilityText = '-';
+                    $pairs = [];
+                    // Collect all country/department pairs
+                    $rawPairs = [];
+                    $visQuery = $conn->prepare("SELECT country, department FROM file_visibility WHERE file_id = ?");
+                    $visQuery->bind_param("i", $fileId);
+                    $visQuery->execute();
+                    $visResult = $visQuery->get_result();
+                    while ($row = $visResult->fetch_assoc()) {
+                      $country = $row['country'];
+                      $department = $row['department'];
+                      if ($country === 'ALL' && $department === 'ALL') {
+                        $pairs = ['ALL'];
+                        break;
+                      }
+                      $pairs[] = $country . '/' . $department;
+                    }
+                    $visQuery->close();
+                    if (!empty($pairs)) {
+                      $visibilityText = implode(', ', $pairs);
+                    }
                   }
-              }
-              
+                }
 
-              // Determine editing/deleting permission 
-              $canManage = false;
-              $fileVisibility = $fileVisibilities[$fileId] ?? ['ALL' => false, 'DEPARTMENT' => [], 'COUNTRY' => []];
+                // Determine editing/deleting permission 
+                $canManage = false;
+                $fileVisibility = $fileVisibilities[$fileId] ?? ['ALL' => false, 'DEPARTMENT' => [], 'COUNTRY' => []];
 
-              if ($role === 'ADMIN') {
+                if ($role === 'ADMIN') {
                     $canManage = true;
-
-              } elseif ($role === 'MANAGER') {
-                  // normalise strings
-                  $deptList    = array_map(fn($d) => strtoupper(trim($d)), $fileVisibility['DEPARTMENT']);
-                  $countryList = array_map(fn($c) => strtoupper(trim($c)), $fileVisibility['COUNTRY']);
-                  $dept        = strtoupper(trim($dept));
-                  $country     = strtoupper(trim($country));
-
-                  // 1) file restricted to exactly THIS department
-                  if (count($deptList) === 1 && $deptList[0] === $dept) {
-                      $canManage = true;
-                  }
-                  // 2) file restricted to exactly THIS country and no departments
-                  elseif (empty($deptList) && count($countryList) === 1 && $countryList[0] === $country) {
-                      $canManage = true;
-                  }
-              }
+                } elseif ($role === 'MANAGER') {
+                    // Managers can edit files that have visibility specifically for their country
+                    // They CANNOT edit global ALL/ALL files (only admins can)
+                    
+                    // Skip global files
+                    if (!empty($fileVisibility['ALL'])) {
+                        $canManage = false; // Global files - only admins can edit
+                    } else {
+                        // Check if file has any visibility setting for manager's country
+                        $hasManagerCountry = false;
+                        
+                        // Check country-wide visibility (country/ALL)
+                        foreach ($fileVisibility['COUNTRY'] as $country) {
+                            if (strtoupper(trim($country)) === strtoupper(trim($user_country))) {
+                                $hasManagerCountry = true;
+                                break;
+                            }
+                        }
+                        
+                        // Check department-specific visibility (country/department)
+                        if (!$hasManagerCountry) {
+                            foreach ($fileVisibility['DEPARTMENT'] as $deptCountryPair) {
+                                // deptCountryPair is like "HR (Singapore)"
+                                if (preg_match('/\(([^)]+)\)$/', $deptCountryPair, $matches)) {
+                                    if (strtoupper(trim($matches[1])) === strtoupper(trim($user_country))) {
+                                        $hasManagerCountry = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        $canManage = $hasManagerCountry;
+                    }
+                }
+                
+                // Debug output for managers
+                if ($role === 'MANAGER') {
+                    $debugCountries = implode(', ', $fileVisibility['COUNTRY']);
+                    $debugDepts = implode(', ', $fileVisibility['DEPARTMENT']);
+                    echo "<!-- DEBUG: File {$file['filename']} - canManage: " . ($canManage ? 'true' : 'false') . 
+                         ", isGlobal: " . (!empty($fileVisibility['ALL']) ? 'true' : 'false') . 
+                         ", Countries: [{$debugCountries}], Departments: [{$debugDepts}], UserCountry: {$user_country} -->";
+                }
  
               ?>
                 <tr>
@@ -551,201 +579,271 @@ function getFriendlyFileType($mimeType) {
                           </li>
                           <li>
                             <a class="dropdown-item text-danger delete-file"
-                               href="#" data-fileid="<?= $file['id'] ?>">Delete</a>
+                               href="#" data-fileid="<?= $file['id'] ?>" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">Delete</a>
                           </li>
                         <?php endif; ?>
                       </ul>
                     </div>
                   </td>
                 </tr>
-    
-                <!-- EDIT VISIBILITY MODAL -->
-                <div class="modal fade" id="editVisibilityModal<?= $file['id'] ?>" tabindex="-1" aria-labelledby="editVisibilityModalLabel<?= $file['id'] ?>" aria-hidden="true">
-                  <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                      <form method="POST" action="admin/edit_visibility.php">
-                        <input type="hidden" name="file_id" value="<?= $file['id'] ?>">
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="editVisibilityModalLabel<?= $file['id'] ?>">
-                            Edit Visibility – <?= htmlspecialchars($file['filename']) ?>
-                          </h5>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                          <?php $fv = $fileVisibilities[$file['id']] ?? ['ALL' => true]; ?>
-                          <?php if($role === 'ADMIN'): ?>
-                            <div class="mb-3">
-                              <label class="form-label fw-bold">Visibility</label><br>
-                              <div class="form-check form-check-inline">
-                                <input class="form-check-input visibility-radio" type="radio" name="visibility" id="vAll<?= $file['id'] ?>" value="all" <?= !empty($fv['ALL']) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="vAll<?= $file['id'] ?>">All</label>
-                              </div>
-                              <div class="form-check form-check-inline">
-                                <input class="form-check-input visibility-radio" type="radio" name="visibility" id="vRest<?= $file['id'] ?>" value="restricted" <?= empty($fv['ALL']) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="vRest<?= $file['id'] ?>">Restricted</label>
-                              </div>
-                            </div>
-
-                            <div id="editRestrictionOptions<?= $file['id'] ?>" class="<?= !empty($fv['ALL']) ? 'd-none' : '' ?>">
-                              <div class="mb-3">
-                                <label class="form-label fw-bold">Restrict By Department(s)</label>
-                                <?php foreach($departments as $d): ?>
-                                  <div class="form-check">
-                                    <input
-                                      class="form-check-input"
-                                      type="checkbox"
-                                      name="departments[]"
-                                      value="<?= htmlspecialchars($d) ?>"
-                                      id="dept<?= $file['id'] . md5($d) ?>"
-                                      <?= !empty($fv['DEPARTMENT']) && in_array($d, $fv['DEPARTMENT']) ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="dept<?= $file['id'] . md5($d) ?>"><?= htmlspecialchars($d) ?></label>
-                                  </div>
-                                <?php endforeach; ?>
-                              </div>
-                            </div>
-
-                          <?php elseif($role === 'MANAGER'): ?>
-                            <input type="hidden" name="visibility" value="restricted">
-
-                            <div class="mb-3">
-                              <label class="form-label fw-bold">Visibility</label><br>
-                              <div class="form-check">
-                                <input
-                                  class="form-check-input"
-                                  type="radio"
-                                  name="manager_visibility"
-                                  id="onlyDept<?= $file['id'] ?>"
-                                  value="department"
-                                  <?= !empty($fv['DEPARTMENT']) && empty($fv['COUNTRY']) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="onlyDept<?= $file['id'] ?>">
-                                  Only Department: <?= htmlspecialchars($dept) ?>
-                                </label>
-                              </div>
-
-                              <div class="form-check">
-                                <input
-                                  class="form-check-input"
-                                  type="radio"
-                                  name="manager_visibility"
-                                  id="wholeCtry<?= $file['id'] ?>"
-                                  value="country"
-                                  <?= !empty($fv['COUNTRY']) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="wholeCtry<?= $file['id'] ?>">
-                                  Whole Country: <?= htmlspecialchars($country) ?>
-                                </label>
-                              </div>
-                            </div>
-
-                            <!-- Hidden inputs always sent -->
-                            <input type="hidden" name="departments[]" value="<?= htmlspecialchars($dept) ?>">
-                            <input type="hidden" name="countries[]" value="<?= htmlspecialchars($country) ?>">
-                          <?php endif; ?>
-
-                        </div>
-                        <div class="modal-footer">
-                          <button type="submit" class="btn btn-primary">Save</button>
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-
               <?php endforeach; ?>
             </tbody>
           </table>
         </div>
 
+<!-- UPLOAD FILE MODAL -->
+<div class="modal fade" id="uploadFileModal" tabindex="-1" aria-labelledby="uploadFileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="uploadFileModalLabel">Upload File</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <form id="uploadFileForm" action="admin/upload_file.php" method="POST" enctype="multipart/form-data">
+      <div class="modal-body">
+        <!-- File Upload -->
+        <div class="border border-dashed rounded p-4 text-center"
+             style="border:2px dashed #ccc;"
+             ondrop="handleDrop(event)" ondragover="event.preventDefault()">
+          <p class="mb-2">Drag and drop your file(s) here or</p>
+          <input type="file" id="fileInput" name="upload_files[]"
+                 class="form-control d-inline-block" style="width:auto;" multiple required>
+        </div>
+        <hr class="my-4">
+
+        <?php if ($role === 'ADMIN'): ?>
+        <!-- Visibility Toggle -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Visibility</label><br>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="visibility"
+                  id="accessAll" value="all" checked>
+            <label class="form-check-label" for="accessAll">All</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="visibility"
+                  id="accessRestricted" value="restricted">
+            <label class="form-check-label" for="accessRestricted">Restricted</label>
+          </div>
+        </div>
+
+        <!-- Restriction UI -->
+        <div id="restrictionOptions" class="d-none">
+          <label class="form-label fw-bold mb-2">Select Visibility Scope</label>
+          <div id="countryDeptMatrixContainer" class="table-responsive">
+            <table class="table table-bordered align-middle text-center" id="countryDeptMatrixTable">
+              <thead class="table-dark">
+                <tr>
+                  <th style="min-width:150px;">Department</th>
+                  <?php foreach (array_keys($countryDeptMap) as $country): ?>
+                    <th>
+                      <?= htmlspecialchars($country) ?><br>
+                      <input type="checkbox" class="select-column" data-country="<?= htmlspecialchars($country) ?>">
+                    </th>
+                  <?php endforeach; ?>
+                </tr>
+              </thead>
+              <tbody>
+                <?php
+                $allDepartments = [];
+                foreach ($countryDeptMap as $depts) {
+                  foreach ($depts as $dept) {
+                    $allDepartments[$dept] = true;
+                  }
+                }
+                $allDepartments = array_keys($allDepartments);
+                sort($allDepartments);
+                ?>
+                <?php foreach ($allDepartments as $dept): ?>
+                  <tr>
+                    <td class="text-start ps-3"><?= htmlspecialchars($dept) ?></td>
+                    <?php foreach (array_keys($countryDeptMap) as $country): ?>
+                      <td>
+                        <?php if (in_array($dept, $countryDeptMap[$country])): ?>
+                          <input type="checkbox"
+                            class="matrix-checkbox country-<?= htmlspecialchars($country) ?>"
+                            name="matrix_selection[<?= htmlspecialchars($country) ?>][]"
+                            value="<?= htmlspecialchars($dept) ?>">
+                        <?php endif; ?>
+                      </td>
+                    <?php endforeach; ?>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-dark">Upload</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+    <?php endif; ?>
+
+
+    <?php if ($role === 'MANAGER'): ?>
+        <!-- Visibility Toggle -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Visibility</label><br>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="visibility"
+                  id="accessAll" value="all" checked>
+            <label class="form-check-label" for="accessAll">Within Department (<?= htmlspecialchars($user_dept) ?>)</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="visibility"
+                  id="accessRestricted" value="restricted">
+            <label class="form-check-label" for="accessRestricted">Country-wide Access (<?= htmlspecialchars($user_country) ?>)</label>
+          </div>
+        </div>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-dark">Upload</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+    <?php endif; ?>
+    
+  </div></div>
+</div>
+
+<!-- Render all modals after the table -->
+<?php foreach($files as $file): ?>
+  <div class="modal fade" id="editVisibilityModal<?= $file['id'] ?>" tabindex="-1" aria-labelledby="editVisibilityModalLabel<?= $file['id'] ?>" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form method="POST" action="admin/edit_visibility.php">
+          <input type="hidden" name="file_id" value="<?= $file['id'] ?>">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editVisibilityModalLabel<?= $file['id'] ?>">
+              Edit Visibility – <?= htmlspecialchars($file['filename']) ?>
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <?php $fv = $fileVisibilities[$file['id']] ?? ['ALL' => true]; ?>
+            <?php if($role === 'ADMIN'): ?>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Visibility</label><br>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input visibility-radio" type="radio" name="visibility" id="vAll<?= $file['id'] ?>" value="all" <?= !empty($fv['ALL']) ? 'checked' : '' ?>>
+                  <label class="form-check-label" for="vAll<?= $file['id'] ?>">All</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input visibility-radio" type="radio" name="visibility" id="vRest<?= $file['id'] ?>" value="restricted" <?= empty($fv['ALL']) ? 'checked' : '' ?>>
+                  <label class="form-check-label" for="vRest<?= $file['id'] ?>">Restricted</label>
+                </div>
+              </div>
+
+              <div id="editRestrictionOptions<?= $file['id'] ?>" class="<?= !empty($fv['ALL']) ? 'd-none' : '' ?>">
+                <label class="form-label fw-bold mb-2">Select Visibility Scope</label>
+                <div id="editCountryDeptMatrixContainer<?= $file['id'] ?>" class="table-responsive">
+                  <table class="table table-bordered align-middle text-center" id="editCountryDeptMatrixTable<?= $file['id'] ?>">
+                    <thead class="table-dark">
+                      <tr>
+                        <th style="min-width:150px;">Department</th>
+                        <?php foreach (array_keys($countryDeptMap) as $country): ?>
+                          <th>
+                            <?= htmlspecialchars($country) ?><br>
+                            <input type="checkbox" class="select-column" data-country="<?= htmlspecialchars($country) ?>" id="editSelectAll<?= $file['id'] . htmlspecialchars($country) ?>">
+                          </th>
+                        <?php endforeach; ?>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                      $allDepartments = [];
+                      foreach ($countryDeptMap as $depts) {
+                        foreach ($depts as $dept) {
+                          $allDepartments[$dept] = true;
+                        }
+                      }
+                      $allDepartments = array_keys($allDepartments);
+                      sort($allDepartments);
+                      ?>
+                      <?php foreach ($allDepartments as $dept): ?>
+                        <tr>
+                          <td class="text-start ps-3"><?= htmlspecialchars($dept) ?></td>
+                          <?php foreach (array_keys($countryDeptMap) as $country): ?>
+                            <td>
+                              <?php if (in_array($dept, $countryDeptMap[$country])): ?>
+                                <?php
+                                  // Pre-fill: check if this (country, dept) is in file visibility
+                                  $checked = false;
+                                  if (!empty($fv['DEPARTMENT'])) {
+                                    foreach ($fv['DEPARTMENT'] as $vis) {
+                                      // $vis format: "HR (Singapore)"
+                                      if ($vis === $dept . ' (' . $country . ')') {
+                                        $checked = true;
+                                        break;
+                                      }
+                                    }
+                                  }
+                                ?>
+                                <input type="checkbox"
+                                  class="matrix-checkbox country-<?= htmlspecialchars($country) ?>"
+                                  name="matrix_selection[<?= htmlspecialchars($country) ?>][]"
+                                  value="<?= htmlspecialchars($dept) ?>"
+                                  <?= $checked ? 'checked' : '' ?>
+                                >
+                              <?php endif; ?>
+                            </td>
+                          <?php endforeach; ?>
+                        </tr>
+                      <?php endforeach; ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            <?php elseif($role === 'MANAGER'): ?>
+              <input type="hidden" name="visibility" value="restricted">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Visibility</label><br>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="manager_visibility"
+                    id="onlyDept<?= $file['id'] ?>"
+                    value="department"
+                    checked>
+                  <label class="form-check-label" for="onlyDept<?= $file['id'] ?>">
+                    Only Department: <?= htmlspecialchars($user_dept) ?>
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="manager_visibility"
+                    id="wholeCtry<?= $file['id'] ?>"
+                    value="country">
+                  <label class="form-check-label" for="wholeCtry<?= $file['id'] ?>">
+                    Whole Country: <?= htmlspecialchars($user_country) ?>
+                  </label>
+                </div>
+              </div>
+              <!-- Hidden inputs always sent -->
+              <input type="hidden" name="departments[]" value="<?= htmlspecialchars($user_dept) ?>">
+              <input type="hidden" name="countries[]" value="<?= htmlspecialchars($user_country) ?>">
+              <div class="alert alert-info">
+                <strong>Manager Access:</strong> You can only edit visibility for your own country (<?= htmlspecialchars($user_country) ?>). Other countries will remain unchanged.
+              </div>
+            <?php endif; ?>
+
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
-
-  <!-- UPLOAD FILE MODAL -->
-  <div class="modal fade" id="uploadFileModal" tabindex="-1" aria-labelledby="uploadFileModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg"><div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="uploadFileModalLabel">Upload File</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form id="uploadFileForm" action="admin/upload_file.php" method="POST" enctype="multipart/form-data">
-        <div class="modal-body">
-          <div class="border border-dashed rounded p-4 text-center"
-               style="border:2px dashed #ccc;"
-               ondrop="handleDrop(event)" ondragover="event.preventDefault()">
-            <p class="mb-2">Drag and drop your file(s) here or</p>
-            <input type="file" id="fileInput" name="upload_files[]"
-                   class="form-control d-inline-block" style="width:auto;" multiple required>
-          </div>
-          <hr class="my-4">
-          
-          <?php if ($role === 'ADMIN'): ?>
-            <div class="mb-3">
-              <label class="form-label fw-bold">Visibility</label><br>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="visibility"
-                      id="accessAll" value="all" checked>
-                <label class="form-check-label" for="accessAll">All</label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="visibility"
-                      id="accessRestricted" value="restricted">
-                <label class="form-check-label" for="accessRestricted">Restricted</label>
-              </div>
-            </div>
-
-            
-
-            <!-- Only department selector (no country) -->
-            <div id="restrictionOptions" class="d-none">
-              <label class="form-label fw-bold">Select Departments</label>
-              <?php foreach ($departments as $d): ?>
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox"
-                        name="departments[]" value="<?= htmlspecialchars($d) ?>"
-                        id="dept<?= md5($d) ?>">
-                  <label class="form-check-label" for="dept<?= md5($d) ?>">
-                    <?= htmlspecialchars($d) ?>
-                  </label>
-                </div>
-              <?php endforeach; ?>
-            </div>
-          <?php elseif ($role === 'MANAGER'): ?>
-            <input type="hidden" name="visibility" value="restricted">
-            <input type="hidden" name="departments[]" value="<?= htmlspecialchars($dept) ?>">
-            <div class="mb-3">
-              <label class="form-label fw-bold">Visibility</label><br>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="manager_visibility" id="onlyDepartment" value="department" checked>
-                <label class="form-check-label" for="onlyDepartment">Only Department: <?= htmlspecialchars($dept) ?></label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="manager_visibility" id="wholeCountry" value="country">
-                <label class="form-check-label" for="wholeCountry">Whole Country: <?= htmlspecialchars($country) ?></label>
-              </div>
-            </div>
-            <input type="hidden" name="countries[]" value="<?= htmlspecialchars($country) ?>" id="mgrCountryInput" disabled>
-          <?php endif; ?>
-
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-dark">Upload</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        </div>
-      </form>
-    </div></div>
-  </div>
-
-  <!-- DELETE CONFIRMATION MODAL -->
-  <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Deletion</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">Are you sure you want to delete this file?</div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete</button>
+<?php endforeach; ?>
       </div>
     </div></div>
   </div>
@@ -864,7 +962,28 @@ function getFriendlyFileType($mimeType) {
     // SEARCH
     $('#tableSearch').on('input', function(){
       table.search(this.value).draw();
-    });
+      });
+
+      // DELETE CONFIRM MODAL (add if missing)
+      if (!document.getElementById('deleteConfirmModal')) {
+        $('body').append(`
+          <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Delete</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">Are you sure you want to delete this file?</div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `);
+      }
 
     // FILTER
     const types = new Set();
@@ -992,6 +1111,281 @@ function getFriendlyFileType($mimeType) {
       });
     });
 
+    // EDIT VISIBILITY - Role-based modal approach
+    document.querySelectorAll('.edit-visibility').forEach(link=>{
+      link.addEventListener('click',function(e){
+        e.preventDefault();
+        const target = this.getAttribute('data-bs-target');
+        console.log('Edit Visibility clicked, target:', target);
+        
+        // Check user role - only use custom modal for managers
+        const userRole = '<?= $role ?>';
+        console.log('User role:', userRole);
+        
+        if (userRole === 'MANAGER') {
+          // For managers, use custom modal bypass
+          const fileId = target.replace('#editVisibilityModal', '');
+          console.log('Manager detected, using custom modal for file ID:', fileId);
+          
+          // Find the modal element
+          const modalElement = document.querySelector(target);
+          
+          if (modalElement) {
+            console.log('Creating custom modal for manager...');
+            
+            // Create a simple custom modal overlay with centered positioning
+            const customModal = document.createElement('div');
+            customModal.id = 'customEditModal' + fileId;
+            customModal.style.cssText = `
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background: rgba(0, 0, 0, 0.5);
+              z-index: 99999;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            `;
+            
+            // Create modal content container to match Bootstrap modal-dialog exactly
+            const modalContainer = document.createElement('div');
+            modalContainer.className = 'modal-dialog modal-lg';
+            modalContainer.style.cssText = `
+              max-width: 800px;
+              margin: 1.75rem auto;
+            `;
+            
+            // Create modal content with Bootstrap classes and explicit styling
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+            modalContent.style.cssText = `
+              background-color: #fff;
+              border: 1px solid rgba(0,0,0,.2);
+              border-radius: 0.5rem;
+              box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
+              position: relative;
+              display: flex;
+              flex-direction: column;
+              width: 100%;
+              color: #212529;
+            `;
+            
+            // Copy content from the original modal
+            const originalModalBody = modalElement.querySelector('.modal-body');
+            const originalModalHeader = modalElement.querySelector('.modal-header');
+            
+            // Create modal header with proper Bootstrap structure and styling
+            let headerHTML = `<div class="modal-header" style="
+              display: flex;
+              flex-shrink: 0;
+              align-items: center;
+              justify-content: space-between;
+              padding: 1rem 1rem;
+              border-bottom: 1px solid #dee2e6;
+              border-top-left-radius: calc(0.5rem - 1px);
+              border-top-right-radius: calc(0.5rem - 1px);
+            ">`;
+            
+            if (originalModalHeader) {
+              const title = originalModalHeader.querySelector('.modal-title');
+              headerHTML += `<h5 class="modal-title" style="
+                margin-bottom: 0;
+                line-height: 1.5;
+                font-size: 1.25rem;
+                font-weight: bold;
+              ">${title ? title.innerHTML : 'Edit Visibility'}</h5>`;
+            } else {
+              headerHTML += '<h5 class="modal-title" style="margin-bottom: 0; line-height: 1.5; font-size: 1.25rem; font-weight: bold;">Edit Visibility</h5>';
+            }
+            
+            headerHTML += `<button type="button" class="btn-close" onclick="closeCustomModal('${fileId}')" aria-label="Close" style="
+              box-sizing: content-box;
+              width: 1em;
+              height: 1em;
+              padding: 0.25em 0.25em;
+              color: #000;
+              background: transparent url('data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\' fill=\'%23000\'%3e%3cpath d=\'m.235,1.406l4.461,4.461L9.157.404c.023-.023.061-.023.084,0l4.461,4.461c.023.023.023.061,0,.084L9.241,9.41l4.461,4.461c.023.023.023.061,0,.084l-4.461,4.461c-.023.023-.061.023-.084,0L4.696,13.955.235,18.416c-.023.023-.061.023-.084,0L-4.31,13.955c-.023-.023-.023-.061,0-.084L.151,9.41-4.31,4.949c-.023-.023-.023-.061,0-.084L.151.404C.174.381.212.381.235.404Z\'/%3e%3c/svg%3e') center/1em auto no-repeat;
+              border: 0;
+              border-radius: 0.375rem;
+              opacity: .5;
+              cursor: pointer;
+            "></button></div>`;
+            
+            // Create modal body with proper Bootstrap structure and styling
+            let bodyHTML = `<div class="modal-body" style="
+              position: relative;
+              flex: 1 1 auto;
+              padding: 1rem;
+            ">`;
+            
+            if (originalModalBody) {
+              bodyHTML += originalModalBody.innerHTML;
+            } else {
+              bodyHTML += '<p>Modal content not found.</p>';
+            }
+            
+            bodyHTML += '</div>';
+            
+            // Create modal footer with proper Bootstrap structure and styling
+            let footerHTML = `
+              <div class="modal-footer" style="
+                display: flex;
+                flex-wrap: wrap;
+                flex-shrink: 0;
+                align-items: center;
+                justify-content: flex-end;
+                padding: 0.75rem;
+                border-top: 1px solid #dee2e6;
+                border-bottom-right-radius: calc(0.5rem - 1px);
+                border-bottom-left-radius: calc(0.5rem - 1px);
+              ">
+                <button type="button" class="btn btn-secondary" onclick="closeCustomModal('${fileId}')" style="
+                  margin-right: 0.5rem;
+                  color: #fff;
+                  background-color: #6c757d;
+                  border-color: #6c757d;
+                  display: inline-block;
+                  font-weight: 400;
+                  line-height: 1.5;
+                  text-align: center;
+                  text-decoration: none;
+                  vertical-align: middle;
+                  cursor: pointer;
+                  user-select: none;
+                  border: 1px solid transparent;
+                  padding: 0.375rem 0.75rem;
+                  font-size: 1rem;
+                  border-radius: 0.375rem;
+                  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+                ">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitCustomModal('${fileId}')" style="
+                  color: #fff;
+                  background-color: #0d6efd;
+                  border-color: #0d6efd;
+                  display: inline-block;
+                  font-weight: 400;
+                  line-height: 1.5;
+                  text-align: center;
+                  text-decoration: none;
+                  vertical-align: middle;
+                  cursor: pointer;
+                  user-select: none;
+                  border: 1px solid transparent;
+                  padding: 0.375rem 0.75rem;
+                  font-size: 1rem;
+                  border-radius: 0.375rem;
+                  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+                ">Save</button>
+              </div>
+            `;
+            
+            // Set the complete modal content
+            modalContent.innerHTML = headerHTML + bodyHTML + footerHTML;
+            modalContainer.appendChild(modalContent);
+            customModal.appendChild(modalContainer);
+            
+            // Add to page
+            document.body.appendChild(customModal);
+            console.log('Custom modal created and displayed for manager');
+            
+            // Close on backdrop click
+            customModal.addEventListener('click', function(e) {
+              if (e.target === customModal) {
+                document.body.removeChild(customModal);
+              }
+            });
+            
+          } else {
+            console.error('Modal element not found:', target);
+          }
+        } else {
+          // For admins and other roles, use standard Bootstrap modal
+          console.log('Admin/other role detected, using Bootstrap modal');
+          const modalElement = document.querySelector(target);
+          
+          if (modalElement) {
+            try {
+              const modal = new bootstrap.Modal(modalElement);
+              modal.show();
+              console.log('Bootstrap modal shown successfully');
+            } catch (error) {
+              console.error('Error showing Bootstrap modal:', error);
+            }
+          } else {
+            console.error('Modal element not found:', target);
+          }
+        }
+      });
+    });
+
+    // Helper functions for custom modal
+    window.closeCustomModal = function(fileId) {
+      const customModal = document.getElementById('customEditModal' + fileId);
+      if (customModal) {
+        document.body.removeChild(customModal);
+      }
+    };
+
+    window.submitCustomModal = function(fileId) {
+      console.log('Submitting custom modal for file ID:', fileId);
+      
+      // Find the original form in the Bootstrap modal to get form data
+      const originalModal = document.querySelector('#editVisibilityModal' + fileId);
+      const originalForm = originalModal ? originalModal.querySelector('form') : null;
+      
+      if (originalForm) {
+        // Create FormData from the original form
+        const formData = new FormData(originalForm);
+        
+        // Also get values from the custom modal (in case user changed them)
+        const customModal = document.getElementById('customEditModal' + fileId);
+        if (customModal) {
+          // Get radio button values from custom modal
+          const managerVisibilityRadios = customModal.querySelectorAll('input[name="manager_visibility"]');
+          managerVisibilityRadios.forEach(radio => {
+            if (radio.checked) {
+              formData.set('manager_visibility', radio.value);
+            }
+          });
+        }
+        
+        console.log('Form data prepared, submitting...');
+        
+        // Close custom modal
+        closeCustomModal(fileId);
+        
+        // Show loading modal
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        loadingModal.show();
+        
+        // Submit via AJAX
+        fetch('admin/edit_visibility.php', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.text())
+        .then(result => {
+          loadingModal.hide();
+          document.getElementById('countryMessageBody').textContent = 'Visibility updated successfully.';
+          const countryModal = new bootstrap.Modal(document.getElementById('countryMessageModal'));
+          countryModal.show();
+          setTimeout(() => location.reload(), 1200);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          loadingModal.hide();
+          document.getElementById('countryMessageBody').textContent = 'Visibility update failed.';
+          const countryModal = new bootstrap.Modal(document.getElementById('countryMessageModal'));
+          countryModal.show();
+        });
+      } else {
+        console.error('Original form not found for file ID:', fileId);
+        closeCustomModal(fileId);
+      }
+    };
+
     // NESTED SUBMENU
     document.addEventListener('DOMContentLoaded',function(){
       document.querySelectorAll('.dropdown-submenu > .dropdown-toggle').forEach(el=>{
@@ -1008,12 +1402,14 @@ function getFriendlyFileType($mimeType) {
       });
     });
 
-    // SHOW/HIDE RESTRICTIONS
-    document.querySelectorAll('input[name="visibility"]').forEach(el=>{
-      el.addEventListener('change',()=>{
-        document.getElementById('restrictionOptions').classList.toggle('d-none', !document.getElementById('accessRestricted')?.checked);
+    // SHOW/HIDE RESTRICTIONS (ADMIN only)
+    if (document.getElementById('restrictionOptions')) {
+      document.querySelectorAll('input[name="visibility"]').forEach(el=>{
+        el.addEventListener('change',()=>{
+          document.getElementById('restrictionOptions').classList.toggle('d-none', !document.getElementById('accessRestricted')?.checked);
+        });
       });
-    });
+    }
     document.querySelectorAll('.restrict-toggle').forEach(el=>{
       el.addEventListener('change',()=>{
         document.getElementById('restrictDepartmentDiv').classList.toggle('d-none', !document.getElementById('restrictByDept').checked);
@@ -1073,14 +1469,14 @@ function getFriendlyFileType($mimeType) {
       const $form = $(this);
       const fileId = $form.find('input[name="file_id"]').val();
       const restricted = $form.find(`#vRest${fileId}`).is(':checked');
-      if (!restricted) {
-        // Not restricted, proceed
-      } else {
-        const deptChecked = $form.find(`#deptDiv${fileId} input:checked`).length;
-        const ctryChecked = $form.find(`#countryDiv${fileId} input:checked`).length;
-        if (!deptChecked && !ctryChecked) {
-          alert('Please choose at least one department or country for restricted access.');
+      if (restricted) {
+        // For ADMIN, require at least one matrix checkbox selected
+        const checkedCount = $form.find('.matrix-checkbox:checked').length;
+        if (checkedCount === 0) {
           e.preventDefault();
+          $('#countryMessageBody').text('Please choose at least one department or country for restricted access.');
+          var countryModal = new bootstrap.Modal($('#countryMessageModal'));
+          countryModal.show();
           return;
         }
       }
@@ -1106,6 +1502,190 @@ function getFriendlyFileType($mimeType) {
     });
   });
   </script>
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  // SAFELY escape any string for HTML ID or data attribute use
+  function escapeId(str) {
+    return str.replace(/\s+/g, '_').replace(/[^\w\-]/g, '');
+  }
+
+  // Receive PHP-generated countryDeptMap from server
+  const countryDeptMap = <?= json_encode($countryDeptMap) ?>;
+
+  // DOM Elements
+  const accessAll = document.getElementById('accessAll');
+  const accessRestricted = document.getElementById('accessRestricted');
+  const restrictionOptions = document.getElementById('restrictionOptions');
+  const dynamicContainer = document.getElementById('dynamicCountryDeptContainer');
+
+  // Renders dropdowns by country and their departments
+  function renderCountryDropdowns() {
+    dynamicContainer.innerHTML = '';
+
+    Object.entries(countryDeptMap).forEach(([country, departments]) => {
+      const safeCountry = escapeId(country);
+      const dropdownId = `dropdown-${safeCountry}`;
+
+      let html = `
+        <div class="mb-3">
+          <div class="dropdown w-100">
+            <button class="btn btn-outline-dark dropdown-toggle w-100 text-start" type="button"
+                    id="${dropdownId}" data-bs-toggle="dropdown" aria-expanded="false">
+              ${country}
+            </button>
+            <ul class="dropdown-menu w-100 p-2" aria-labelledby="${dropdownId}" style="max-height: 300px; overflow-y: auto;">
+              <li>
+                <div class="form-check ms-1">
+                  <input class="form-check-input select-all-country" type="checkbox"
+                         id="selectAll-${safeCountry}" data-country="${country}">
+                  <label class="form-check-label fw-bold" for="selectAll-${safeCountry}">Select All</label>
+                </div>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+      `;
+
+      departments.forEach(dept => {
+        const safeDept = escapeId(dept);
+        const inputId = `chk-${safeCountry}-${safeDept}`;
+        html += `
+          <li>
+            <div class="form-check ms-2">
+              <input class="form-check-input dept-checkbox" type="checkbox"
+                     name="departments[${country}][]" value="${dept}"
+                     id="${inputId}" data-country="${country}">
+              <label class="form-check-label" for="${inputId}">${dept}</label>
+            </div>
+          </li>
+        `;
+      });
+
+      html += '</ul></div></div>';
+      dynamicContainer.insertAdjacentHTML('beforeend', html);
+    });
+
+    // Add select-all logic
+    document.querySelectorAll('.select-all-country').forEach(el => {
+      el.addEventListener('change', function () {
+        const country = this.dataset.country;
+        const checked = this.checked;
+        document.querySelectorAll(`.dept-checkbox[data-country="${country}"]`).forEach(cb => {
+          cb.checked = checked;
+        });
+      });
+    });
+
+    // Update "select all" when individual checkboxes change
+    document.querySelectorAll('.dept-checkbox').forEach(cb => {
+      cb.addEventListener('change', function () {
+        const country = this.dataset.country;
+        const checkboxes = document.querySelectorAll(`.dept-checkbox[data-country="${country}"]`);
+        const allChecked = Array.from(checkboxes).every(c => c.checked);
+        const selectAll = document.querySelector(`.select-all-country[data-country="${country}"]`);
+        if (selectAll) {
+          selectAll.checked = allChecked;
+        }
+      });
+    });
+  }
+
+  // Toggle restriction block
+  function showRestrictionOptions(show) {
+    if (restrictionOptions) {
+      restrictionOptions.classList.toggle('d-none', !show);
+      if (show) renderCountryDropdowns();
+    }
+  }
+
+  // Event listeners for radio buttons
+  if (accessAll) {
+    accessAll.addEventListener('change', () => {
+      if (accessAll.checked) showRestrictionOptions(false);
+    });
+  }
+  if (accessRestricted) {
+    accessRestricted.addEventListener('change', () => {
+      if (accessRestricted.checked) showRestrictionOptions(true);
+    });
+  }
+
+  // Initial state on page load
+  showRestrictionOptions(accessRestricted && accessRestricted.checked);
+
+  // Drag and drop support
+  window.handleDrop = function(event){
+    event.preventDefault();
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+      document.getElementById('fileInput').files = files;
+    }
+  };
+
+  // File upload AJAX
+  $('#uploadFileForm').on('submit', function(e){
+    e.preventDefault();
+    const uploadModalInstance = bootstrap.Modal.getInstance($('#uploadFileModal'));
+    if(uploadModalInstance) uploadModalInstance.hide();
+
+    const loadingModal = new bootstrap.Modal($('#loadingModal'));
+    loadingModal.show();
+
+    const formData = new FormData(this);
+    $.ajax({
+      url: $(this).attr('action'),
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function(res){
+        loadingModal.hide();
+        $('#countryMessageBody').text('File uploaded successfully.');
+        const countryModal = new bootstrap.Modal($('#countryMessageModal'));
+        countryModal.show();
+        setTimeout(()=>location.reload(), 1200);
+      },
+      error: function(){
+        loadingModal.hide();
+        $('#countryMessageBody').text('Upload failed.');
+        const countryModal = new bootstrap.Modal($('#countryMessageModal'));
+        countryModal.show();
+      }
+    });
+  });
+    // Show/hide matrix UI based on radio selection
+    function toggleRestrictionMatrix(show) {
+      const matrixBlock = document.getElementById('restrictionOptions');
+      if (matrixBlock) {
+        matrixBlock.classList.toggle('d-none', !show);
+      }
+    }
+
+    if (accessAll) {
+      accessAll.addEventListener('change', () => {
+        if (accessAll.checked) toggleRestrictionMatrix(false);
+      });
+    }
+    if (accessRestricted) {
+      accessRestricted.addEventListener('change', () => {
+        if (accessRestricted.checked) toggleRestrictionMatrix(true);
+      });
+    }
+
+    // On page load
+    toggleRestrictionMatrix(accessRestricted && accessRestricted.checked);
+
+    // Handle 'Select All' per country column
+    document.querySelectorAll('.select-column').forEach(checkbox => {
+      checkbox.addEventListener('change', function () {
+        const country = this.dataset.country;
+        const boxes = document.querySelectorAll(`.matrix-checkbox.country-${CSS.escape(country)}`);
+        boxes.forEach(cb => cb.checked = this.checked);
+      });
+    });
+
+
+});
+</script>
   
   <!-- Session Timeout -->
   <script src="js/inactivity.js"></script>

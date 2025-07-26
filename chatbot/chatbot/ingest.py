@@ -32,27 +32,34 @@ def get_visibility_for_file(file_base_name):
     if not file_row:
         cursor.close()
         connection.close()
-        return {"visibility_scope": "UNKNOWN", "category": None}
+        return {"countries": "UNKNOWN"}
 
     file_id = file_row["id"]
 
-    # Get visibility settings
-    cursor.execute("SELECT visibility_scope, category FROM file_visibility WHERE file_id = %s", (file_id,))
+    # Retrieve visibility from file_visibility table
+    cursor.execute("SELECT DISTINCT country, department FROM file_visibility WHERE file_id = %s", (file_id,))
     rows = cursor.fetchall()
     cursor.close()
     connection.close()
 
     if not rows:
-        return {"visibility_scope": "UNKNOWN", "category": None}
+        return {"countries": "NONE"}
 
-    # If ALL, return directly
-    if any(row["visibility_scope"] == "ALL" for row in rows):
-        return {"visibility_scope": "ALL", "category": None}
+    # If any row has country set to ALL, file is visible to everyone
+    if any(row["country"] == "ALL" and row["department"] == "ALL" for row in rows):
+        return {"countries": "ALL"}
 
-    # If COUNTRY or DEPARTMENT
+    # Collect unique countries (excluding ALL)
+    countries = set()
     for row in rows:
-        if row["visibility_scope"] == "COUNTRY":
-            return {"visibility_scope": "COUNTRY", "category": row["category"]}
+        if row["country"] != "ALL":
+            countries.add(row["country"])
+    
+    # Return space-separated list of countries for vectorstore metadata
+    if countries:
+        return {"countries": " ".join(sorted(countries))}
+    else:
+        return {"countries": "RESTRICTED"}
 
 
 # 🔍 Read DOCX files
@@ -116,8 +123,7 @@ def ingest_documents():
             chunk.metadata["source"] = source_file
             chunk.metadata["title"] = base_name.replace("_", " ").lower().strip()
             chunk.metadata["doc_type"] = doc_type
-            chunk.metadata["visibility_scope"] = visibility["visibility_scope"] # RBAC (Charmaine)
-            chunk.metadata["category"] = visibility["category"] # RBAC (Charmaine)
+            chunk.metadata["countries"] = visibility["countries"]  # RBAC (Charmaine)
             docs.append(chunk)
 
     # 💾 Save to FAISS

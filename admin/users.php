@@ -309,9 +309,11 @@ $userCount = $res->fetch_assoc()['cnt'];
               </button>
               <div class="dropdown-menu p-3" id="countryFilterMenu" style="max-height:300px;overflow-y:auto;"></div>
             </div>
+            <?php if ($role === 'ADMIN'): ?>
             <button class="btn btn-dark d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addCountryModal">
               <i class="fa fa-globe me-2"></i> Add Country
             </button>
+            <?php endif; ?>
             <button class="btn btn-dark d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addUserModal">
               <i class="fa fa-user-plus me-2"></i> Add User
             </button>

@@ -73,8 +73,8 @@ CREATE TABLE `files` (
 CREATE TABLE `file_visibility` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `file_id` INT NOT NULL,
-  `visibility_scope` ENUM('DEPARTMENT', 'COUNTRY', 'ALL') NOT NULL,
-  `category` VARCHAR(100) DEFAULT NULL,
+  `country` VARCHAR(100) DEFAULT NULL,
+  `department` VARCHAR(100) DEFAULT NULL,
   FOREIGN KEY (`file_id`) REFERENCES `files`(`id`) ON DELETE CASCADE
 );
 

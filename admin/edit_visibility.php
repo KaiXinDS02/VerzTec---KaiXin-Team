@@ -64,76 +64,58 @@ $deleteStmt->execute();
 $deleteStmt->close();
 
 if ($role === 'ADMIN') {
-    // ADMIN users can set visibility to ALL or multiple departments/countries
+    // ADMIN users can set visibility to ALL or restricted (matrix_selection only)
     if ($visibility === 'all') {
-        // Insert a single visibility record with scope 'ALL'
-        $stmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope) VALUES (?, 'ALL')");
+        // Insert a single visibility record: country = ALL, department = ALL
+        $stmt = $conn->prepare("INSERT INTO file_visibility (file_id, country, department) VALUES (?, 'ALL', 'ALL')");
         $stmt->bind_param("i", $file_id);
         $stmt->execute();
         $stmt->close();
     } else {
-        // If restricted, insert multiple DEPARTMENT and COUNTRY visibility entries if provided
-        if (!empty($departments)) {
-            $stmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope, category) VALUES (?, 'DEPARTMENT', ?)");
-            foreach ($departments as $dept) {
-                $cleanDept = trim($dept);
-                if ($cleanDept !== '') {
-                    $stmt->bind_param("is", $file_id, $cleanDept);
-                    $stmt->execute();
+        // Only process matrix_selection for restricted access
+        if (!empty($_POST['matrix_selection'])) {
+            $dStmt = $conn->prepare("INSERT INTO file_visibility (file_id, country, department) VALUES (?, ?, ?)");
+            foreach ($_POST['matrix_selection'] as $country => $departments) {
+                $country = trim($country);
+                foreach ($departments as $dept) {
+                    $dept = trim($dept);
+                    if ($country !== '' && $dept !== '') {
+                        $dStmt->bind_param("iss", $file_id, $country, $dept);
+                        $dStmt->execute();
+                    }
                 }
             }
-            $stmt->close();
-        }
-
-        if (!empty($countries)) {
-            $stmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope, category) VALUES (?, 'COUNTRY', ?)");
-            foreach ($countries as $country) {
-                $cleanCountry = trim($country);
-                if ($cleanCountry !== '') {
-                    $stmt->bind_param("is", $file_id, $cleanCountry);
-                    $stmt->execute();
-                }
-            }
-            $stmt->close();
+            $dStmt->close();
+        } else {
+            // If nothing selected, redirect with error
+            $_SESSION['error'] = 'Please choose at least one department/country for restricted access.';
+            header("Location: ../files.php");
+            exit;
         }
     }
-} elseif ($role === 'MANAGER') {
+}
+elseif ($role === 'MANAGER') {
     // MANAGER users can restrict visibility by either department or country
     $managerVisibility = $_POST['manager_visibility'] ?? 'department'; // default to 'department'
-
     if ($visibility === 'restricted') {
-        if ($managerVisibility === 'department') {
-            // Insert visibility records for departments selected by manager
-            if (!empty($departments)) {
-                $depts = is_array($departments) ? $departments : [$departments];
-                $stmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope, category) VALUES (?, 'DEPARTMENT', ?)");
-                foreach ($depts as $dept) {
-                    $cleanDept = trim($dept);
-                    if ($cleanDept !== '') {
-                        $stmt->bind_param("is", $file_id, $cleanDept);
-                        $stmt->execute();
-                    }
-                }
-                $stmt->close();
-            }
-        } elseif ($managerVisibility === 'country') {
-            // Insert visibility records for countries selected by manager
-            if (!empty($countries)) {
-                $ctrys = is_array($countries) ? $countries : [$countries];
-                $stmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope, category) VALUES (?, 'COUNTRY', ?)");
-                foreach ($ctrys as $country) {
-                    $cleanCountry = trim($country);
-                    if ($cleanCountry !== '') {
-                        $stmt->bind_param("is", $file_id, $cleanCountry);
-                        $stmt->execute();
-                    }
-                }
-                $stmt->close();
-            }
+        $user_country = $_SESSION['country'] ?? null;
+        $user_dept = $_SESSION['department'] ?? null;
+        if ($managerVisibility === 'department' && $user_country && $user_dept) {
+            // Manager shares to own department: country = X, department = Y
+            $stmt = $conn->prepare("INSERT INTO file_visibility (file_id, country, department) VALUES (?, ?, ?)");
+            $stmt->bind_param("iss", $file_id, $user_country, $user_dept);
+            $stmt->execute();
+            $stmt->close();
+        } elseif ($managerVisibility === 'country' && $user_country) {
+            // Manager shares to whole country: country = X, department = ALL
+            $stmt = $conn->prepare("INSERT INTO file_visibility (file_id, country, department) VALUES (?, ?, 'ALL')");
+            $stmt->bind_param("is", $file_id, $user_country);
+            $stmt->execute();
+            $stmt->close();
         }
     } else {
-        // If MANAGER chooses 'all' visibility, insert single record with 'ALL' scope
-        $stmt = $conn->prepare("INSERT INTO file_visibility (file_id, visibility_scope) VALUES (?, 'ALL')");
+        // If MANAGER chooses 'all' visibility, insert single record: country = ALL, department = ALL
+        $stmt = $conn->prepare("INSERT INTO file_visibility (file_id, country, department) VALUES (?, 'ALL', 'ALL')");
         $stmt->bind_param("i", $file_id);
         $stmt->execute();
         $stmt->close();
