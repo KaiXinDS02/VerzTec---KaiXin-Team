@@ -826,6 +826,30 @@ $user_id = $_SESSION['user_id'] ?? 1;
         transform: none;
       }
 
+      /* Voice recording styles */
+      .chat-input-group .btn-icon.recording {
+        background-color: #dc3545 !important;
+        color: white !important;
+      }
+      
+      .chat-input-group .btn-icon.recording:hover {
+        background-color: #c82333 !important;
+        color: white !important;
+      }
+      
+      /* Pulse animation for recording state */
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+        }
+      }
+
       /* Maintain consistent spacing between messages */
       .chat-body .bot-bubble,
       .chat-body .user-bubble {
@@ -1778,7 +1802,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
               <button class="btn-icon" type="button" onclick="if (!isChatbotBusy) sendMessage()">
                 <i class="fa fa-paper-plane"></i>
               </button>
-              <button class="btn-icon" type="button">
+              <button class="btn-icon" type="button" id="voice-record-btn" onclick="toggleVoiceRecording()">
                 <i class="fa fa-microphone"></i>
               </button>
               <button class="btn-icon" type="button">
@@ -1995,6 +2019,12 @@ $user_id = $_SESSION['user_id'] ?? 1;
     };
     let currentVoiceId = availableVoices.female.id;
     
+    // Voice recording variables
+    let recognition = null;
+    let isRecording = false;
+    let recordingStartTime = null;
+    let recordingTimeout = null;
+    
     // Initialize avatar when page loads
     document.addEventListener('DOMContentLoaded', function() {
       console.log('🚀 VerzTec Chatbot - Initializing...');
@@ -2021,6 +2051,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
         initializeAvatar();
         setupEventListeners();
         initializeAvatarCustomization();
+        initializeVoiceRecognition();
         console.log('✅ VerzTec Chatbot initialized successfully');
       } catch (error) {
         console.error('💥 Error during initialization:', error);
@@ -2030,6 +2061,11 @@ $user_id = $_SESSION['user_id'] ?? 1;
     // Cleanup on page unload
     window.addEventListener('beforeunload', function() {
       stopThinkingAnimation();
+      
+      // Cleanup voice recognition
+      if (recognition && isRecording) {
+        recognition.stop();
+      }
     });
     
     function initializeAvatar() {
@@ -2665,28 +2701,277 @@ $user_id = $_SESSION['user_id'] ?? 1;
     function disableUserInput() {
       const userInput = document.getElementById('user-input');
       const sendButton = document.querySelector('.chat-input-group .btn-icon');
+      const voiceButton = document.getElementById('voice-record-btn');
       
       userInput.disabled = true;
       userInput.placeholder = 'Please wait...';
       sendButton.style.pointerEvents = 'none';
       sendButton.style.opacity = '0.5';
+      
+      if (voiceButton) {
+        voiceButton.style.pointerEvents = 'none';
+        voiceButton.style.opacity = '0.5';
+      }
+      
+      // Stop any ongoing voice recording
+      if (isRecording) {
+        stopVoiceRecording();
+      }
+      
       isChatbotBusy = true;
     }
     
     function enableUserInput() {
       const userInput = document.getElementById('user-input');
       const sendButton = document.querySelector('.chat-input-group .btn-icon');
+      const voiceButton = document.getElementById('voice-record-btn');
       
       userInput.disabled = false;
       userInput.placeholder = 'Ask anything...';
       sendButton.style.pointerEvents = 'auto';
       sendButton.style.opacity = '1';
+      
+      if (voiceButton) {
+        voiceButton.style.pointerEvents = 'auto';
+        voiceButton.style.opacity = '1';
+      }
+      
       isChatbotBusy = false;
     }
 
     function handleKeyPress(event) {
       if (event.key === 'Enter' && !isChatbotBusy) {
         sendMessage();
+      }
+    }
+
+    // Voice Recording Functions
+    function initializeVoiceRecognition() {
+      console.log('🎤 Initializing voice recognition...');
+      
+      // Check if the browser supports Web Speech API
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        console.error('❌ Web Speech API not supported in this browser');
+        updateVoiceRecordingStatus('Voice recording not supported in this browser');
+        return false;
+      }
+      
+      // Initialize speech recognition
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      
+      // Configure recognition settings
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      recognition.maxAlternatives = 1;
+      
+      // Event handlers
+      recognition.onstart = function() {
+        console.log('🎤 Voice recognition started');
+        isRecording = true;
+        recordingStartTime = Date.now();
+        updateVoiceRecordingUI(true);
+        updateVoiceRecordingStatus('Listening... Click microphone to stop');
+        
+        // Auto-stop after 30 seconds to prevent indefinite recording
+        recordingTimeout = setTimeout(() => {
+          if (isRecording) {
+            stopVoiceRecording();
+          }
+        }, 30000);
+      };
+      
+      recognition.onresult = function(event) {
+        let interimTranscript = '';
+        let finalTranscript = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript + ' ';
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        
+        // Update the input field with the transcription
+        const userInput = document.getElementById('user-input');
+        const currentValue = userInput.value;
+        
+        // Replace any previous interim results with new ones
+        const baseText = currentValue.replace(/\[.*?\]$/, '').trim();
+        
+        if (finalTranscript) {
+          userInput.value = (baseText + ' ' + finalTranscript).trim();
+          console.log('🎤 Final transcript added:', finalTranscript.trim());
+        }
+        
+        if (interimTranscript) {
+          userInput.value = (baseText + ' ' + finalTranscript + '[' + interimTranscript + ']').trim();
+        }
+        
+        // Show status update
+        if (interimTranscript) {
+          updateVoiceRecordingStatus('Listening... "' + interimTranscript + '"');
+        }
+      };
+      
+      recognition.onerror = function(event) {
+        console.error('🎤 Voice recognition error:', event.error);
+        let errorMessage = 'Voice recognition error: ';
+        
+        switch(event.error) {
+          case 'no-speech':
+            errorMessage += 'No speech detected';
+            break;
+          case 'audio-capture':
+            errorMessage += 'No microphone found';
+            break;
+          case 'not-allowed':
+            errorMessage += 'Microphone permission denied';
+            break;
+          case 'network':
+            errorMessage += 'Network error';
+            break;
+          default:
+            errorMessage += event.error;
+        }
+        
+        updateVoiceRecordingStatus(errorMessage);
+        stopVoiceRecording();
+      };
+      
+      recognition.onend = function() {
+        console.log('🎤 Voice recognition ended');
+        if (isRecording) {
+          // Clean up any interim results in brackets
+          const userInput = document.getElementById('user-input');
+          userInput.value = userInput.value.replace(/\[.*?\]$/, '').trim();
+          
+          stopVoiceRecording();
+        }
+      };
+      
+      console.log('✅ Voice recognition initialized successfully');
+      return true;
+    }
+    
+    function toggleVoiceRecording() {
+      console.log('🎤 Toggle voice recording clicked, isRecording:', isRecording);
+      
+      if (isChatbotBusy) {
+        updateVoiceRecordingStatus('Please wait for the current conversation to finish');
+        return;
+      }
+      
+      if (isRecording) {
+        stopVoiceRecording();
+      } else {
+        startVoiceRecording();
+      }
+    }
+    
+    function startVoiceRecording() {
+      console.log('🎤 Starting voice recording...');
+      
+      // Initialize recognition if not already done
+      if (!recognition) {
+        if (!initializeVoiceRecognition()) {
+          return;
+        }
+      }
+      
+      // Request microphone permission and start recording
+      try {
+        recognition.start();
+        console.log('🎤 Voice recognition start() called');
+      } catch (error) {
+        console.error('🎤 Error starting voice recognition:', error);
+        updateVoiceRecordingStatus('Failed to start voice recording: ' + error.message);
+      }
+    }
+    
+    function stopVoiceRecording() {
+      console.log('🎤 Stopping voice recording...');
+      
+      if (recognition && isRecording) {
+        recognition.stop();
+      }
+      
+      // Clear timeout
+      if (recordingTimeout) {
+        clearTimeout(recordingTimeout);
+        recordingTimeout = null;
+      }
+      
+      // Update UI
+      isRecording = false;
+      updateVoiceRecordingUI(false);
+      
+      // Calculate recording duration
+      if (recordingStartTime) {
+        const duration = ((Date.now() - recordingStartTime) / 1000).toFixed(1);
+        updateVoiceRecordingStatus(`Recording stopped (${duration}s). Review and send your message.`);
+        recordingStartTime = null;
+      } else {
+        updateVoiceRecordingStatus('Recording stopped. Review and send your message.');
+      }
+      
+      // Focus on the input field so user can review the transcription
+      const userInput = document.getElementById('user-input');
+      userInput.focus();
+      
+      console.log('🎤 Voice recording stopped, final text:', userInput.value);
+    }
+    
+    function updateVoiceRecordingUI(recording) {
+      const recordBtn = document.getElementById('voice-record-btn');
+      const recordIcon = recordBtn.querySelector('i');
+      
+      if (recording) {
+        recordBtn.classList.add('recording');
+        recordBtn.style.backgroundColor = '#dc3545';
+        recordBtn.style.color = 'white';
+        recordBtn.title = 'Stop recording';
+        recordIcon.className = 'fa fa-stop';
+        
+        // Add pulsing animation
+        recordBtn.style.animation = 'pulse 1.5s infinite';
+      } else {
+        recordBtn.classList.remove('recording');
+        recordBtn.style.backgroundColor = '';
+        recordBtn.style.color = '';
+        recordBtn.style.animation = '';
+        recordBtn.title = 'Start voice recording';
+        recordIcon.className = 'fa fa-microphone';
+      }
+    }
+    
+    function updateVoiceRecordingStatus(message) {
+      console.log('🎤 Voice status:', message);
+      
+      // You can update avatar status or show a toast notification
+      if (typeof updateAvatarStatus === 'function') {
+        updateAvatarStatus(message);
+      }
+      
+      // Also update placeholder text temporarily
+      const userInput = document.getElementById('user-input');
+      const originalPlaceholder = userInput.placeholder;
+      
+      if (message.includes('Listening')) {
+        userInput.placeholder = 'Listening...';
+      } else if (message.includes('stopped')) {
+        userInput.placeholder = 'Review your message and press Send';
+        setTimeout(() => {
+          userInput.placeholder = originalPlaceholder;
+        }, 3000);
+      } else if (message.includes('error') || message.includes('not supported')) {
+        userInput.placeholder = message;
+        setTimeout(() => {
+          userInput.placeholder = originalPlaceholder;
+        }, 5000);
       }
     }
 
