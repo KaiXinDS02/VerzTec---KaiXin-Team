@@ -166,7 +166,8 @@ def bold_intro_to_bullets(text: str) -> str:
 
         # Check if the next line starts with a bullet (•, -, or *) and current is not already bold
 
-        if re.match(r"^(\s*[\u2022\-\*\•]\s+)", next_line) and not current.startswith("<strong>"):
+        # if re.match(r"^(\s*[\u2022\-\*\•]\s+)", next_line) and not current.startswith("<strong>"):
+        if re.match(r"^(\*|-|•)\s+", next_line) and not current.startswith("<strong>"):
         # if re.match(r"^(\s*[\u2022\-\*\•]\s+)", next_line) and "<strong>" not in current:
             words = current.split()
 
