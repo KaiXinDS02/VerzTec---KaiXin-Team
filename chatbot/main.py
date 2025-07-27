@@ -155,7 +155,7 @@ def is_generic_or_restricted_response(answer, threshold=85):
             return True
     return False
 
-
+# Formatting
 def bold_intro_to_bullets(text: str) -> str:
     lines = text.strip().split('\n')
     updated_lines = []
@@ -165,7 +165,9 @@ def bold_intro_to_bullets(text: str) -> str:
         next_line = lines[i + 1].strip() if i + 1 < len(lines) else ""
 
         # Check if the next line starts with a bullet (•, -, or *) and current is not already bold
-        if re.match(r"^(\*|-|•)\s+", next_line) and not current.startswith("<strong>"):
+
+        if re.match(r"^(\s*[\u2022\-\*\•]\s+)", next_line) and not current.startswith("<strong>"):
+        # if re.match(r"^(\s*[\u2022\-\*\•]\s+)", next_line) and "<strong>" not in current:
             words = current.split()
 
             if len(words) <= 5:

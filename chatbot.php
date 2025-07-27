@@ -742,6 +742,13 @@ $user_id = $_SESSION['user_id'] ?? 1;
         word-wrap: break-word;
       }
 
+      /* Add this outside of other blocks */
+    .chat-body .bot-bubble strong,
+    .chat-body .user-bubble strong {
+      font-weight: bold;
+    }
+
+
       /* Improve formatting for paragraphs and bullet lists inside bot messages (changedj) */
       .chat-body .bot-bubble p {
         margin: 0.5em 0;
@@ -3246,6 +3253,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
               // Update the message content with streamed text (only after box is created)
               if (botMessageDiv && streamedText.length > 0) {
                 botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${streamedText}`;
+                // console.log("Final streamedText:", streamedText); //changed
                 const chatContainer = document.getElementById('chat-container');
                 chatContainer.scrollTop = chatContainer.scrollHeight;
               }
