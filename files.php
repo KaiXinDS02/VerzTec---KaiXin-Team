@@ -254,7 +254,6 @@ function getFriendlyFileType($mimeType) {
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
   <style>
     body {
-      background: #f2f3fa;
       padding-top: 6rem;    /* more top padding */
       padding-left: 2rem;   /* side padding */
       padding-right: 2rem;
@@ -380,9 +379,7 @@ function getFriendlyFileType($mimeType) {
             <div class="menu">
               <ul>
                 <li><a href="#"><i class="fa-regular fa-user"></i> Profile</a></li>
-                <li><a href="#"><i class="fa-regular fa-message-smile"></i> Inbox</a></li>
-                <li><a href="#"><i class="fa-regular fa-gear"></i> Settings</a></li>
-                <li><a href="#"><i class="fa-regular fa-square-question"></i> Help</a></li>
+                <li><a href="#"><i class="fa-regular fa-moon"></i> Theme</a></li>
                 <li><a href="login.php"><i class="fa-regular fa-right-from-bracket"></i> Sign Out</a></li>
               </ul>
             </div>
@@ -437,8 +434,10 @@ function getFriendlyFileType($mimeType) {
             </thead>
             <tbody>
               <?php foreach($files as $file):
-                $dt = new DateTime($file['uploaded_at'], new DateTimeZone('UTC'));
-                $dt->setTimezone(new DateTimeZone('Asia/Singapore'));
+                // Convert timestamp to user's timezone
+                $user_country = $_SESSION['country'] ?? 'Singapore';
+                $formattedDate = TimezoneHelper::convertToUserTimezone($file['uploaded_at'], $user_country, 'M j, Y g:i A');
+                
                 $icon = getIconClass($file['file_type']);
                 $color= getIconColor($file['file_type']);
 
@@ -529,7 +528,7 @@ function getFriendlyFileType($mimeType) {
                     <i class="fa fa-<?= $icon ?> file-icon" style="color:<?= $color ?>"></i>
                     <?= htmlspecialchars($file['filename']) ?>
                   </td>
-                  <td><?= $dt->format('Y-m-d H:i:s') ?></td>
+                  <td><?= $formattedDate ?></td>
                   <td><?= htmlspecialchars($visibilityText) ?></td>
                   <td><?= htmlspecialchars($file['file_type']) ?></td>
                   <td><?= htmlspecialchars($file['file_size']) ?></td>
@@ -1680,14 +1679,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const country = this.dataset.country;
         const boxes = document.querySelectorAll(`.matrix-checkbox.country-${CSS.escape(country)}`);
         boxes.forEach(cb => cb.checked = this.checked);
-      });
     });
+  });
 
 
 });
-</script>
-  
-  <!-- Session Timeout -->
+</script>  <!-- Session Timeout -->
   <script src="js/inactivity.js"></script>
 </body>
 </html>

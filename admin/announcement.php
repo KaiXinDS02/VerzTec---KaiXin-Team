@@ -76,9 +76,56 @@ $conn->close();
   <link rel="stylesheet" href="css/responsive.css" />
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
   <style>
+    /* Dark Theme Variables */
+    :root {
+      --bg-color: #f2f3fa;
+      --text-color: #333333;
+      --header-bg: #ffffff;
+      --chat-panel-bg: #ffffff;
+      --chat-bubble-bg: #f8f9fa;
+      --input-bg: #ffffff;
+      --border-color: #e9ecef;
+      --shadow-color: rgba(0,0,0,0.1);
+    }
+    
+    [data-theme="dark"] {
+      --bg-color: #1a1a1a;
+      --text-color: #e0e0e0;
+      --header-bg: #2d2d2d;
+      --chat-panel-bg: #2d2d2d;
+      --chat-bubble-bg: #3a3a3a;
+      --input-bg: #3a3a3a;
+      --border-color: #444444;
+      --shadow-color: rgba(0,0,0,0.3);
+    }
+    
+    /* Apply theme variables */
+    .header-area {
+      background-color: var(--header-bg) !important;
+      border-bottom: 1px solid var(--border-color);
+      transition: background-color 0.3s ease;
+    }
+    
+    .page-user-icon .menu {
+      background-color: var(--chat-panel-bg);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px var(--shadow-color);
+    }
+    
+    .page-user-icon .menu ul li a {
+      color: var(--text-color);
+      transition: color 0.3s ease;
+    }
+    
+    .page-user-icon .menu ul li a:hover {
+      background-color: var(--chat-bubble-bg);
+    }
+    
     html, body { height:100%; margin:0; }
     body {
-      background: #f2f3fa;
+      background: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
       padding-top: 160px;
       padding-bottom: 160px;
     }
@@ -215,9 +262,7 @@ $conn->close();
             <div class="menu">
               <ul>
                 <li><a href="#"><i class="fa-regular fa-user"></i> Profile</a></li>
-                <li><a href="#"><i class="fa-regular fa-message-smile"></i> Inbox</a></li>
-                <li><a href="#"><i class="fa-regular fa-gear"></i> Settings</a></li>
-                <li><a href="#"><i class="fa-regular fa-square-question"></i> Help</a></li>
+                <li><a href="#"><i class="fa-regular fa-moon"></i> Theme</a></li>
                 <li><a href="login.php"><i class="fa-regular fa-right-from-bracket"></i> Sign Out</a></li>
               </ul>
             </div>
@@ -295,9 +340,9 @@ $conn->close();
                 <td>
                   <?php
                     if (isset($row['timestamp'])) {
-                        $date = new DateTime($row['timestamp'], new DateTimeZone('UTC'));
-                        $date->setTimezone(new DateTimeZone('Asia/Singapore'));
-                        echo $date->format("d M Y, H:i");
+                        // Get user's country for timezone conversion
+                        $user_country = $_SESSION['country'] ?? 'Singapore';
+                        echo TimezoneHelper::convertToUserTimezone($row['timestamp'], $user_country, "d M Y, H:i");
                     } else {
                         echo 'N/A';
                     } 
@@ -525,6 +570,41 @@ $conn->close();
         $('#delete-title').text(tr.data('title'));
         $('#deleteAnnouncementModal').modal('show');
       });
+    });
+
+    // Theme toggle functionality
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      document.documentElement.setAttribute('data-theme', newTheme);
+      
+      // Save theme preference to localStorage
+      localStorage.setItem('theme', newTheme);
+      
+      // Update theme icon
+      updateThemeIcon(newTheme);
+      
+      console.log('Theme switched to:', newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const themeIcon = document.querySelector('a[onclick="toggleTheme()"] i');
+      if (themeIcon) {
+        if (theme === 'dark') {
+          themeIcon.className = 'fa-regular fa-sun';
+        } else {
+          themeIcon.className = 'fa-regular fa-moon';
+        }
+      }
+    }
+
+    // Load saved theme on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+      console.log('Loaded theme:', savedTheme);
     });
 
     

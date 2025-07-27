@@ -1,6 +1,10 @@
 <?php
+session_start(); // Start session to access user data
 // Include the DB connection from your Docker setup
 require_once __DIR__ . '/../connect.php'; // if connect.php is one level up
+
+// Get user's country for timezone conversion
+$user_country = $_SESSION['country'] ?? 'Singapore';
 
 
 // Fetch announcements ordered by timestamp descending
@@ -140,7 +144,7 @@ $conn->close();
         ?>
         <button class="priority-btn <?php echo $priorityClass; ?>"><?php echo $priorityText; ?></button>
 
-        <p class="timestamp">Posted: <?php echo htmlspecialchars($a['timestamp']); ?></p>
+        <p class="timestamp">Posted: <?php echo TimezoneHelper::formatForDisplay($a['timestamp'], $user_country); ?></p>
     </div>
     <?php endforeach; ?>
 

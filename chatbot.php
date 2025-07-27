@@ -39,6 +39,113 @@ $user_id = $_SESSION['user_id'] ?? 1;
     <link rel="stylesheet" href="css/responsive.css">
 
     <style>
+      /* Dark Theme Variables */
+      :root {
+        --bg-color: #ffffff;
+        --text-color: #333333;
+        --header-bg: #ffffff;
+        --chat-panel-bg: #ffffff;
+        --chat-bubble-bg: #f8f9fa;
+        --input-bg: #ffffff;
+        --border-color: #e9ecef;
+        --shadow-color: rgba(0,0,0,0.1);
+      }
+      
+      [data-theme="dark"] {
+        --bg-color: #1a1a1a;
+        --text-color: #e0e0e0;
+        --header-bg: #2d2d2d;
+        --chat-panel-bg: #2d2d2d;
+        --chat-bubble-bg: #3a3a3a;
+        --input-bg: #3a3a3a;
+        --border-color: #444444;
+        --shadow-color: rgba(0,0,0,0.3);
+      }
+      
+      /* Apply theme variables */
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      
+      .header-area {
+        background-color: var(--header-bg) !important;
+        border-bottom: 1px solid var(--border-color);
+        transition: background-color 0.3s ease;
+      }
+      
+      .chat-panel {
+        background-color: var(--chat-panel-bg);
+        border: 1px solid var(--border-color);
+        transition: background-color 0.3s ease;
+      }
+      
+      .chat-body {
+        background-color: var(--chat-panel-bg);
+      }
+      
+      .bot-bubble, .user-bubble {
+        background-color: var(--chat-bubble-bg);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        transition: background-color 0.3s ease;
+      }
+      
+      .form-control {
+        background-color: var(--input-bg);
+        color: var(--text-color);
+        border-color: var(--border-color);
+        transition: background-color 0.3s ease;
+      }
+      
+      .form-control:focus {
+        background-color: var(--input-bg);
+        color: var(--text-color);
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+      }
+      
+      /* Menu and button theming */
+      .page-user-icon .menu {
+        background-color: var(--chat-panel-bg);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 12px var(--shadow-color);
+      }
+      
+      .page-user-icon .menu ul li a {
+        color: var(--text-color);
+        transition: color 0.3s ease;
+      }
+      
+      .page-user-icon .menu ul li a:hover {
+        background-color: var(--chat-bubble-bg);
+      }
+      
+      /* Button theming */
+      .btn-icon, .btn {
+        background-color: var(--input-bg);
+        color: var(--text-color);
+        border-color: var(--border-color);
+        transition: background-color 0.3s ease;
+      }
+      
+      .btn-icon:hover, .btn:hover {
+        background-color: var(--chat-bubble-bg);
+      }
+      
+      /* Avatar controls theming */
+      .avatar-controls .btn {
+        background-color: rgba(255,255,255,0.1);
+        border-color: rgba(255,255,255,0.2);
+        color: white;
+      }
+      
+      [data-theme="dark"] .avatar-controls .btn {
+        background-color: rgba(0,0,0,0.3);
+        border-color: rgba(255,255,255,0.3);
+      }
+      
       /* Body setup for full viewport usage */
       html, body {
         height: 100%;
@@ -131,6 +238,8 @@ $user_id = $_SESSION['user_id'] ?? 1;
         font-size: 0.85rem;
         border-radius: 6px;
         transition: all 0.3s ease;
+        width: 180px;
+        text-align: center;
       }
       
       .avatar-controls .btn:hover {
@@ -151,6 +260,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
         padding: 6px 10px;
         color: white;
         font-size: 0.8rem;
+        width: 180px;
       }
       
       .volume-slider {
@@ -209,7 +319,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
         cursor: pointer;
         transition: all 0.3s ease;
         font-size: 0.8rem;
-        min-width: 120px;
+        width: 180px;
       }
       
       .background-toggle:hover {
@@ -239,7 +349,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
         box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         display: none;
         z-index: 1000;
-        min-width: 160px;
+        width: 180px;
       }
       
       .background-menu.show {
@@ -292,6 +402,182 @@ $user_id = $_SESSION['user_id'] ?? 1;
         opacity: 1;
       }
       
+      /* Gender Controls - Exact Copy */
+      .gender-controls {
+        position: absolute;
+        top: 45px;
+        left: 0px;
+        pointer-events: auto;
+      }
+      
+      .gender-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      
+      .gender-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        padding: 8px 12px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.8rem;
+        width: 180px;
+      }
+      
+      .gender-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+      
+      .gender-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        padding: 8px 0;
+        margin-top: 4px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        display: none;
+        z-index: 1000;
+        width: 180px;
+      }
+      
+      .gender-menu.show {
+        display: block;
+      }
+      
+      .gender-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        color: #333;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        font-size: 0.85rem;
+        justify-content: space-between;
+      }
+      
+      .gender-menu-item:hover {
+        background: rgba(0,0,0,0.1);
+      }
+      
+      .gender-menu-item.active {
+        background: rgba(0,0,0,0.1);
+        font-weight: 600;
+      }
+      
+      .gender-menu-item .checkmark {
+        color: #333;
+        font-size: 12px;
+        font-weight: bold;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+      
+      .gender-menu-item.active .checkmark {
+        opacity: 1;
+      }
+      
+      /* Ethnicity Controls - Exact Copy */
+      .ethnicity-controls {
+        position: absolute;
+        top: 90px;
+        left: 0px;
+        pointer-events: auto;
+      }
+      
+      .ethnicity-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      
+      .ethnicity-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        padding: 8px 12px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.8rem;
+        width: 180px;
+      }
+      
+      .ethnicity-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+      
+      .ethnicity-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        padding: 8px 0;
+        margin-top: 4px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        display: none;
+        z-index: 1000;
+        width: 180px;
+      }
+      
+      .ethnicity-menu.show {
+        display: block;
+      }
+      
+      .ethnicity-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        color: #333;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        font-size: 0.85rem;
+        justify-content: space-between;
+      }
+      
+      .ethnicity-menu-item:hover {
+        background: rgba(0,0,0,0.1);
+      }
+      
+      .ethnicity-menu-item.active {
+        background: rgba(0,0,0,0.1);
+        font-weight: 600;
+      }
+      
+      .ethnicity-menu-item .checkmark {
+        color: #333;
+        font-size: 12px;
+        font-weight: bold;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+      
+      .ethnicity-menu-item.active .checkmark {
+        opacity: 1;
+      }
+      
       .avatar-controls .btn:hover {
         background: rgba(255, 255, 255, 0.2);
         border-color: rgba(255, 255, 255, 0.3);
@@ -299,13 +585,16 @@ $user_id = $_SESSION['user_id'] ?? 1;
       }
       
       .avatar-controls .btn-group {
-        margin-left: 10px;
+        margin-left: 0px;
+        width: 180px;
+        display: flex;
       }
       
       .avatar-controls .speed-btn {
         font-size: 0.75rem;
-        padding: 4px 8px;
-        min-width: 35px;
+        padding: 6px 8px;
+        flex: 1;
+        min-width: 40px;
       }
       
       .avatar-controls .speed-btn.active {
@@ -853,6 +1142,22 @@ $user_id = $_SESSION['user_id'] ?? 1;
         color: white !important;
       }
       
+      /* Stop button styles */
+      .chat-input-group .btn-icon.stop-btn {
+        background-color: #dc3545 !important;
+        color: white !important;
+        display: none; /* Hidden by default */
+      }
+      
+      .chat-input-group .btn-icon.stop-btn:hover {
+        background-color: #c82333 !important;
+        color: white !important;
+      }
+      
+      .chat-input-group .btn-icon.stop-btn.show {
+        display: inline-flex !important;
+      }
+      
       /* Pulse animation for recording state */
       @keyframes pulse {
         0% {
@@ -1108,16 +1413,86 @@ $user_id = $_SESSION['user_id'] ?? 1;
         transform: scale(1.1);
       }
       
-      /* Special styling for customize button */
-      .avatar-circle-btn#customize-avatar-btn {
-        background: rgba(74, 144, 226, 0.2);
-        border-color: #4a90e2;
+      /* Disabled state for avatar buttons */
+      .avatar-circle-btn:disabled,
+      .avatar-circle-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+        transform: none !important;
+        background: rgba(128, 128, 128, 0.2) !important;
+        border-color: rgba(128, 128, 128, 0.5) !important;
+        color: rgba(128, 128, 128, 0.7) !important;
+        box-shadow: none !important;
       }
-      
-      .avatar-circle-btn#customize-avatar-btn:hover {
-        background: rgba(74, 144, 226, 0.3);
-        border-color: #4a90e2;
-        transform: scale(1.1);
+
+      /* Ethnicity Options Styling */
+      .ethnicity-option {
+        display: flex;
+        align-items: center;
+        padding: 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        margin-bottom: 15px;
+      }
+
+      .ethnicity-option:hover {
+        border-color: #007bff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+        background: rgba(255, 255, 255, 0.95);
+      }
+
+      .ethnicity-option.selected {
+        border-color: #007bff;
+        background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 123, 255, 0.05));
+        box-shadow: 0 8px 25px rgba(0, 123, 255, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .ethnicity-option .option-preview {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 20px;
+        color: white;
+        font-size: 24px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      .ethnicity-option.selected .option-preview {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+      }
+
+      .ethnicity-option .option-info h4 {
+        margin: 0 0 5px 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .ethnicity-option .option-info p {
+        margin: 0;
+        font-size: 14px;
+        color: #666;
+        font-style: italic;
+      }
+
+      .ethnicity-option.selected .option-info h4 {
+        color: #007bff;
+      }
+
+      .ethnicity-option.selected .option-info p {
+        color: #0056b3;
       }
       
       /* Avatar customization selection modals */
@@ -1636,9 +2011,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
             <div class="menu">
               <ul>
                 <li><a href="#"><i class="fa-regular fa-user"></i> Profile</a></li>
-                <li><a href="#"><i class="fa-regular fa-message-smile"></i> Inbox</a></li>
-                <li><a href="#"><i class="fa-regular fa-gear"></i> Settings</a></li>
-                <li><a href="#"><i class="fa-regular fa-square-question"></i> Help</a></li>
+                <li><a href="#"><i class="fa-regular fa-moon"></i> Theme</a></li>
                 <li><a href="login.php"><i class="fa-regular fa-right-from-bracket"></i> Sign Out</a></li>
               </ul>
             </div>
@@ -1724,6 +2097,62 @@ $user_id = $_SESSION['user_id'] ?? 1;
                     </div>
                   </div>
                 </div>
+                
+                <!-- Gender Controls - Copy of Background -->
+                <div class="gender-controls">
+                  <div class="gender-dropdown">
+                    <div class="gender-toggle" id="gender-toggle">
+                      <span>Gender: Female</span>
+                      <i class="fa fa-chevron-down" style="margin-left: auto; font-size: 0.7rem;"></i>
+                    </div>
+                    <div class="gender-menu" id="gender-menu">
+                      <div class="gender-menu-item active" 
+                           data-gender="female"
+                           data-name="Female">
+                        <i class="fa fa-female"></i>
+                        <span>Female</span>
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                      <div class="gender-menu-item" 
+                           data-gender="male"
+                           data-name="Male">
+                        <i class="fa fa-male"></i>
+                        <span>Male</span>
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Ethnicity Controls - Copy of Background -->
+                <div class="ethnicity-controls">
+                  <div class="ethnicity-dropdown">
+                    <div class="ethnicity-toggle" id="ethnicity-toggle">
+                      <span>Ethnicity: Chinese</span>
+                      <i class="fa fa-chevron-down" style="margin-left: auto; font-size: 0.7rem;"></i>
+                    </div>
+                    <div class="ethnicity-menu" id="ethnicity-menu">
+                      <div class="ethnicity-menu-item active" 
+                           data-ethnicity="chinese"
+                           data-name="Chinese">
+                        <span>Chinese</span>
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                      <div class="ethnicity-menu-item" 
+                           data-ethnicity="indian"
+                           data-name="Indian">
+                        <span>Indian</span>
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                      <div class="ethnicity-menu-item" 
+                           data-ethnicity="malay"
+                           data-name="Malay">
+                        <span>Malay</span>
+                        <i class="fa fa-check checkmark"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="avatar-controls">
                 <div class="volume-control">
@@ -1752,7 +2181,8 @@ $user_id = $_SESSION['user_id'] ?? 1;
               </div>
             </div>
             
-            <!-- Avatar Selection Circular Buttons -->
+            <!-- OLD Avatar Selection Circular Buttons - REPLACED WITH NEW CONTROLS -->
+            <!-- 
             <div class="avatar-selection-circular">
               <button class="avatar-circle-btn active" data-avatar="female" title="Female Avatar">
                 <i class="fa fa-female"></i>
@@ -1760,10 +2190,11 @@ $user_id = $_SESSION['user_id'] ?? 1;
               <button class="avatar-circle-btn" data-avatar="male" title="Male Avatar">
                 <i class="fa fa-male"></i>
               </button>
-              <button class="avatar-circle-btn" id="customize-avatar-btn" title="Customize Avatar">
-                <i class="fa fa-plus"></i>
+              <button class="avatar-circle-btn" id="ethnicity-selector-btn" title="Change Ethnicity">
+                <i class="fa fa-globe"></i>
               </button>
             </div>
+            -->
           </div>
         </div>
 
@@ -1815,14 +2246,14 @@ $user_id = $_SESSION['user_id'] ?? 1;
                      autocapitalize="off"
                      spellcheck="false"
                      onkeypress="handleKeyPress(event)">
-              <button class="btn-icon" type="button" onclick="if (!isChatbotBusy) sendMessage()">
+              <button class="btn-icon" type="button" id="send-btn" onclick="if (!isChatbotBusy) sendMessage()">
                 <i class="fa fa-paper-plane"></i>
+              </button>
+              <button class="btn-icon stop-btn" type="button" id="stop-btn" onclick="stopChatbot()" title="Stop speaking">
+                <i class="fa fa-stop"></i>
               </button>
               <button class="btn-icon" type="button" id="voice-record-btn" onclick="toggleVoiceRecording()">
                 <i class="fa fa-microphone"></i>
-              </button>
-              <button class="btn-icon" type="button">
-                <i class="fa fa-plus"></i>
               </button>
             </div>
 
@@ -1888,6 +2319,57 @@ $user_id = $_SESSION['user_id'] ?? 1;
     </div>
   </div>
 
+  <!-- Ethnicity Selection Modal -->
+  <div id="ethnicity-selection-modal" class="avatar-selection-modal">
+    <div class="selection-modal-content">
+      <div class="selection-modal-header">
+        <h3>Choose Ethnicity</h3>
+        <button class="close-modal" onclick="closeEthnicitySelector()">&times;</button>
+      </div>
+      
+      <div class="selection-grid">
+        <div class="ethnicity-option" data-ethnicity="chinese">
+          <div class="option-preview">
+            <i class="fa fa-star"></i>
+          </div>
+          <div class="option-info">
+            <h4>Chinese</h4>
+            <p>Mei (Female) & Wei (Male)</p>
+          </div>
+        </div>
+        
+        <div class="ethnicity-option" data-ethnicity="indian">
+          <div class="option-preview">
+            <i class="fa fa-heart"></i>
+          </div>
+          <div class="option-info">
+            <h4>Indian</h4>
+            <p>Priya (Female) & Raj (Male)</p>
+          </div>
+        </div>
+        
+        <div class="ethnicity-option" data-ethnicity="malay">
+          <div class="option-preview">
+            <i class="fa fa-sun-o"></i>
+          </div>
+          <div class="option-info">
+            <h4>Malay</h4>
+            <p>Siti (Female) & Ahmad (Male)</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="selection-modal-buttons">
+        <button class="selection-btn primary" id="confirm-ethnicity-btn" onclick="confirmEthnicitySelection()" disabled>
+          Select Ethnicity
+        </button>
+        <button class="selection-btn secondary" onclick="closeEthnicitySelector()">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- NOTIFICATION AND MODAL -->
     <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
@@ -1937,7 +2419,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
       </div>
     </div>
 
-  <!-- All your existing scripts (unchanged) -->
+  <!-- All your existing scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
@@ -1952,6 +2434,117 @@ $user_id = $_SESSION['user_id'] ?? 1;
     let isAvatarEnabled = true;
     let currentSpeed = 1.0; // Speed multiplier for text and speech
     let isChatbotBusy = false; // Track if chatbot is currently processing/talking
+    let currentAbortController = null; // For stopping ongoing requests
+    let cleanupTimeout = null; // For automatic cleanup if process gets stuck
+    
+    // Helper function to set a cleanup timeout
+    function setCleanupTimeout() {
+      // Clear any existing timeout
+      if (cleanupTimeout) {
+        clearTimeout(cleanupTimeout);
+      }
+      
+      // Set a new timeout for 30 seconds
+      cleanupTimeout = setTimeout(() => {
+        console.warn('⚠️ Process timeout - automatically cleaning up UI');
+        hideThinking();
+        enableUserInput();
+        updateAvatarStatus('Request timeout - please try again');
+        addMessageToChat('Sorry, the request timed out. Please try again.', 'bot');
+        
+        // Reset avatar state
+        if (avatarManager && avatarManager.isInitialized) {
+          try {
+            avatarManager.stopThinking();
+            avatarManager.stopSpeaking();
+          } catch (e) {
+            console.warn('Error stopping avatar:', e);
+          }
+        }
+      }, 30000); // 30 second timeout
+    }
+    
+    // Helper function to clear the cleanup timeout
+    function clearCleanupTimeout() {
+      if (cleanupTimeout) {
+        clearTimeout(cleanupTimeout);
+        cleanupTimeout = null;
+      }
+    }
+    
+    // Helper functions to disable/enable avatar controls during speech
+    function disableAvatarControls() {
+      // Disable gender toggle
+      const genderToggle = document.getElementById('gender-toggle');
+      if (genderToggle) {
+        genderToggle.classList.add('disabled');
+        genderToggle.style.pointerEvents = 'none';
+      }
+      
+      // Disable ethnicity toggle and dropdown
+      const ethnicityToggle = document.getElementById('ethnicity-toggle');
+      if (ethnicityToggle) {
+        ethnicityToggle.classList.add('disabled');
+        ethnicityToggle.style.pointerEvents = 'none';
+      }
+      
+      const ethnicityMenu = document.getElementById('ethnicity-menu');
+      if (ethnicityMenu) {
+        ethnicityMenu.classList.remove('show');
+      }
+    }
+    
+    function enableAvatarControls() {
+      // Enable gender toggle
+      const genderToggle = document.getElementById('gender-toggle');
+      if (genderToggle) {
+        genderToggle.classList.remove('disabled');
+        genderToggle.style.pointerEvents = 'auto';
+      }
+      
+      // Enable ethnicity toggle
+      const ethnicityToggle = document.getElementById('ethnicity-toggle');
+      if (ethnicityToggle) {
+        ethnicityToggle.classList.remove('disabled');
+        ethnicityToggle.style.pointerEvents = 'auto';
+      }
+    }
+    
+    // Function to validate voice ID with ElevenLabs
+    async function validateVoiceId(voiceId, voiceName) {
+      try {
+        console.log('🔍 Validating voice ID:', voiceId, 'for:', voiceName);
+        
+        // Test voice with a simple text
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'audio/mpeg',
+            'Content-Type': 'application/json',
+            'xi-api-key': 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7'
+          },
+          body: JSON.stringify({
+            text: "Test",
+            model_id: "eleven_monolingual_v1",
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.75
+            }
+          })
+        });
+        
+        if (response.ok) {
+          console.log('✅ Voice ID valid:', voiceId, 'for:', voiceName);
+          return true;
+        } else {
+          console.error('❌ Voice ID invalid:', voiceId, 'for:', voiceName, 'Status:', response.status);
+          return false;
+        }
+      } catch (error) {
+        console.error('❌ Error validating voice ID:', voiceId, 'for:', voiceName, 'Error:', error);
+        return false;
+      }
+    }
     
     // Avatar system configuration - HARDCODED ANIMATION MAPPINGS
     let originalAvatarUrl = 'assets/avatars/models/female_avatar.glb'; // Default female avatar
@@ -2035,6 +2628,100 @@ $user_id = $_SESSION['user_id'] ?? 1;
     };
     let currentVoiceId = availableVoices.female.id;
     
+    // NEW: Ethnic Avatar System
+    let currentEthnicity = 'chinese'; // Track current ethnicity - Default to Chinese to match HTML
+    let currentGenderSelection = 'female'; // Track current gender selection
+    let availableEthnicAvatars = {
+      chinese_female: {
+        avatarUrl: 'assets/avatars/models/female_avatar.glb', // Use default for Chinese until specific file available
+        animationsUrl: 'assets/avatars/models/female_animations.glb',
+        name: 'Mei',
+        gender: 'female',
+        ethnicity: 'chinese'
+      },
+      chinese_male: {
+        avatarUrl: 'assets/avatars/models/male_avatar.glb', // Use default for Chinese until specific file available
+        animationsUrl: 'assets/avatars/models/male_animations.glb',
+        name: 'Wei',
+        gender: 'male',
+        ethnicity: 'chinese'
+      },
+      indian_female: {
+        avatarUrl: 'assets/avatars/models/female_indian.glb',
+        animationsUrl: 'assets/avatars/models/female_animations.glb',
+        name: 'Priya',
+        gender: 'female',
+        ethnicity: 'indian'
+      },
+      indian_male: {
+        avatarUrl: 'assets/avatars/models/male_indian.glb',
+        animationsUrl: 'assets/avatars/models/male_animations.glb',
+        name: 'Raj',
+        gender: 'male',
+        ethnicity: 'indian'
+      },
+      malay_female: {
+        avatarUrl: 'assets/avatars/models/female_malay.glb',
+        animationsUrl: 'assets/avatars/models/female_animations.glb',
+        name: 'Siti',
+        gender: 'female',
+        ethnicity: 'malay'
+      },
+      malay_male: {
+        avatarUrl: 'assets/avatars/models/male_malay.glb',
+        animationsUrl: 'assets/avatars/models/male_animations.glb',
+        name: 'Ahmad',
+        gender: 'male',
+        ethnicity: 'malay'
+      }
+    };
+    let availableEthnicVoices = {
+      chinese_female: {
+        id: 'TbMNBJ27fH2U0VgpSNko',
+        name: 'Mei (Chinese Female)',
+        gender: 'female',
+        ethnicity: 'chinese',
+        previewFile: 'assets/audio/voice_previews/chinese_female_voice.mp3'
+      },
+      chinese_male: {
+        id: 'iP95p4xoKVk53GoZ742B', // TEMP: Using Indian male voice ID for testing
+        fallbackId: 'iP95p4xoKVk53GoZ742B', // Use Indian male as fallback
+        name: 'Wei (Chinese Male)',
+        gender: 'male',
+        ethnicity: 'chinese',
+        previewFile: 'assets/audio/voice_previews/chinese_male_voice.mp3'
+      },
+      indian_female: {
+        id: 'x959FyxFeswkQQqFjoPb',
+        name: 'Priya (Indian Female)',
+        gender: 'female',
+        ethnicity: 'indian',
+        previewFile: 'assets/audio/voice_previews/indian_female_voice.mp3'
+      },
+      indian_male: {
+        id: 'iP95p4xoKVk53GoZ742B',
+        name: 'Raj (Indian Male)',
+        gender: 'male',
+        ethnicity: 'indian',
+        previewFile: 'assets/audio/voice_previews/indian_male_voice.mp3'
+      },
+      malay_female: {
+        id: 'x959FyxFeswkQQqFjoPb', // TEMP: Using Indian female voice ID for testing
+        fallbackId: 'x959FyxFeswkQQqFjoPb', // Use Indian female as fallback
+        name: 'Siti (Malay Female)',
+        gender: 'female',
+        ethnicity: 'malay',
+        previewFile: 'assets/audio/voice_previews/malay_female_voice.mp3'
+      },
+      malay_male: {
+        id: 'UDgcwmi9QWxuoU7Du5pH',
+        name: 'Ahmad (Malay Male)',
+        gender: 'male',
+        ethnicity: 'malay',
+        previewFile: 'assets/audio/voice_previews/malay_male_voice.mp3'
+      }
+    };
+    
     // Voice recording variables
     let recognition = null;
     let isRecording = false;
@@ -2046,9 +2733,131 @@ $user_id = $_SESSION['user_id'] ?? 1;
     let userOriginalLanguage = 'en';
     // Translation is always enabled - no toggle needed
     
+    // Avatar preferences persistence functions
+    function saveAvatarPreferences() {
+      try {
+        const preferences = {
+          gender: currentGenderSelection,
+          ethnicity: currentEthnicity,
+          timestamp: Date.now()
+        };
+        localStorage.setItem('verzTec_avatarPreferences', JSON.stringify(preferences));
+        console.log('💾 Avatar preferences saved:', preferences);
+      } catch (error) {
+        console.warn('⚠️ Failed to save avatar preferences:', error);
+      }
+    }
+    
+    function loadAvatarPreferences() {
+      try {
+        const saved = localStorage.getItem('verzTec_avatarPreferences');
+        if (saved) {
+          const preferences = JSON.parse(saved);
+          console.log('📂 Loading saved avatar preferences:', preferences);
+          
+          // Apply saved gender preference
+          if (preferences.gender && preferences.gender !== currentGenderSelection) {
+            currentGenderSelection = preferences.gender;
+            applyGenderSelection(preferences.gender);
+          }
+          
+          // Apply saved ethnicity preference
+          if (preferences.ethnicity && preferences.ethnicity !== currentEthnicity) {
+            currentEthnicity = preferences.ethnicity;
+            applyEthnicitySelection(preferences.ethnicity);
+          }
+          
+          console.log('✅ Avatar preferences applied successfully');
+        } else {
+          console.log('📝 No saved avatar preferences found, using defaults');
+        }
+      } catch (error) {
+        console.warn('⚠️ Failed to load avatar preferences:', error);
+      }
+    }
+    
+    function applyGenderSelection(gender) {
+      // Update UI to reflect saved gender
+      document.querySelectorAll('.gender-menu-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.gender === gender) {
+          item.classList.add('active');
+          const genderName = item.dataset.name;
+          const genderToggle = document.getElementById('gender-toggle');
+          if (genderToggle) {
+            genderToggle.querySelector('span').textContent = `Gender: ${genderName}`;
+          }
+        }
+      });
+    }
+    
+    function applyEthnicitySelection(ethnicity) {
+      // Update UI to reflect saved ethnicity
+      document.querySelectorAll('.ethnicity-menu-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.ethnicity === ethnicity) {
+          item.classList.add('active');
+          const ethnicityName = item.dataset.name;
+          const ethnicityToggle = document.getElementById('ethnicity-toggle');
+          if (ethnicityToggle) {
+            ethnicityToggle.querySelector('span').textContent = `Ethnicity: ${ethnicityName}`;
+          }
+        }
+      });
+      
+      // Switch to the appropriate avatar
+      if (ethnicity && ethnicity !== 'default') {
+        const ethnicAvatarType = `${ethnicity}_${currentGenderSelection}`;
+        console.log('🌍 Applying saved ethnic avatar:', ethnicAvatarType);
+        // Delay avatar switching to ensure avatar manager is initialized
+        setTimeout(() => {
+          switchEthnicAvatar(ethnicAvatarType);
+        }, 1000);
+      }
+    }
+    
+    // Debug function to test localStorage persistence manually
+    function testAvatarPreferences() {
+      console.log('🧪 Testing Avatar Preferences:');
+      console.log('Current Gender:', currentGenderSelection);
+      console.log('Current Ethnicity:', currentEthnicity);
+      
+      // Test saving
+      saveAvatarPreferences();
+      
+      // Test loading
+      const saved = localStorage.getItem('verzTec_avatarPreferences');
+      console.log('Saved in localStorage:', saved);
+      
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        console.log('Parsed preferences:', parsed);
+      }
+    }
+    
+    // Make test function globally accessible for debugging
+    window.testAvatarPreferences = testAvatarPreferences;
+    
     // Initialize avatar when page loads
     document.addEventListener('DOMContentLoaded', function() {
       console.log('🚀 VerzTec Chatbot - Initializing...');
+      
+      // Initialize interruption flag
+      window.chatbotInterrupted = false;
+      
+      // Load saved avatar preferences
+      setTimeout(() => {
+        loadAvatarPreferences();
+      }, 500); // Small delay to ensure DOM elements are ready
+      
+      // Add global keyboard shortcuts
+      document.addEventListener('keydown', function(event) {
+        // Escape key to stop chatbot
+        if (event.key === 'Escape' && isChatbotBusy) {
+          event.preventDefault();
+          stopChatbot();
+        }
+      });
       
       // Add basic error handling
       window.addEventListener('error', function(e) {
@@ -2068,15 +2877,23 @@ $user_id = $_SESSION['user_id'] ?? 1;
         return;
       }
       
-      try {
-        initializeAvatar();
-        setupEventListeners();
-        initializeAvatarCustomization();
-        initializeVoiceRecognition();
-        console.log('✅ VerzTec Chatbot initialized successfully');
-      } catch (error) {
-        console.error('💥 Error during initialization:', error);
-      }
+      // Wait for all scripts to load before initializing
+      setTimeout(() => {
+        console.log('🔍 Checking dependencies:');
+        console.log('- THREE.js:', typeof THREE !== 'undefined' ? '✅' : '❌');
+        console.log('- AvatarManager:', typeof AvatarManager !== 'undefined' ? '✅' : '❌');
+        
+        try {
+          initializeAvatar();
+          setupEventListeners();
+          initializeAvatarCustomization();
+          initializeVoiceRecognition();
+          console.log('✅ VerzTec Chatbot initialized successfully');
+        } catch (error) {
+          console.error('💥 Error during initialization:', error);
+          updateAvatarStatus('Initialization failed');
+        }
+      }, 1000); // Reduced from 1.5 seconds to 1 second
     });
     
     // Cleanup on page unload
@@ -2090,31 +2907,36 @@ $user_id = $_SESSION['user_id'] ?? 1;
     });
     
     function initializeAvatar() {
-      console.log('🎭 initializeAvatar() called');
+      console.log('🎭 Initializing avatar...');
       
       // Only initialize avatar if it's enabled
       if (!isAvatarEnabled) {
         console.log('Avatar disabled, skipping initialization');
+        updateAvatarStatus('Avatar disabled');
+        return;
+      }
+      
+      // Check if required elements exist
+      const avatarContainer = document.getElementById('avatar-3d');
+      if (!avatarContainer) {
+        console.error('❌ Avatar container element not found!');
+        updateAvatarStatus('Container missing');
         return;
       }
       
       // Check if AvatarManager class exists
       if (typeof AvatarManager === 'undefined') {
         console.error('❌ AvatarManager class not found! Check if avatar-manager.js is loaded.');
+        updateAvatarStatus('Script missing');
         return;
       }
-      
-      console.log('✅ AvatarManager class found');
       
       // Set current avatar URL to the selected avatar
       const currentAvatarConfig = availableAvatars[currentAvatarGender];
       currentAvatarUrl = currentAvatarConfig.avatarUrl;
       
-      console.log('🎭 Initializing Avatar Manager with:');
-      console.log('  - Avatar URL:', currentAvatarUrl);
-      console.log('  - Animations URL:', currentAvatarConfig.animationsUrl);
-      console.log('  - Gender:', currentAvatarGender);
-      console.log('  - Voice ID:', currentVoiceId);
+      console.log('🎭 Creating Avatar Manager...');
+      updateAvatarStatus('Loading avatar...');
       
       try {
         // Use current voice settings
@@ -2127,10 +2949,11 @@ $user_id = $_SESSION['user_id'] ?? 1;
         });
         
         console.log('✅ AvatarManager created successfully');
+        updateAvatarStatus('Initializing...');
         
       } catch (error) {
         console.error('💥 Error creating AvatarManager:', error);
-        updateAvatarStatus('Loading Complete');
+        updateAvatarStatus('Failed to load');
         return;
       }
       
@@ -2139,15 +2962,19 @@ $user_id = $_SESSION['user_id'] ?? 1;
         if (avatarManager && avatarManager.isInitialized) {
           updateAvatarStatus('Ready to help');
           clearInterval(checkInitialization);
-          console.log('Avatar manager initialized successfully');
+          console.log('✅ Avatar manager initialized successfully');
           
           // Set initial voice state
           avatarManager.setVoiceEnabled(isVoiceEnabled);
           
           // Sync volume slider with avatar manager
-          const currentVolume = avatarManager.getVolume();
-          document.getElementById('avatar-volume-slider').value = currentVolume * 100;
-          document.getElementById('avatar-volume-display').textContent = Math.round(currentVolume * 100) + '%';
+          try {
+            const currentVolume = avatarManager.getVolume();
+            document.getElementById('avatar-volume-slider').value = currentVolume * 100;
+            document.getElementById('avatar-volume-display').textContent = Math.round(currentVolume * 100) + '%';
+          } catch (volumeError) {
+            console.warn('Volume sync failed:', volumeError);
+          }
           
           // Test API key
           avatarManager.testApiKey().then(result => {
@@ -2158,6 +2985,9 @@ $user_id = $_SESSION['user_id'] ?? 1;
               console.error('ElevenLabs API key test failed:', result.error);
               updateAvatarStatus('Ready to help - Voice may have issues');
             }
+          }).catch(apiError => {
+            console.warn('API test failed:', apiError);
+            updateAvatarStatus('Ready to help - API test failed');
           });
         }
       }, 500);
@@ -2435,6 +3265,12 @@ $user_id = $_SESSION['user_id'] ?? 1;
             e.preventDefault();
             e.stopPropagation();
             
+            // Prevent switching while avatar is talking
+            if (isChatbotBusy) {
+              console.log('⚠️ Cannot change avatar while avatar is talking');
+              return;
+            }
+            
             const selectedAvatar = this.dataset.avatar;
             
             // Remove active class from all avatar buttons
@@ -2445,8 +3281,17 @@ $user_id = $_SESSION['user_id'] ?? 1;
             // Add active class to clicked button
             this.classList.add('active');
             
-            // Switch to the selected avatar
-            switchAvatar(selectedAvatar);
+            // NEW: Check if we're using ethnic avatars or original avatars
+            if (currentEthnicity && currentEthnicity !== 'default') {
+              // Switch to ethnic avatar with current ethnicity and selected gender
+              const ethnicAvatarType = `${currentEthnicity}_${selectedAvatar}`;
+              console.log('🌍 Switching to ethnic avatar:', ethnicAvatarType);
+              switchEthnicAvatar(ethnicAvatarType);
+            } else {
+              // Switch to original avatar system
+              console.log('🎭 Switching to original avatar:', selectedAvatar);
+              switchAvatar(selectedAvatar);
+            }
           });
           
           btn.addEventListener('touchstart', function(e) {
@@ -2455,39 +3300,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
           });
         });
         
-        // Customize avatar button
-        const customizeBtn = document.getElementById('customize-avatar-btn');
-        console.log('Found customize button:', customizeBtn);
-        if (customizeBtn) {
-          customizeBtn.addEventListener('click', function(e) {
-            console.log('🔴 Customize button clicked');
-            e.preventDefault();
-            e.stopPropagation();
-            openAvatarCreator();
-          });
-          
-          customizeBtn.addEventListener('touchstart', function(e) {
-            console.log('🔴 Customize button touched');
-            e.preventDefault();
-          });
-        }
-        
-        // Test function to verify buttons are accessible
-        setTimeout(() => {
-          console.log('🧪 Testing button accessibility...');
-          avatarButtons.forEach((btn, index) => {
-            const rect = btn.getBoundingClientRect();
-            console.log(`Button ${index + 1} position:`, {
-              top: rect.top,
-              left: rect.left,
-              width: rect.width,
-              height: rect.height,
-              visible: rect.width > 0 && rect.height > 0
-            });
-          });
-        }, 1000);
-      
-      // Volume control functionality
+        // Volume control functionality
       let isMuted = false;
       let previousVolume = 1.0;
       
@@ -2549,6 +3362,130 @@ $user_id = $_SESSION['user_id'] ?? 1;
       
       // Prevent dropdown from closing when clicking inside
       backgroundMenu.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+      
+      // Gender toggle functionality - Copy of background
+      const genderToggle = document.getElementById('gender-toggle');
+      const genderMenu = document.getElementById('gender-menu');
+      // currentGenderSelection is now declared globally
+      
+      // Toggle dropdown
+      genderToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        // Prevent opening while avatar is talking
+        if (isChatbotBusy) {
+          console.log('⚠️ Cannot change gender while avatar is talking');
+          return;
+        }
+        
+        genderMenu.classList.toggle('show');
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function() {
+        genderMenu.classList.remove('show');
+      });
+      
+      // Handle gender selection
+      document.querySelectorAll('.gender-menu-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.stopPropagation();
+          
+          // Remove active class from all items
+          document.querySelectorAll('.gender-menu-item').forEach(menuItem => {
+            menuItem.classList.remove('active');
+          });
+          
+          // Add active class to clicked item
+          this.classList.add('active');
+          
+          // Update current selection display
+          const selectedGender = this.dataset.gender;
+          const genderName = this.dataset.name;
+          
+          genderToggle.querySelector('span').textContent = `Gender: ${genderName}`;
+          currentGenderSelection = selectedGender;
+          
+          // Switch avatar based on current ethnicity
+          if (currentEthnicity && currentEthnicity !== 'default') {
+            const ethnicAvatarType = `${currentEthnicity}_${selectedGender}`;
+            console.log('🌍 Switching to ethnic avatar:', ethnicAvatarType);
+            switchEthnicAvatar(ethnicAvatarType);
+          } else {
+            console.log('🎭 Switching to original avatar:', selectedGender);
+            switchAvatar(selectedGender);
+          }
+          
+          // Save preferences to localStorage
+          saveAvatarPreferences();
+          
+          updateAvatarStatus(`Gender changed to ${genderName}`);
+        });
+      });
+      
+      // Prevent dropdown from closing when clicking inside
+      genderMenu.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+      
+      // Ethnicity dropdown functionality - Copy of background
+      const ethnicityToggle = document.getElementById('ethnicity-toggle');
+      const ethnicityMenu = document.getElementById('ethnicity-menu');
+      
+      // Toggle dropdown
+      ethnicityToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        // Prevent opening while avatar is talking
+        if (isChatbotBusy) {
+          console.log('⚠️ Cannot change ethnicity while avatar is talking');
+          return;
+        }
+        
+        ethnicityMenu.classList.toggle('show');
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function() {
+        ethnicityMenu.classList.remove('show');
+      });
+      
+      // Handle ethnicity selection
+      document.querySelectorAll('.ethnicity-menu-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.stopPropagation();
+          
+          // Remove active class from all items
+          document.querySelectorAll('.ethnicity-menu-item').forEach(menuItem => {
+            menuItem.classList.remove('active');
+          });
+          
+          // Add active class to clicked item
+          this.classList.add('active');
+          
+          // Update current selection display
+          const selectedEthnicity = this.dataset.ethnicity;
+          const ethnicityName = this.dataset.name;
+          
+          ethnicityToggle.querySelector('span').textContent = `Ethnicity: ${ethnicityName}`;
+          currentEthnicity = selectedEthnicity;
+          
+          // Switch to ethnic avatar
+          const ethnicAvatarType = `${selectedEthnicity}_${currentGenderSelection}`;
+          console.log('🌍 Switching to ethnic avatar:', ethnicAvatarType);
+          switchEthnicAvatar(ethnicAvatarType);
+          
+          // Save preferences to localStorage
+          saveAvatarPreferences();
+          
+          updateAvatarStatus(`Ethnicity changed to ${ethnicityName}`);
+        });
+      });
+      
+      // Prevent dropdown from closing when clicking inside
+      ethnicityMenu.addEventListener('click', function(e) {
         e.stopPropagation();
       });
       
@@ -2721,13 +3658,19 @@ $user_id = $_SESSION['user_id'] ?? 1;
     
     function disableUserInput() {
       const userInput = document.getElementById('user-input');
-      const sendButton = document.querySelector('.chat-input-group .btn-icon');
+      const sendButton = document.getElementById('send-btn');
+      const stopButton = document.getElementById('stop-btn');
       const voiceButton = document.getElementById('voice-record-btn');
       
       userInput.disabled = true;
-      userInput.placeholder = 'Please wait...';
+      userInput.placeholder = 'Please wait... (Press ESC or click Stop to interrupt)';
       sendButton.style.pointerEvents = 'none';
       sendButton.style.opacity = '0.5';
+      
+      // Show stop button when chatbot is processing/speaking
+      if (stopButton) {
+        stopButton.classList.add('show');
+      }
       
       if (voiceButton) {
         voiceButton.style.pointerEvents = 'none';
@@ -2740,11 +3683,16 @@ $user_id = $_SESSION['user_id'] ?? 1;
       }
       
       isChatbotBusy = true;
+      disableAvatarControls(); // Disable avatar controls while talking
+      
+      // Set cleanup timeout to prevent UI from getting stuck
+      setCleanupTimeout();
     }
     
     function enableUserInput() {
       const userInput = document.getElementById('user-input');
-      const sendButton = document.querySelector('.chat-input-group .btn-icon');
+      const sendButton = document.getElementById('send-btn');
+      const stopButton = document.getElementById('stop-btn');
       const voiceButton = document.getElementById('voice-record-btn');
       
       userInput.disabled = false;
@@ -2752,17 +3700,112 @@ $user_id = $_SESSION['user_id'] ?? 1;
       sendButton.style.pointerEvents = 'auto';
       sendButton.style.opacity = '1';
       
+      // Hide stop button when chatbot is done
+      if (stopButton) {
+        stopButton.classList.remove('show');
+      }
+      
       if (voiceButton) {
         voiceButton.style.pointerEvents = 'auto';
         voiceButton.style.opacity = '1';
       }
       
+      // Reset chatbot state flags
       isChatbotBusy = false;
+      window.chatbotInterrupted = false;
+      
+      enableAvatarControls(); // Re-enable avatar controls when done talking
+      
+      // Clear cleanup timeout since we're done
+      clearCleanupTimeout();
+    }
+
+    function stopChatbot() {
+      console.log('🛑 Stop button clicked - interrupting chatbot');
+      
+      // Set a flag to indicate interruption
+      window.chatbotInterrupted = true;
+      
+      // Stop avatar speech immediately if it's speaking
+      if (avatarManager && avatarManager.isInitialized) {
+        console.log('🛑 Stopping avatar speech and animations...');
+        
+        try {
+          // Stop current speech/audio
+          if (typeof avatarManager.stopSpeaking === 'function') {
+            avatarManager.stopSpeaking();
+          }
+          
+          // Stop thinking animation
+          if (typeof avatarManager.stopThinking === 'function') {
+            avatarManager.stopThinking();
+          }
+          
+          // Stop any ongoing animations and return to idle
+          if (typeof avatarManager.stopAllAnimations === 'function') {
+            avatarManager.stopAllAnimations();
+          }
+          
+          // Try to stop audio directly if available
+          if (avatarManager.audioElement) {
+            avatarManager.audioElement.pause();
+            avatarManager.audioElement.currentTime = 0;
+          }
+          
+          // Stop any ongoing text-to-speech
+          if ('speechSynthesis' in window) {
+            speechSynthesis.cancel();
+          }
+          
+        } catch (error) {
+          console.warn('⚠️ Error stopping avatar:', error);
+        }
+      }
+      
+      // Abort any ongoing API requests
+      if (currentAbortController) {
+        console.log('🛑 Aborting ongoing API request...');
+        currentAbortController.abort();
+        currentAbortController = null;
+      }
+      
+      // Clear cleanup timeout to prevent automatic cleanup
+      clearCleanupTimeout();
+      
+      // Reset busy state immediately
+      isChatbotBusy = false;
+      
+      // Hide thinking animation in chat
+      hideThinking();
+      
+      // Stop any ongoing voice recording
+      if (isRecording) {
+        stopVoiceRecording();
+      }
+      
+      // Re-enable avatar controls
+      enableAvatarControls();
+      
+      // Re-enable user input immediately
+      enableUserInput();
+      
+      // Update avatar status
+      updateAvatarStatus('Stopped - Ready to help');
+      
+      // Reset interruption flag after a short delay
+      setTimeout(() => {
+        window.chatbotInterrupted = false;
+      }, 1000);
+      
+      console.log('🛑 Chatbot stopped successfully');
     }
 
     function handleKeyPress(event) {
       if (event.key === 'Enter' && !isChatbotBusy) {
         sendMessage();
+      } else if (event.key === 'Escape' && isChatbotBusy) {
+        // Allow Escape key to stop the chatbot
+        stopChatbot();
       }
     }
 // ------------------- VOICE INPUT FUNCTIONS START (Charmaine) ------------------- 
@@ -3124,6 +4167,14 @@ $user_id = $_SESSION['user_id'] ?? 1;
       let processedMessage = message;
       
       try {
+        // Check for interruption before starting language detection
+        if (window.chatbotInterrupted) {
+          console.log('🛑 Process interrupted before language detection');
+          hideThinking();
+          enableUserInput();
+          return;
+        }
+        
         // Always detect language via API for accuracy
         showTranslationStatus('🌐 Detecting language...');
         
@@ -3132,6 +4183,14 @@ $user_id = $_SESSION['user_id'] ?? 1;
         userOriginalLanguage = detectedLanguage;
         
         console.log('🌐 API detected language:', detectedLanguage, 'for message:', message);
+        
+        // Check for interruption after language detection
+        if (window.chatbotInterrupted) {
+          console.log('🛑 Process interrupted after language detection');
+          hideThinking();
+          enableUserInput();
+          return;
+        }
         
         if (detectedLanguage !== 'en') {
           showTranslationStatus(`🔄 Translating from ${detectedLanguage.toUpperCase()} to English...`);
@@ -3151,9 +4210,42 @@ $user_id = $_SESSION['user_id'] ?? 1;
       } catch (error) {
         console.error('❌ Translation error:', error);
         showTranslationStatus('⚠️ Translation failed, using original message');
-        // Continue with original message if translation fails
+        
+        // Check for interruption before handling translation error
+        if (window.chatbotInterrupted) {
+          console.log('🛑 Process interrupted during translation error handling');
+          hideThinking();
+          enableUserInput();
+          return;
+        }
+        
+        // Continue with original message if translation fails (non-critical error)
         processedMessage = message;
         userOriginalLanguage = 'en';
+        
+        // Only stop completely if it's a critical error (like network is completely down)
+        if (error.message.includes('Network request failed') || error.message.includes('Failed to fetch')) {
+          hideThinking();
+          enableUserInput();
+          
+          // Only show network error message if not interrupted
+          if (!window.chatbotInterrupted) {
+            addMessageToChat('Sorry, I cannot connect to the translation service. Please check your connection and try again.', 'bot');
+            updateAvatarStatus('Network error');
+          }
+          return;
+        }
+      }
+
+      // Create AbortController for this request
+      currentAbortController = new AbortController();
+
+      // Check for interruption before making API call
+      if (window.chatbotInterrupted) {
+        console.log('🛑 Process interrupted before API call');
+        hideThinking();
+        enableUserInput();
+        return;
       }
 
       // Send message to chatbot API
@@ -3164,10 +4256,19 @@ $user_id = $_SESSION['user_id'] ?? 1;
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ user_id: userId, question: processedMessage })
+          body: JSON.stringify({ user_id: userId, question: processedMessage }),
+          signal: currentAbortController.signal
         });
         
         console.log('📡 API Response status:', response.status);
+        
+        // Check for interruption immediately after API response
+        if (window.chatbotInterrupted) {
+          console.log('🛑 Process interrupted immediately after API response');
+          hideThinking();
+          enableUserInput();
+          return;
+        }
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -3176,15 +4277,39 @@ $user_id = $_SESSION['user_id'] ?? 1;
         const data = await response.json();
         console.log('📦 API Response data:', data);
         
+        // Check for interruption after receiving API response
+        if (window.chatbotInterrupted) {
+          console.log('🛑 Process interrupted after receiving API response');
+          hideThinking();
+          enableUserInput();
+          return;
+        }
+        
         // Check if the response has the expected structure
         if (!data || (!data.answer && !data.response)) {
           console.error('❌ Invalid API response structure:', data);
+          hideThinking();
+          enableUserInput();
+          
+          // Only show invalid response message if not interrupted
+          if (!window.chatbotInterrupted) {
+            addMessageToChat('Sorry, I received an invalid response from the server. Please try again.', 'bot');
+            updateAvatarStatus('Invalid response error');
+          }
           throw new Error('Invalid response from chatbot API');
         }
         
         // Get the answer from the response (try both 'answer' and 'response' fields)
         let botAnswer = data.answer || data.response || 'Sorry, I could not generate a response.';
         console.log('🤖 Bot answer (English):', botAnswer.substring(0, 100) + '...');
+        
+        // Check for interruption before response translation
+        if (window.chatbotInterrupted) {
+          console.log('🛑 Process interrupted before response translation');
+          hideThinking();
+          enableUserInput();
+          return;
+        }
         
         // Translate bot response back to user's original language if needed
         if (userOriginalLanguage !== 'en') {
@@ -3198,6 +4323,14 @@ $user_id = $_SESSION['user_id'] ?? 1;
             showTranslationStatus('⚠️ Response translation failed, showing in English');
             // Continue with English response if translation fails
           }
+        }
+        
+        // Check for interruption after response translation
+        if (window.chatbotInterrupted) {
+          console.log('🛑 Process interrupted after response translation');
+          hideThinking();
+          enableUserInput();
+          return;
         }
         
         // Store reference file info for later use (after text is complete)
@@ -3214,85 +4347,126 @@ $user_id = $_SESSION['user_id'] ?? 1;
           try {
             console.log('Starting synchronized speech with speed:', currentSpeed + 'x', 'for text:', botAnswer.substring(0, 50) + '...');
             
+            // Check for interruption before starting speech
+            if (window.chatbotInterrupted) {
+              console.log('🛑 Speech interrupted before starting');
+              hideThinking();
+              enableUserInput();
+              return;
+            }
+            
             // Variable to track if message box has been created
             let botMessageDiv = null;
-            let isFirstLetterReady = false;
             
-            // Use the improved speakWithTextStream method with callback for when first letter is ready
             await avatarManager.speakWithTextStream(botAnswer, (streamedText) => {
-              // Check if this is the signal that first letter is ready (empty string)
-              if (streamedText === '' && !isFirstLetterReady) {
-                console.log('📝 First letter ready signal received, creating message box...');
+              // Check for interruption during streaming
+              if (window.chatbotInterrupted) {
+                console.log('🛑 Speech interrupted during streaming');
+                return;
+              }
+              
+              // Check if this is the initial signal (empty string) that speech is ready
+              if (streamedText === '' && !botMessageDiv) {
+                console.log('📝 Speech ready signal received, creating message box...');
                 hideThinking(); // Hide thinking animation when text bubble appears
                 
                 botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'bot-bubble';
-                botMessageDiv.innerHTML = '<strong>VerzTec Assistant:</strong> ';
+                // Show complete text immediately instead of streaming letter by letter
+                botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${botAnswer}`;
                 
                 const chatContainer = document.getElementById('chat-container');
                 chatContainer.appendChild(botMessageDiv);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
                 
                 updateAvatarStatus('Speaking...');
-                isFirstLetterReady = true;
-                return; // Don't update content yet
+                return; // Don't process this empty signal further
               }
               
-              // Update the message content with streamed text (only after box is created)
-              if (botMessageDiv && streamedText.length > 0) {
-                botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${streamedText}`;
-                const chatContainer = document.getElementById('chat-container');
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-              }
+              // Ignore subsequent typing updates since we already show the complete text
+              // The avatar will continue speaking and animating properly
             }, currentSpeed); // Pass speed to speakWithTextStream
+            
+            // Check for interruption after speech completion
+            if (window.chatbotInterrupted) {
+              console.log('🛑 Speech was interrupted');
+              return;
+            }
             
             // Text is fully generated, no need to hide thinking again
             console.log('🎯 Text fully generated');
             
+            // Check for interruption before adding reference file
+            if (window.chatbotInterrupted) {
+              console.log('🛑 Process interrupted before adding reference file');
+              return;
+            }
+            
             // Now add reference file link after text is fully generated
-            if (referenceFile) {
+            if (referenceFile && !window.chatbotInterrupted) {
               console.log('📄 Adding reference file after text completion...');
               addReferenceLink(referenceFile.url, referenceFile.name);
             }
             
-            updateAvatarStatus('Ready to help');
-            enableUserInput(); // Re-enable input after response is complete
-            
-            updateAvatarStatus('Ready to help');
+            if (!window.chatbotInterrupted) {
+              updateAvatarStatus('Ready to help');
+              enableUserInput(); // Re-enable input after response is complete
+            }
           } catch (error) {
             console.error('Speech failed:', error);
             hideThinking(); // Hide thinking animation on error
-            // If speech fails, show the text normally
+            
+            // Only proceed if not interrupted
+            if (!window.chatbotInterrupted) {
+              // If speech fails, show the text normally
+              addMessageToChat(botAnswer, 'bot');
+              // Add reference file after text is shown
+              if (referenceFile) {
+                addReferenceLink(referenceFile.url, referenceFile.name);
+              }
+              updateAvatarStatus('Speech failed, but text is shown');
+              enableUserInput(); // Re-enable input after error
+            }
+          }
+        } else {
+          hideThinking(); // Hide thinking animation if avatar not ready or voice disabled
+          
+          // Only proceed if not interrupted
+          if (!window.chatbotInterrupted) {
+            // Voice disabled or avatar not ready, just show text normally
             addMessageToChat(botAnswer, 'bot');
             // Add reference file after text is shown
             if (referenceFile) {
               addReferenceLink(referenceFile.url, referenceFile.name);
             }
-            updateAvatarStatus('Speech failed, but text is shown');
-            enableUserInput(); // Re-enable input after error
+            
+            if (!isVoiceEnabled) {
+              updateAvatarStatus('Voice disabled - text only');
+            } else if (!isAvatarEnabled) {
+              updateAvatarStatus('Avatar disabled - text only');
+            } else {
+              updateAvatarStatus('Voice not available');
+            }
+            enableUserInput(); // Re-enable input when done
           }
-        } else {
-          hideThinking(); // Hide thinking animation if avatar not ready or voice disabled
-          // Voice disabled or avatar not ready, just show text normally
-          addMessageToChat(botAnswer, 'bot');
-          // Add reference file after text is shown
-          if (referenceFile) {
-            addReferenceLink(referenceFile.url, referenceFile.name);
-          }
-          
-          if (!isVoiceEnabled) {
-            updateAvatarStatus('Voice disabled - text only');
-          } else if (!isAvatarEnabled) {
-            updateAvatarStatus('Avatar disabled - text only');
-          } else {
-            updateAvatarStatus('Voice not available');
-          }
-          enableUserInput(); // Re-enable input when done
         }
         
       } catch (error) {
         hideThinking(); // Hide thinking animation on error
+        enableUserInput(); // Ensure UI is properly reset
         console.error('Error:', error);
+        
+        // Check if request was aborted by user
+        if (error.name === 'AbortError') {
+          console.log('🛑 Request was aborted by user');
+          return; // Don't show error message for user-initiated stops
+        }
+        
+        // Check for interruption before showing any error messages
+        if (window.chatbotInterrupted) {
+          console.log('🛑 Process was interrupted, not showing error message');
+          return; // Don't show error message if process was interrupted
+        }
         
         // More specific error messages
         let errorMessage = 'Sorry, I encountered an error. ';
@@ -3306,13 +4480,15 @@ $user_id = $_SESSION['user_id'] ?? 1;
           errorMessage += `${error.message}`;
         }
         
-        addMessageToChat(errorMessage, 'bot');
-        updateAvatarStatus('Connection error');
-        enableUserInput(); // Re-enable input after error
-        
-        // Reset avatar state on error
-        if (avatarManager && avatarManager.isInitialized && isVoiceEnabled && isAvatarEnabled) {
-          avatarManager.stopThinking();
+        // Only show error if not interrupted by user
+        if (!window.chatbotInterrupted) {
+          addMessageToChat(errorMessage, 'bot');
+          updateAvatarStatus('Connection error');
+          
+          // Reset avatar state on error
+          if (avatarManager && avatarManager.isInitialized && isVoiceEnabled && isAvatarEnabled) {
+            avatarManager.stopThinking();
+          }
         }
       }
     }
@@ -3438,6 +4614,10 @@ $user_id = $_SESSION['user_id'] ?? 1;
         return;
       }
       
+      // Reset interruption flag to ensure new avatar can speak
+      window.chatbotInterrupted = false;
+      console.log('🔄 Reset chatbotInterrupted flag for avatar switch');
+      
       const selectedAvatar = availableAvatars[avatarType];
       
       console.log('🔄 Switching to avatar:', {
@@ -3452,11 +4632,39 @@ $user_id = $_SESSION['user_id'] ?? 1;
       currentAvatarGender = selectedAvatar.gender;
       currentAvatarUrl = selectedAvatar.avatarUrl;
       
-      // Update active circular button
+      // Update active circular button (old system)
       document.querySelectorAll('.avatar-circle-btn[data-avatar]').forEach(btn => {
         btn.classList.remove('active');
       });
-      document.querySelector(`.avatar-circle-btn[data-avatar="${avatarType}"]`).classList.add('active');
+      const oldGenderBtn = document.querySelector(`.avatar-circle-btn[data-avatar="${avatarType}"]`);
+      if (oldGenderBtn) {
+        oldGenderBtn.classList.add('active');
+      }
+      
+      // Update NEW gender switch buttons
+      document.querySelectorAll('.gender-switch-side').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      const newGenderBtn = document.querySelector(`.gender-switch-side[data-gender="${avatarType}"]`);
+      if (newGenderBtn) {
+        newGenderBtn.classList.add('active');
+      }
+      
+      // Reset ethnicity to default when using regular avatar switch
+      currentEthnicity = 'default';
+      const ethnicityCurrentLabel = document.querySelector('.ethnicity-current');
+      if (ethnicityCurrentLabel) {
+        ethnicityCurrentLabel.textContent = 'Chinese'; // Default
+      }
+      
+      // Update ethnicity options
+      document.querySelectorAll('.ethnicity-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      const defaultEthnicityOption = document.querySelector('.ethnicity-option[data-ethnicity="chinese"]');
+      if (defaultEthnicityOption) {
+        defaultEthnicityOption.classList.add('selected');
+      }
       
       // Auto-switch voice to match gender
       const matchingVoice = availableVoices[selectedAvatar.gender];
@@ -4346,6 +5554,384 @@ function handleReadyPlayerMeMessage(event) {
     console.log('User ID set:', json.data.id);
   }
 }
+
+// Theme toggle functionality
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  
+  document.documentElement.setAttribute('data-theme', newTheme);
+  
+  // Save theme preference to localStorage
+  localStorage.setItem('theme', newTheme);
+  
+  // Update theme icon
+  updateThemeIcon(newTheme);
+  
+  console.log('Theme switched to:', newTheme);
+}
+
+function updateThemeIcon(theme) {
+  const themeIcon = document.querySelector('a[onclick="toggleTheme()"] i');
+  if (themeIcon) {
+    if (theme === 'dark') {
+      themeIcon.className = 'fa-regular fa-sun';
+    } else {
+      themeIcon.className = 'fa-regular fa-moon';
+    }
+  }
+}
+
+// Load saved theme on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  updateThemeIcon(savedTheme);
+  console.log('Loaded theme:', savedTheme);
+});
+
+    // NEW: Ethnicity switching functions
+    let selectedEthnicity = null;
+
+    function openEthnicitySelector() {
+      console.log('🌍 Opening ethnicity selector');
+      
+      // Prevent opening while avatar is talking
+      if (isChatbotBusy) {
+        console.log('⚠️ Cannot open ethnicity selector while avatar is talking');
+        return;
+      }
+      
+      selectedEthnicity = null;
+      
+      // Reset selection
+      document.querySelectorAll('.ethnicity-option').forEach(option => {
+        option.classList.remove('selected');
+      });
+      
+      // Disable confirm button initially
+      const confirmBtn = document.getElementById('confirm-ethnicity-btn');
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Select an Ethnicity';
+      }
+      
+      // Show modal with animation
+      const modal = document.getElementById('ethnicity-selection-modal');
+      if (modal) {
+        modal.classList.add('show');
+        
+        // Add smooth animation
+        setTimeout(() => {
+          modal.style.opacity = '1';
+        }, 10);
+      }
+      
+      // Add event listeners to ethnicity options
+      document.querySelectorAll('.ethnicity-option').forEach(option => {
+        // Remove existing listeners to prevent duplicates
+        option.removeEventListener('click', handleEthnicityClick);
+        option.addEventListener('click', handleEthnicityClick);
+      });
+    }
+
+    function handleEthnicityClick() {
+      // Prevent selection while avatar is talking
+      if (isChatbotBusy) {
+        console.log('⚠️ Cannot select ethnicity while avatar is talking');
+        return;
+      }
+      
+      // Remove selected class from all options
+      document.querySelectorAll('.ethnicity-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      
+      // Add selected class to clicked option
+      this.classList.add('selected');
+      
+      // Update selected ethnicity
+      selectedEthnicity = this.dataset.ethnicity;
+      
+      // Enable confirm button and update text
+      const confirmBtn = document.getElementById('confirm-ethnicity-btn');
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = `Select ${this.querySelector('h4').textContent}`;
+      }
+      
+      console.log('🌍 Selected ethnicity:', selectedEthnicity);
+    }
+
+    function closeEthnicitySelector() {
+      console.log('🌍 Closing ethnicity selector');
+      selectedEthnicity = null;
+      
+      const modal = document.getElementById('ethnicity-selection-modal');
+      if (modal) {
+        // Add fade out animation
+        modal.style.opacity = '0';
+        
+        setTimeout(() => {
+          modal.classList.remove('show');
+          modal.style.opacity = '';
+        }, 300);
+      }
+      
+      // Reset button text
+      const confirmBtn = document.getElementById('confirm-ethnicity-btn');
+      if (confirmBtn) {
+        confirmBtn.textContent = 'Select Ethnicity';
+        confirmBtn.disabled = true;
+      }
+    }
+
+    function confirmEthnicitySelection() {
+      if (!selectedEthnicity) {
+        console.log('⚠️ No ethnicity selected');
+        return;
+      }
+      
+      // Prevent execution while avatar is talking
+      if (isChatbotBusy) {
+        console.log('⚠️ Cannot confirm ethnicity selection while avatar is talking');
+        return;
+      }
+      
+      console.log('🌍 Confirming ethnicity selection:', selectedEthnicity);
+      
+      // Update button to show processing
+      const confirmBtn = document.getElementById('confirm-ethnicity-btn');
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Switching...';
+      }
+      
+      // Update current ethnicity
+      currentEthnicity = selectedEthnicity;
+      
+      // Switch to the appropriate avatar for current gender and selected ethnicity
+      const newAvatarType = `${selectedEthnicity}_${currentAvatarGender}`;
+      
+      // Close modal with animation
+      setTimeout(() => {
+        closeEthnicitySelector();
+      }, 500);
+      
+      // Switch to the new ethnic avatar
+      switchEthnicAvatar(newAvatarType);
+    }
+
+    function switchEthnicAvatar(ethnicAvatarType) {
+      // Prevent switching while avatar is talking
+      if (isChatbotBusy) {
+        console.log('⚠️ Cannot switch ethnic avatar while avatar is talking');
+        updateAvatarStatus('⚠️ Please wait for avatar to finish talking');
+        return;
+      }
+      
+      // Reset interruption flag to ensure new avatar can speak
+      window.chatbotInterrupted = false;
+      console.log('🔄 Reset chatbotInterrupted flag for avatar switch');
+      
+      if (!availableEthnicAvatars[ethnicAvatarType]) {
+        console.error('Unknown ethnic avatar type:', ethnicAvatarType);
+        updateAvatarStatus('❌ Avatar type not found');
+        return;
+      }
+      
+      const selectedAvatar = availableEthnicAvatars[ethnicAvatarType];
+      
+      console.log('🔄 Switching to ethnic avatar:', {
+        type: ethnicAvatarType,
+        name: selectedAvatar.name,
+        gender: selectedAvatar.gender,
+        ethnicity: selectedAvatar.ethnicity,
+        avatarUrl: selectedAvatar.avatarUrl,
+        animationsUrl: selectedAvatar.animationsUrl
+      });
+      
+      // Update current avatar configuration
+      currentAvatarGender = selectedAvatar.gender;
+      currentEthnicity = selectedAvatar.ethnicity;
+      currentAvatarUrl = selectedAvatar.avatarUrl;
+      
+      // Update active circular button based on gender (for old system if still present)
+      document.querySelectorAll('.avatar-circle-btn[data-avatar]').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      const genderBtn = document.querySelector(`.avatar-circle-btn[data-avatar="${selectedAvatar.gender}"]`);
+      if (genderBtn) {
+        genderBtn.classList.add('active');
+      }
+      
+      // Update NEW gender switch buttons
+      document.querySelectorAll('.gender-switch-side').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      const newGenderBtn = document.querySelector(`.gender-switch-side[data-gender="${selectedAvatar.gender}"]`);
+      if (newGenderBtn) {
+        newGenderBtn.classList.add('active');
+      }
+      
+      // Update NEW ethnicity dropdown
+      const ethnicityCurrentLabel = document.querySelector('.ethnicity-current');
+      if (ethnicityCurrentLabel) {
+        const ethnicityName = selectedAvatar.ethnicity.charAt(0).toUpperCase() + selectedAvatar.ethnicity.slice(1);
+        ethnicityCurrentLabel.textContent = `Ethnicity: ${ethnicityName}`;
+      }
+      
+      // Update ethnicity options
+      document.querySelectorAll('.ethnicity-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      const ethnicityOption = document.querySelector(`.ethnicity-option[data-ethnicity="${selectedAvatar.ethnicity}"]`);
+      if (ethnicityOption) {
+        ethnicityOption.classList.add('selected');
+      }
+
+      // Update ethnicity button to show active state
+      const ethnicityBtn = document.getElementById('ethnicity-selector-btn');
+      if (ethnicityBtn) {
+        ethnicityBtn.classList.add('active-ethnicity');
+        ethnicityBtn.title = `Current: ${selectedAvatar.ethnicity.charAt(0).toUpperCase() + selectedAvatar.ethnicity.slice(1)} - Click to change`;
+      }
+      
+      // Auto-switch voice to match ethnicity-gender combination
+      const matchingVoice = availableEthnicVoices[ethnicAvatarType];
+      if (matchingVoice && currentVoiceId !== matchingVoice.id) {
+        console.log('🎵 Switching voice from:', currentVoiceId, 'to:', matchingVoice.id);
+        console.log('🎵 Voice details:', matchingVoice);
+        
+        // Validate the voice ID and use fallback if needed
+        validateVoiceId(matchingVoice.id, matchingVoice.name).then(isValid => {
+          if (!isValid && matchingVoice.fallbackId) {
+            console.warn('🚨 Primary voice invalid, using fallback for', matchingVoice.name);
+            console.log('🔄 Switching to fallback voice:', matchingVoice.fallbackId);
+            currentVoiceId = matchingVoice.fallbackId;
+            
+            // Update avatar manager with fallback voice
+            if (avatarManager && avatarManager.setVoice) {
+              avatarManager.setVoice(currentVoiceId);
+              console.log('🎵 Fallback voice set in avatar manager');
+            }
+          } else if (!isValid) {
+            console.error('🚨 CRITICAL: No fallback voice available for', matchingVoice.name);
+          }
+        });
+        
+        // Set the primary voice ID first (will be updated to fallback if needed)
+        currentVoiceId = matchingVoice.id;
+        console.log('🎵 Voice updated to:', matchingVoice.name, 'ID:', currentVoiceId);
+      } else if (!matchingVoice) {
+        console.error('⚠️ No matching voice found for ethnicity type:', ethnicAvatarType);
+        console.log('Available voices:', Object.keys(availableEthnicVoices));
+      } else {
+        console.log('🎵 Voice already set to:', matchingVoice.name, 'ID:', currentVoiceId);
+      }
+      
+      // Update status and load new avatar
+      updateAvatarStatus('🔄 Switching to ' + selectedAvatar.name + '...');
+      
+      // Check if avatarManager exists
+      if (!avatarManager) {
+        console.error('💥 Avatar manager not available');
+        updateAvatarStatus('❌ Avatar system not ready');
+        return;
+      }
+      
+      // Load the new avatar
+      if (typeof avatarManager.loadNewAvatar === 'function') {
+        console.log('🎭 Loading new ethnic avatar using loadNewAvatar method');
+        avatarManager.loadNewAvatar(selectedAvatar.avatarUrl).then(() => {
+          console.log('✅ Ethnic avatar loaded, setting voice and animations');
+          console.log('  - Current Voice ID:', currentVoiceId);
+          console.log('  - Selected Avatar Voice:', matchingVoice ? matchingVoice.name : 'N/A');
+          
+          // Update voice and animations
+          if (avatarManager.setVoice) {
+            console.log('🎵 Setting voice to:', currentVoiceId);
+            avatarManager.setVoice(currentVoiceId);
+            console.log('🎵 Voice setting completed for:', matchingVoice ? matchingVoice.name : 'Unknown');
+          } else {
+            console.warn('⚠️ setVoice method not available on avatarManager');
+          }
+          
+          if (avatarManager.setAnimationsUrl) {
+            console.log('🎬 Setting animations to:', selectedAvatar.animationsUrl);
+            return avatarManager.setAnimationsUrl(selectedAvatar.animationsUrl);
+          }
+          return Promise.resolve();
+        }).then(() => {
+          console.log('✅ Ethnic avatar switch completed successfully');
+          updateAvatarStatus('✅ Switched to ' + selectedAvatar.name);
+          setTimeout(() => {
+            updateAvatarStatus('Ready to help');
+          }, 2000);
+        }).catch(error => {
+          console.error('💥 Error switching ethnic avatar:', error);
+          updateAvatarStatus('❌ Error switching avatar');
+        });
+      } else {
+        console.log('🎭 Reinitializing avatar manager for ethnic avatar (fallback method)');
+        // Fallback: reinitialize avatar manager
+        const avatarContainer = document.getElementById('avatar-3d');
+        avatarContainer.innerHTML = '';
+        
+        console.log('🎭 Creating new AvatarManager with:');
+        console.log('  - Avatar URL:', selectedAvatar.avatarUrl);
+        console.log('  - Animations URL:', selectedAvatar.animationsUrl);
+        console.log('  - Voice ID:', currentVoiceId);
+        
+        avatarManager = new AvatarManager('avatar-3d', {
+          elevenlabsApiKey: 'sk_72283c30a844b3d198dda76a38373741c8968217a9472ae7',
+          voice: currentVoiceId,
+          avatarUrl: selectedAvatar.avatarUrl,
+          animationsUrl: selectedAvatar.animationsUrl,
+          volume: 1.0
+        });
+        
+        // Wait for reinitialization (following original pattern)
+        const checkReinitialization = setInterval(() => {
+          if (avatarManager && avatarManager.isInitialized) {
+            clearInterval(checkReinitialization);
+            
+            // Ensure voice is properly set after reinitialization
+            if (avatarManager.setVoice) {
+              console.log('🔄 Re-setting voice after reinitialization:', currentVoiceId);
+              avatarManager.setVoice(currentVoiceId);
+            }
+            
+            updateAvatarStatus('✅ Switched to ' + selectedAvatar.name);
+            setTimeout(() => {
+              updateAvatarStatus('Ready to help');
+            }, 2000);
+          }
+        }, 500);
+      }
+      
+      console.log('Switched to ethnic avatar:', selectedAvatar);
+    }
+
+    // Add ethnicity button event listener
+    document.addEventListener('DOMContentLoaded', function() {
+      const ethnicityBtn = document.getElementById('ethnicity-selector-btn');
+      if (ethnicityBtn) {
+        ethnicityBtn.addEventListener('click', function(e) {
+          console.log('🌍 Ethnicity button clicked');
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Prevent opening while avatar is talking
+          if (isChatbotBusy) {
+            console.log('⚠️ Cannot change ethnicity while avatar is talking');
+            return;
+          }
+          
+          openEthnicitySelector();
+        });
+      }
+    });
   </script>
 
   <!-- Ready Player Me Avatar Creator Modal -->

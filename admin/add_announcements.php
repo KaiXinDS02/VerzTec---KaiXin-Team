@@ -142,9 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="menu">
               <ul>
                 <li><a href="#"><i class="fa-regular fa-user"></i> Profile</a></li>
-                <li><a href="#"><i class="fa-regular fa-message-smile"></i> Inbox</a></li>
-                <li><a href="#"><i class="fa-regular fa-gear"></i> Settings</a></li>
-                <li><a href="#"><i class="fa-regular fa-square-question"></i> Help</a></li>
+                <li><a href="#"><i class="fa-regular fa-moon"></i> Theme</a></li>
                 <li><a href="login.php"><i class="fa-regular fa-right-from-bracket"></i> Sign Out</a></li>
               </ul>
             </div>

@@ -1,8 +1,10 @@
 <?php
 session_start();
+require_once __DIR__ . '/includes/TimezoneHelper.php';
 header("Content-Type: application/json");
 
 $user_id = $_SESSION['user_id'];  // Assumes user_id is stored in session after login
+$user_country = $_SESSION['country'] ?? 'Singapore'; // Get user's country from session
 
 $host = 'db';  // Docker service name
 $db = 'Verztec';
@@ -36,6 +38,10 @@ if (!$result) {
 
 $history = [];
 while ($row = $result->fetch_assoc()) {
+    // Convert timestamp from UTC to user's timezone
+    if (isset($row['timestamp'])) {
+        $row['timestamp'] = TimezoneHelper::formatForDisplay($row['timestamp'], $user_country);
+    }
     $history[] = $row;
 }
 

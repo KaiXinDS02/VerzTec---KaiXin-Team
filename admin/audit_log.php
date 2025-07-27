@@ -46,34 +46,67 @@ if ($result && $result->num_rows) {
   <!-- DataTables CSS -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
   <style>
+    :root {
+      --bg-color: #f2f3fa;
+      --text-color: #333;
+      --header-bg: white;
+      --sidebar-bg: #fff;
+      --table-bg: #fff;
+      --table-header-bg: #212529;
+      --table-header-text: #fff;
+      --border-color: #ddd;
+      --shadow: rgba(0,0,0,0.1);
+      --link-color: #333;
+      --active-bg: #FFD050;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #1a1a1a;
+      --text-color: #e0e0e0;
+      --header-bg: #2d2d2d;
+      --sidebar-bg: #2d2d2d;
+      --table-bg: #2d2d2d;
+      --table-header-bg: #1a1a1a;
+      --table-header-text: #e0e0e0;
+      --border-color: #404040;
+      --shadow: rgba(0,0,0,0.3);
+      --link-color: #e0e0e0;
+      --active-bg: #FFD050;
+    }
+
+    * {
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
     html, body { height:100%; margin:0; }
     body {
-      background: #f2f3fa;
+      background: var(--bg-color);
+      color: var(--text-color);
       padding-top: 160px;
       padding-bottom: 160px;
     }
     .sidebar-card {
-      background: #fff;
+      background: var(--sidebar-bg);
       border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px var(--shadow);
       margin: 1rem;
       padding: 1rem;
       min-height: calc(100vh - 320px);
     }
     .sidebar-card .nav-link {
-      color: #333;
+      color: var(--link-color);
       margin-bottom: .75rem;
       border-radius: 6px;
       padding: .75rem 1rem;
     }
     .sidebar-card .nav-link.active {
-      background-color: #FFD050;
+      background-color: var(--active-bg);
       color: #000;
     }
     .search-box {
       position: relative;
-      background: #fff;
-      border: 1px solid #ddd;
+      background: var(--sidebar-bg);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       width: 250px;
     }
@@ -82,6 +115,8 @@ if ($result && $result->num_rows) {
       padding: .375rem .75rem .375rem 2.5rem;
       width: 100%;
       border-radius: 8px;
+      background: var(--sidebar-bg);
+      color: var(--text-color);
     }
     .search-box i {
       position: absolute;
@@ -97,17 +132,17 @@ if ($result && $result->num_rows) {
       border-left: .3em solid transparent;
     }
     .table-container {
-      background: #fff;
+      background: var(--table-bg);
       border-radius: 8px;
       overflow-y: auto; 
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 4px var(--shadow);
       flex-grow: 1;
       display: flex;
       flex-direction: column;
     }
     .table-container table thead th {
-      background: #212529;
-      color: #fff;
+      background: var(--table-header-bg);
+      color: var(--table-header-text);
     }
     .table-container table thead th:first-child {
       border-top-left-radius: 8px;
@@ -118,9 +153,23 @@ if ($result && $result->num_rows) {
     #audit-table thead th {
       position: sticky;
       top: 0;
-      background: #212529;
-      color: white;
+      background: var(--table-header-bg);
+      color: var(--table-header-text);
       z-index: 10;
+    }
+    
+    .header-area {
+      background: var(--header-bg) !important;
+    }
+    
+    .table {
+      background: var(--table-bg);
+      color: var(--text-color);
+    }
+    
+    .table tbody tr {
+      background: var(--table-bg);
+      color: var(--text-color);
     }
   </style>
 </head>
@@ -151,9 +200,7 @@ if ($result && $result->num_rows) {
             <div class="menu">
               <ul>
                 <li><a href="#"><i class="fa-regular fa-user"></i> Profile</a></li>
-                <li><a href="#"><i class="fa-regular fa-message-smile"></i> Inbox</a></li>
-                <li><a href="#"><i class="fa-regular fa-gear"></i> Settings</a></li>
-                <li><a href="#"><i class="fa-regular fa-square-question"></i> Help</a></li>
+                <li><a href="#"><i class="fa-regular fa-moon"></i> Theme</a></li>
                 <li><a href="login.php"><i class="fa-regular fa-right-from-bracket"></i> Sign Out</a></li>
               </ul>
             </div>
@@ -268,10 +315,11 @@ if ($result && $result->num_rows) {
                 <tr>
                   <td><?= htmlspecialchars($log['log_id']) ?></td>
                   <?php
-                  $date = new DateTime($log['timestamp'], new DateTimeZone('UTC'));
-                  $date->setTimezone(new DateTimeZone('Asia/Singapore'));
+                  // Get user's country for timezone conversion
+                  $user_country = $_SESSION['country'] ?? 'Singapore';
+                  $formattedTimestamp = TimezoneHelper::convertToUserTimezone($log['timestamp'], $user_country, 'Y-m-d H:i:s');
                   ?>
-                  <td><?= $date->format('Y-m-d H:i:s') ?></td>
+                  <td><?= $formattedTimestamp ?></td>
                   <td><?= htmlspecialchars($log['username']) ?></td>
                   <td><?= htmlspecialchars($log['category']) ?></td>
                   <td><?= htmlspecialchars($log['action']) ?></td>
@@ -422,6 +470,35 @@ if ($result && $result->num_rows) {
       table.draw();
       const chosenActions = $('.action-checkbox:checked').map((_,el) => el.value).get();
       $('#actionFilterBtn').text('Action: ' + (chosenActions.length ? chosenActions.join(', ') : 'All'));
+    });
+
+    // Theme functionality
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+      const theme = document.documentElement.getAttribute('data-theme');
+      const themeIcon = document.querySelector('.menu a[onclick="toggleTheme()"] i');
+      if (themeIcon) {
+        if (theme === 'dark') {
+          themeIcon.className = 'fa-regular fa-sun';
+        } else {
+          themeIcon.className = 'fa-regular fa-moon';
+        }
+      }
+    }
+
+    // Initialize theme on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon();
     });
 
   </script>

@@ -64,9 +64,9 @@ function showNotificationPopup(announcement) {
       hour12: true,
     };
 
-    const utcDate = parseTimestampAsUTC(announcement.timestamp);
-    const sgTime = utcDate.toLocaleString('en-SG', options);
-    document.getElementById('modalTimestamp').textContent = sgTime;
+    // Since the PHP backend now formats the timestamp in the user's timezone,
+    // we can use it directly instead of converting from UTC
+    document.getElementById('modalTimestamp').textContent = announcement.timestamp;
 
     const modal = new bootstrap.Modal(document.getElementById('announcementModal'));
     modal.show();

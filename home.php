@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'admin/auto_log_function.php';
+require_once __DIR__ . '/includes/TimezoneHelper.php';
 
 if (!isset($_SESSION['role'])) {
     $_SESSION['role'] = 'USER';
@@ -10,18 +11,24 @@ if (!isset($_SESSION['username'])) {
     $_SESSION['username'] = 'John Doe';
 }
 
-// Function to get greeting based on time (moved to JavaScript for client-side time)
-function getGreeting($testHour = null) {
-    // This function is now mainly for server-side testing
-    $hour = $testHour !== null ? $testHour : date('H');
-    
-    if ($hour >= 6 && $hour < 12) {
-        return 'Good Morning';
-    } elseif ($hour >= 12 && $hour < 18) {
-        return 'Good Afternoon';
-    } else {
-        return 'Good Evening';
+// Get user's country for timezone calculations
+$user_country = $_SESSION['country'] ?? 'Singapore';
+
+// Function to get greeting based on user's timezone
+function getGreeting($user_country, $testHour = null) {
+    if ($testHour !== null) {
+        // For testing purposes
+        if ($testHour >= 6 && $testHour < 12) {
+            return 'Good Morning';
+        } elseif ($testHour >= 12 && $testHour < 18) {
+            return 'Good Afternoon';
+        } else {
+            return 'Good Evening';
+        }
     }
+    
+    // Use TimezoneHelper for actual greeting based on user's timezone
+    return TimezoneHelper::getGreeting($user_country);
 }
 
 // Function to capitalize each word in a name
@@ -31,10 +38,9 @@ function capitalizeName($name) {
 
 // Test hour override (for testing purposes)
 $testHour = isset($_GET['testHour']) ? (int)$_GET['testHour'] : null;
-$currentHour = date('H');
 
-// Use JavaScript for client-side time, fallback to server time for testing
-$greeting = $testHour !== null ? getGreeting($testHour) : getGreeting(); // Use actual server time as fallback
+// Use TimezoneHelper for user's timezone-based greeting
+$greeting = $testHour !== null ? getGreeting($user_country, $testHour) : getGreeting($user_country);
 $capitalizedName = capitalizeName($_SESSION['username']);
 
 
@@ -318,9 +324,7 @@ $capitalizedName = capitalizeName($_SESSION['username']);
             <div class="menu">
               <ul>
                 <li><a href="#"><i class="fa-regular fa-user"></i> Profile</a></li>
-                <li><a href="#"><i class="fa-regular fa-message-smile"></i> Inbox</a></li>
-                <li><a href="#"><i class="fa-regular fa-gear"></i> Settings</a></li>
-                <li><a href="#"><i class="fa-regular fa-square-question"></i> Help</a></li>
+                <li><a href="#"><i class="fa-regular fa-moon"></i> Theme</a></li>
                 <li><a href="login.php"><i class="fa-regular fa-right-from-bracket"></i> Sign Out</a></li>
               </ul>
             </div>
@@ -370,9 +374,9 @@ $capitalizedName = capitalizeName($_SESSION['username']);
               $shortContent = mb_strimwidth(strip_tags($row['context']), 0, 50, '...');
               $safeFullContent = nl2br(htmlspecialchars($row['context'], ENT_QUOTES, 'UTF-8'));
               $safeTitle = htmlspecialchars($row['title']);
-              $date = new DateTime($row['timestamp'], new DateTimeZone('UTC'));
-              $date->setTimezone(new DateTimeZone('Asia/Singapore'));
-              $formattedDate = $date->format('M d, Y h:i A');
+              
+              // Use TimezoneHelper to convert timestamp to user's timezone
+              $formattedDate = TimezoneHelper::formatForDisplay($row['timestamp'], $user_country);
               $targetAudience = htmlspecialchars($row['target_audience']);
             ?>
 
@@ -533,20 +537,7 @@ $capitalizedName = capitalizeName($_SESSION['username']);
       document.getElementById('modalTimestamp').textContent = trigger.getAttribute('data-timestamp');
     });
     
-    // Client-side time and greeting functions
-    function getClientGreeting(testHour = null) {
-        const now = new Date();
-        const hour = testHour !== null ? testHour : now.getHours();
-        
-        if (hour >= 6 && hour < 12) {
-            return 'Good Morning';
-        } else if (hour >= 12 && hour < 18) {
-            return 'Good Afternoon';
-        } else {
-            return 'Good Evening';
-        }
-    }
-    
+    // Client-side greeting update functions
     function updateGreeting() {
         const urlParams = new URLSearchParams(window.location.search);
         const testHour = urlParams.get('testHour');
@@ -556,9 +547,18 @@ $capitalizedName = capitalizeName($_SESSION['username']);
             // Use server-side test hour - don't update client-side
             return;
         } else {
-            // Use client-side time
-            const greeting = getClientGreeting();
-            document.getElementById('greeting-display').textContent = `${greeting}, ${userName}!`;
+            // Fetch updated greeting from server based on user's timezone
+            fetch('get_current_greeting.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.greeting) {
+                        document.getElementById('greeting-display').textContent = `${data.greeting}, ${userName}!`;
+                    }
+                })
+                .catch(error => {
+                    console.log('Could not update greeting:', error);
+                    // Fallback to current display - no change
+                });
         }
     }
     

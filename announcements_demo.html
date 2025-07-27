@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcements - Timezone Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .announcement {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+        }
+        .timestamp {
+            color: #666;
+            font-size: 0.9em;
+            font-style: italic;
+        }
+        .priority-high { background-color: #dc3545; color: white; }
+        .priority-medium { background-color: #ffc107; color: black; }
+        .priority-low { background-color: #28a745; color: white; }
+        .priority-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        h1 { color: #333; }
+        h3 { color: #444; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📢 Announcements</h1>
+        <p><strong>Timezone Demo:</strong> All timestamps are automatically displayed in your timezone based on your country setting.</p>
+        
+        <?php
+        session_start();
+        require_once __DIR__ . '/connect.php';
+        
+        // Get user's country for timezone conversion
+        $user_country = $_SESSION['country'] ?? 'Singapore';
+        $user_timezone = TimezoneHelper::getTimezoneByCountry($user_country);
+        $timezone_abbr = TimezoneHelper::getTimezoneAbbreviation($user_country);
+        
+        echo "<p><strong>Your Country:</strong> $user_country</p>";
+        echo "<p><strong>Your Timezone:</strong> $user_timezone ($timezone_abbr)</p>";
+        echo "<p><strong>Current Time:</strong> " . TimezoneHelper::getCurrentTimeInUserTimezone($user_country, 'M j, Y g:i A T') . "</p>";
+        echo "<hr>";
+        
+        // Fetch announcements
+        $sql = 'SELECT title, context, target_audience, priority, timestamp FROM announcements ORDER BY timestamp DESC LIMIT 10';
+        $result = $conn->query($sql);
+        
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $priority = strtolower($row['priority']);
+                $priorityClass = 'priority-low';
+                if ($priority === 'high') $priorityClass = 'priority-high';
+                else if ($priority === 'medium') $priorityClass = 'priority-medium';
+                
+                $formattedDate = TimezoneHelper::formatForDisplay($row['timestamp'], $user_country);
+                
+                echo '<div class="announcement">';
+                echo '<h3>' . htmlspecialchars($row['title']);
+                echo '<span class="priority-btn ' . $priorityClass . '">' . ucfirst($priority) . '</span>';
+                echo '</h3>';
+                echo '<p>' . nl2br(htmlspecialchars($row['context'])) . '</p>';
+                echo '<p class="timestamp">📅 Posted: ' . $formattedDate . '</p>';
+                echo '<p><strong>Target Audience:</strong> ' . htmlspecialchars($row['target_audience']) . '</p>';
+                echo '</div>';
+            }
+        } else {
+            echo '<div class="announcement">';
+            echo '<h3>No Announcements</h3>';
+            echo '<p>There are currently no announcements to display.</p>';
+            echo '</div>';
+        }
+        
+        $conn->close();
+        ?>
+        
+        <hr>
+        <p><em>💡 The timestamp format includes your timezone abbreviation for clarity. If you're in a different country, the times will automatically adjust to your local timezone!</em></p>
+    </div>
+</body>
+</html>

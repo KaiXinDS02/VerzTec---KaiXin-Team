@@ -241,9 +241,7 @@ $userCount = $res->fetch_assoc()['cnt'];
                         <div class="menu">
                             <ul>
                                 <li><a href="#"><i class="fa-regular fa-user"></i><span>Profile</span></a></li>
-                                <li><a href="#"><i class="fa-regular fa-message-smile"></i><span>Inbox</span></a></li>
-                                <li><a href="#"><i class="fa-regular fa-gear"></i><span>Settings</span></a></li>
-                                <li><a href="#"><i class="fa-regular fa-square-question"></i><span>Help</span></a></li>
+                                <li><a href="#"><i class="fa-regular fa-moon"></i><span>Theme</span></a></li>
                                 <li><a href="login.php"><i class="fa-regular fa-right-from-bracket"></i><span>Sign Out</span></a></li>
                             </ul>
                         </div>
