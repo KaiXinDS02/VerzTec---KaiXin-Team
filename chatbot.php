@@ -1031,7 +1031,14 @@ $user_id = $_SESSION['user_id'] ?? 1;
         word-wrap: break-word;
       }
 
-      /* Improve formatting for paragraphs and bullet lists inside bot messages (changed) */
+      /* Add this outside of other blocks */
+    .chat-body .bot-bubble strong,
+    .chat-body .user-bubble strong {
+      font-weight: bold;
+    }
+
+
+      /* Improve formatting for paragraphs and bullet lists inside bot messages (changedj) */
       .chat-body .bot-bubble p {
         margin: 0.5em 0;
       }
@@ -1046,6 +1053,10 @@ $user_id = $_SESSION['user_id'] ?? 1;
         margin-bottom: 0.25em;
       }
 
+      /* Add spacing when a paragraph follows a bullet list (changedj)*/
+      .chat-body .bot-bubble ul + p {
+        margin-top: 1em;
+      }
       
       /* Fix text overflow issues */
       .chat-body .bot-bubble,
@@ -4372,7 +4383,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
                 
                 botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'bot-bubble';
-                // Show complete text immediately instead of streaming letter by letter
+                //botMessageDiv.innerHTML = '<strong>VerzTec Assistant:</strong> ';
                 botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${botAnswer}`;
                 
                 const chatContainer = document.getElementById('chat-container');
@@ -4383,8 +4394,13 @@ $user_id = $_SESSION['user_id'] ?? 1;
                 return; // Don't process this empty signal further
               }
               
-              // Ignore subsequent typing updates since we already show the complete text
-              // The avatar will continue speaking and animating properly
+              // Update the message content with streamed text (only after box is created)
+              if (botMessageDiv && streamedText.length > 0) {
+                botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${streamedText}`;
+                // console.log("Final streamedText:", streamedText); //changed
+                const chatContainer = document.getElementById('chat-container');
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+              }
             }, currentSpeed); // Pass speed to speakWithTextStream
             
             // Check for interruption after speech completion
