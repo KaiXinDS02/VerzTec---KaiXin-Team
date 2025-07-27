@@ -1,8 +1,12 @@
 <?php
 session_start();
 include __DIR__ . '/../connect.php';
+require_once('../vendor/autoload.php'); // PHPMailer autoload
 
-$success = false;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+$message = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -33,9 +37,96 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Invalid action or missing ID.';
         }
 
-        if (isset($stmt)) {
+if (isset($stmt)) {
             if ($stmt->execute()) {
-                $success = true;
+                if ($action === 'add') {
+                    // Map frontend audience labels to DB roles
+                    $role_map = [
+                        'users' => 'USER',
+                        'managers' => 'MANAGER',
+                        'admins' => 'ADMIN',
+                    ];
+                    $role_key = strtolower($target_audience);
+                    $role = $role_map[$role_key] ?? null;
+
+                    if (!$role) {
+                        error_log("Invalid target audience '{$target_audience}' for new announcement.");
+                    } else {
+                        // Prepare statement to get users with matching role
+                        $getEmails = $conn->prepare("SELECT username, email FROM users WHERE role = ?");
+                        $getEmails->bind_param("s", $role);
+                        $getEmails->execute();
+                        $result = $getEmails->get_result();
+
+                        if ($result->num_rows === 0) {
+                            error_log("No users found with role {$role} for announcement emails.");
+                        } else {
+                            // Setup PHPMailer once
+                            $mail = new PHPMailer(true);
+                            try {
+                                $mail->isSMTP();
+                                $mail->Host = 'smtp.gmail.com';
+                                $mail->SMTPAuth = true;
+                                $mail->Username = 'spamacc2306@gmail.com';  // Your email
+                                $mail->Password = 'lfvc kyov oife mwze';   // App password #zxsg iiwd jwic xveb
+                                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // 'tls'
+                                $mail->Port = 587;
+
+                                $mail->setFrom('spamacc2306@gmail.com', 'Announcement Bot');
+                                $mail->isHTML(true);
+                                $mail->Subject = "New Announcement: " . htmlspecialchars($title, ENT_QUOTES | ENT_SUBSTITUTE);
+
+                                // Define color based on priority
+                                $priority_color = [
+                                    'High' => '#d9534f',    // red
+                                    'Medium' => '#f0ad4e',  // yellow
+                                    'Low' => '#5bc0de'  // green
+                                ];
+                                $priority_badge_color = $priority_color[$priority] ?? '#6c757d'; // Default gray
+
+                                // Logo (optional) - adjust path if needed
+                                $logo_url = "https://www.giving.sg/res/GetEntityGroupImage/77c5ee27-4e90-4615-ae1e-f1d28822d75b.jpg"; // Or skip this line if you don’t have one
+
+                                // Email body
+                                $bodyContent = "
+                                    <div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 8px;'>
+                                        <div style='text-align: center; margin-bottom: 20px;'>
+                                            <img src='$logo_url' alt='Logo' style='max-height: 60px;'>
+                                        </div>
+                                        <h2 style='color: #333;'>📢 " . htmlspecialchars($title, ENT_QUOTES | ENT_SUBSTITUTE) . "</h2>
+                                        <p style='color: #555;'>" . nl2br(htmlspecialchars($content, ENT_QUOTES | ENT_SUBSTITUTE)) . "</p>
+                                        <p><strong>Target Audience:</strong> " . htmlspecialchars($target_audience, ENT_QUOTES | ENT_SUBSTITUTE) . "</p>
+                                        <p>
+                                            <strong>Priority:</strong> 
+                                            <span style='display: inline-block; padding: 4px 10px; background-color: $priority_badge_color; color: white; border-radius: 5px;'>
+                                                " . htmlspecialchars($priority, ENT_QUOTES | ENT_SUBSTITUTE) . "
+                                            </span>
+                                        </p>
+                                        <div style='margin-top: 30px; text-align: center;'>
+                                            <a href='http://localhost:8080/home.php' style='background-color: #0d6efd; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;'>
+                                                View All Announcements
+                                            </a>
+                                        </div>
+                                        <p style='margin-top: 40px; font-size: 12px; color: #999;'>This email was sent by the Announcement System Bot.</p>
+                                    </div>
+                                ";
+
+                                while ($row = $result->fetch_assoc()) {
+                                    $mail->clearAddresses();
+                                    $mail->addAddress($row['email'], $row['username']);
+                                    $mail->Body = $bodyContent;
+
+                                    $mail->send();
+                                }
+                            } catch (Exception $e) {
+                                error_log("Email sending failed: " . $mail->ErrorInfo);
+                            }
+                        }
+
+                        $getEmails->close();
+                    }
+                }
+                $message = "Action '$action' successful.";
             } else {
                 $error = 'Database operation failed: ' . $stmt->error;
             }
