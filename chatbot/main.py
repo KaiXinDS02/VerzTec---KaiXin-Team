@@ -75,12 +75,30 @@ def format_answer_if_needed(answer: str) -> str:
         if not stripped:
             continue
 
-        # Detect bullets starting with • or hyphens
-        if stripped.startswith("•") or stripped.startswith("- "):
+        # ✅ Step 1: If line ends with ":", treat as bold paragraph heading (not a bullet)
+        if re.match(r".*:$", stripped):
+            if bullet_started:
+                formatted_lines.append("</ul>")
+                bullet_started = False
+            formatted_lines.append(f"<p><strong>{stripped}</strong></p>")
+            continue
+
+        # # ✅ Step 2: Bullet detection
+        # if re.match(r"^(\s*[\u2022\-•*]+\s+)", stripped):
+        #     if not bullet_started:
+        #         formatted_lines.append("<ul>")
+        #         bullet_started = True
+        #     formatted_lines.append(f"<li>{stripped.lstrip('•-*').strip()}</li>")
+
+        # ✅ Step 2: Bullet detection (handles •, -, *, +)
+        if re.match(r"^(\s*[\u2022\-\*\+•]\s+)", stripped):  # Accepts + and * too
             if not bullet_started:
                 formatted_lines.append("<ul>")
                 bullet_started = True
-            formatted_lines.append(f"<li>{stripped.lstrip('•').lstrip('-').strip()}</li>")
+            # Remove any leading bullet symbols or whitespace
+            cleaned = re.sub(r"^[\u2022\-\*\+•]\s*", "", stripped)
+            formatted_lines.append(f"<li>{cleaned}</li>")
+
         else:
             if bullet_started:
                 formatted_lines.append("</ul>")
@@ -90,13 +108,8 @@ def format_answer_if_needed(answer: str) -> str:
     if bullet_started:
         formatted_lines.append("</ul>")
 
-    # Detect unformatted role list (like org chart)
-    if len(lines) > 1 and all(len(p.strip().split()) <= 5 for p in lines[1:]):
-        items = lines[1:]
-        bullets = "".join(f"<li>{item.strip()}</li>" for item in items if item.strip())
-        return f"<p>{lines[0].strip()}</p><ul>{bullets}</ul>"
-
     return "\n".join(formatted_lines)
+
 
 
 def is_rejection_response(text: str) -> bool:
@@ -175,19 +188,26 @@ def bold_intro_to_bullets(text: str) -> str:
         current = lines[i].strip()
         next_line = lines[i + 1].strip() if i + 1 < len(lines) else ""
 
-        # Check if the next line starts with a bullet (•, -, or *) and current is not already bold
-
-        # if re.match(r"^(\s*[\u2022\-\*\•]\s+)", next_line) and not current.startswith("<strong>"): # not working the best
-        # if re.match(r"^(\*|-|•)\s+", next_line) and not current.startswith("<strong>"): # appearently not as robust
-        if re.match(r"^(\s*[\u2022\-\*\•]\s+)", next_line) and "<strong>" not in current: #previous
-            words = current.split()
-
-            if len(words) <= 5:
+        # Check if the next line starts with a bullet and current line is not already bolded
+        if re.match(r"^\s*[\u2022\-\*\+]\s+", next_line) and "<strong>" not in current:
+            if current.endswith(":"):
+                # Bold full intro line that ends with colon
                 current = f"<strong>{current}</strong>"
+
+            elif ";" in current:
+                # Bold up to semicolon if exists
+                bold_part = current.split(";")[0]
+                remaining = current[len(bold_part) + 1:].strip()
+                current = f"<strong>{bold_part};</strong> {remaining}"
+
             else:
-                bold_part = " ".join(words[:4])
-                remaining = " ".join(words[4:])
-                current = f"<strong>{bold_part}</strong> {remaining}"
+                words = current.split()
+                if len(words) <= 5:
+                    current = f"<strong>{current}</strong>"
+                else:
+                    bold_part = " ".join(words[:5])
+                    remaining = " ".join(words[5:])
+                    current = f"<strong>{bold_part}</strong> {remaining}"
 
         updated_lines.append(current)
 
