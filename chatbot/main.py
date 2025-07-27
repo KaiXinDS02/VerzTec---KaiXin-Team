@@ -37,22 +37,33 @@ class Question(BaseModel):
     user_id: int
     question: str
 
-# def truncate_answer(answer, max_words=MAX_ANSWER_WORDS):
+# def truncate_answer(answer, max_words=MAX_ANSWER_WORDS): # changed
 #     words = answer.split()
 #     if len(words) <= max_words:
 #         return answer
 #     truncated = " ".join(words[:max_words])
-#     truncated = re.sub(r'([.!?])[^.!?]*$', r'\1', truncated.strip())
-#     return truncated + "..."
+#     # Cut at the last complete sentence
+#     sentences = re.split(r'(?<=[.!?]) +', truncated)
+#     return " ".join(sentences[:-1]) + "..."
 
-def truncate_answer(answer, max_words=MAX_ANSWER_WORDS): # changed
+def truncate_answer(answer, max_words=MAX_ANSWER_WORDS):
     words = answer.split()
     if len(words) <= max_words:
         return answer
     truncated = " ".join(words[:max_words])
-    # Cut at the last complete sentence
     sentences = re.split(r'(?<=[.!?]) +', truncated)
-    return " ".join(sentences[:-1]) + "..."
+    clean = " ".join(sentences[:-1])
+    return clean if clean.strip() else truncated + "..."
+
+def is_org_chart_question(question: str) -> bool:
+    keywords = [
+        "org chart", "organization chart", "organisation chart", "company structure",
+        "organizational structure", "organisational structure", "reporting structure",
+        "hierarchy", "reporting line", "team structure", "how is the company structured"
+    ]
+    question = question.lower()
+    return any(kw in question for kw in keywords) or fuzz.partial_ratio("org chart", question) > 80
+
 
 def format_answer_if_needed(answer: str) -> str:
     lines = answer.strip().splitlines()
@@ -166,9 +177,9 @@ def bold_intro_to_bullets(text: str) -> str:
 
         # Check if the next line starts with a bullet (•, -, or *) and current is not already bold
 
-        # if re.match(r"^(\s*[\u2022\-\*\•]\s+)", next_line) and not current.startswith("<strong>"):
-        if re.match(r"^(\*|-|•)\s+", next_line) and not current.startswith("<strong>"):
-        # if re.match(r"^(\s*[\u2022\-\*\•]\s+)", next_line) and "<strong>" not in current:
+        # if re.match(r"^(\s*[\u2022\-\*\•]\s+)", next_line) and not current.startswith("<strong>"): # not working the best
+        # if re.match(r"^(\*|-|•)\s+", next_line) and not current.startswith("<strong>"): # appearently not as robust
+        if re.match(r"^(\s*[\u2022\-\*\•]\s+)", next_line) and "<strong>" not in current: #previous
             words = current.split()
 
             if len(words) <= 5:
@@ -241,6 +252,24 @@ def get_user_role_and_country(user_id):
 @app.post("/chat")
 def chat(question: Question):
     print("❓ User Question:", question.question)
+
+    # Special case for organization chart question
+    if is_org_chart_question(question.question):
+        file_name = "2_QUALITY MANUAL-revised Jan 2016-rev NOV 2016-020924.docx"
+
+        return {
+            "answer": (
+                "The company’s organizational structure is outlined in "
+                "<strong>Section QM-06: Organization Structure</strong>. "
+                "It provides a visual overview of Verztec Consulting Pte Ltd's key departments and reporting lines across the organization."
+            ),
+
+             "reference_file": {
+                "url": f"http://localhost:8000/pdfs/{quote(file_name)}",
+                "name": file_name
+            }
+        }
+           
 
     if is_personal_question(question.question):
         return {
@@ -337,6 +366,9 @@ def chat(question: Question):
             "Speak as if you're helping a colleague or employee in a business setting.\n"
             "Avoid numbered or overly formatted lists unless they already exist in the document.\n"
             "Be clear, concise, and human — not robotic or overly formal."
+            # "Do not repeat visual diagrams or organization charts by listing roles or positions.\n"
+            # "If referring to a chart, summarize its purpose (e.g., department structure or reporting lines) rather than copying its content."
+
         )
 
         reference_file = None
