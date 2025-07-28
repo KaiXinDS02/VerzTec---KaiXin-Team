@@ -55,16 +55,6 @@ def truncate_answer(answer, max_words=MAX_ANSWER_WORDS):
     clean = " ".join(sentences[:-1])
     return clean if clean.strip() else truncated + "..."
 
-def is_org_chart_question(question: str) -> bool:
-    keywords = [
-        "org chart", "organization chart", "organisation chart", "company structure",
-        "organizational structure", "organisational structure", "reporting structure",
-        "hierarchy", "reporting line", "team structure", "how is the company structured"
-    ]
-    question = question.lower()
-    return any(kw in question for kw in keywords) or fuzz.partial_ratio("org chart", question) > 80
-
-
 def format_answer_if_needed(answer: str) -> str:
     lines = answer.strip().splitlines()
     formatted_lines = []
@@ -147,6 +137,24 @@ def is_hr_query(question: str, use_fuzzy=True) -> bool:
         if use_fuzzy and fuzz.partial_ratio(kw, question) >= 80:
             return True
     return False
+
+def is_org_chart_question(question: str) -> bool:
+    keywords = [
+        "org chart", "organization chart", "organisation chart", "company structure", "organisational chart",
+        "organizational structure", "organisational structure", "reporting structure", "organizational chart"
+        "hierarchy", "reporting line", "team structure", "how is the company structured"
+    ]
+    question = question.lower()
+    return any(kw in question for kw in keywords) or fuzz.partial_ratio("org chart", question) > 80
+
+def staff_new_leave(question: str) -> bool:
+    keywords = [
+        "new staff", "new employee", "new employee leave",
+        "new staff leave", "leave for new staff", "probation leave"
+    ]
+    question = question.lower()
+    return any(kw in question for kw in keywords) or fuzz.partial_ratio("how many days of leave", question) > 80
+
 
 def is_hr_question_via_llm(query: str) -> bool:
     prompt = f"""Is the following question related to Human Resources, company policies, internal procedures, or work etiquette?
@@ -304,6 +312,34 @@ def chat(question: Question):
                 "For personal matters, I would recommend speaking to someone you trust or seek professional help."
             ),
             "reference_file": None
+        }
+
+    # Special case for leave entitlement
+    if staff_new_leave(question.question):
+        file_name = "leave_policy.docx"
+
+        raw_answer = (
+            "As a new employee, you are entitled to 14 days of leave for full-time employees who have been with the company for less than 3 years."
+            " However, please note that during your probationary period (usually the first 3 months), you will not be eligible for paid leave or sick leave.\n\n"
+            "**Here's a breakdown of the leave entitlements for new employees:**\n"
+            "• For employees under 3 years: 14 days\n"
+            "• During probationary period (first 3 months): No paid leave or sick leave\n"
+            "• Birthday leave: You may apply for it after 2 months from your join date, during your birthday month or on your actual birthday\n\n"
+            "Please check with your department Manager/Supervisor for specific details and ensure that your leave doesn't clash with team members."
+        )
+
+        #  Apply formatting pipeline (duplicate here even if repeated below)
+        formatted = format_answer_if_needed(raw_answer)
+        intro_bolded = bold_intro_to_bullets(formatted)
+        truncated = truncate_answer(intro_bolded)
+        answer = convert_markdown_to_html(truncated)
+
+        return {
+            "answer": answer,
+            "reference_file": {
+                "url": f"http://localhost:8000/pdfs/{quote(file_name)}",
+                "name": file_name
+            }
         }
 
     # ✅ If it's a retrieval request, proceed without HR check
