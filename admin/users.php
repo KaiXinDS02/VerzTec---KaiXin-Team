@@ -551,6 +551,28 @@ $userCount = $res->fetch_assoc()['cnt'];
     </div>
   </div>
 
+  <!-- DELETE USER CONFIRMATION MODAL -->
+  <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteUserModalLabel">Confirm Deletion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete this user?</p>
+          <p><strong>Username:</strong> <span id="deleteUserName"></span></p>
+          <p><strong>Email:</strong> <span id="deleteUserEmail"></span></p>
+          <p class="text-danger"><small>This action cannot be undone.</small></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete User</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
     <!-- notification -->
     <!-- Modal with additional fields -->
     <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
@@ -708,12 +730,30 @@ $userCount = $res->fetch_assoc()['cnt'];
     });
 
     // Delete
+    let userToDelete = null; // Store user info for deletion
     $('#users-table').on('click','.delete-user',function(){
-      const id=$(this).data('userid');
-      if(confirm('Delete this user?')){
-        $.post('admin/delete_users.php',{user_id:id},res=>{
-          if(res.trim()==='success') table.ajax.reload(null,false);
-          else alert('Delete failed: '+res);
+      const id = $(this).data('userid');
+      const username = $(this).closest('tr').find('td:eq(1)').text();
+      const email = $(this).closest('tr').find('td:eq(2)').text();
+      
+      // Store user info and show modal
+      userToDelete = id;
+      $('#deleteUserName').text(username);
+      $('#deleteUserEmail').text(email);
+      $('#deleteUserModal').modal('show');
+    });
+
+    // Confirm deletion
+    $('#confirmDeleteBtn').on('click', function(){
+      if(userToDelete){
+        $.post('admin/delete_users.php',{user_id:userToDelete},res=>{
+          if(res.trim()==='success') {
+            table.ajax.reload(null,false);
+            $('#deleteUserModal').modal('hide');
+            userToDelete = null;
+          } else {
+            alert('Delete failed: '+res);
+          }
         });
       }
     });

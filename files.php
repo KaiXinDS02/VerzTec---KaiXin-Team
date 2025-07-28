@@ -408,9 +408,11 @@ function getFriendlyFileType($mimeType) {
                 <!-- JS will inject checkboxes -->
               </div>
             </div>
+            <?php if ($_SESSION['role'] !== 'USER'): ?>
             <button class="btn-upload" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
               <i class="fa fa-upload me-1"></i> Upload File
             </button>
+            <?php endif; ?>
             <form method="POST" enctype="multipart/form-data" style="display:none;">
               <input type="file" name="upload_file" id="upload_file"
                      accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx,.pdf,.csv,.txt"
