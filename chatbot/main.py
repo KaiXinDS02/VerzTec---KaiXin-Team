@@ -213,6 +213,12 @@ def bold_intro_to_bullets(text: str) -> str:
 
     return "\n".join(updated_lines)
 
+def convert_markdown_to_html(text: str) -> str: #new
+    # Convert **bold**
+    text = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", text)
+    # Convert *italic*
+    text = re.sub(r"\*(.*?)\*", r"<em>\1</em>", text)
+    return text
 
 def save_chat_to_db(user_id, question, answer):
     try:
@@ -452,24 +458,13 @@ def chat(question: Question):
                 raw_answer = result.content
                 formatted = format_answer_if_needed(raw_answer)     # wrap bullets first
                 intro_bolded = bold_intro_to_bullets(formatted)     # bold intros after bullets
-                answer = truncate_answer(intro_bolded)              # trim at the end
+                truncated  = truncate_answer(intro_bolded)              # trim at the end
+                answer = convert_markdown_to_html(truncated)
 
 
                 # intro_bolded = bold_intro_to_bullets(raw_answer)        # bold main intro lines
                 # formatted = format_answer_if_needed(intro_bolded)       # wrap bullets & paragraphs
                 # answer = truncate_answer(formatted)                     # trim long responses last
-
-                # answer = truncate_answer(raw_answer)
-                # answer = format_answer_if_needed(answer)
-                # answer = bold_intro_to_bullets(answer)
-                # answer = answer.replace("\n", "<br>")
-
-
-            # # 💡 File reference is only attached if score passed and file exists
-            # reference_file = {
-            #     "url": f"http://localhost:8000/pdfs/{quote(source_file)}",
-            #     "name": source_file
-            # }
 
             reference_file = None
             if not is_generic_or_restricted_response(answer.strip()):

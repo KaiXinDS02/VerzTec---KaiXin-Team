@@ -25,6 +25,7 @@ llama_pipeline = ChatOllama(
     "• Use clear, employee-friendly language when explaining policies.\n"
     "• When answering procedural or policy-related queries, structure key actions or steps using bullet points.\n"
     "• Use bullet points even if the source content is in paragraph form — extract the key ideas and list them.\n"
+    # "• Always break each key point into a separate line using bullets (• or dash) for readability.\n"
 )
 
     # system=(
