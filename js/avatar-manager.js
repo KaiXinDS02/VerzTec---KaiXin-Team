@@ -424,22 +424,9 @@ class AvatarManager {
   
   // Type text with a realistic typing effect, optionally synced to audio duration
   async typeText(text, onTextUpdate, customDelay = null) {
-    const defaultDelay = 10; // Base delay: 10ms per character
-    let delay = customDelay || defaultDelay;
-    
-    // Apply speed multiplier (higher speed = lower delay)
-    delay = delay / this.speed;
-    
-    // If no custom delay is provided, use default
-    if (customDelay === null) {
-      delay = defaultDelay / this.speed;
-    }
-    
-    let currentText = '';
-    for (let i = 0; i < text.length; i++) {
-      currentText += text[i];
-      onTextUpdate(currentText);
-      await new Promise(resolve => setTimeout(resolve, delay));
+    // Instantly show the full text (no typewriter effect)
+    if (onTextUpdate) {
+      onTextUpdate(text);
     }
   }
   

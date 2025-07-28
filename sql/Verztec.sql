@@ -102,7 +102,22 @@ CREATE TABLE chat_history (
     question TEXT,
     answer TEXT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
+    conversation_id INT,
+    voice_file VARCHAR(255),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL,
+    INDEX idx_conversation_id (conversation_id)
+);
+
+-- CONVERSATIONS TABLE (for ChatGPT-style conversation management)
+CREATE TABLE conversations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL DEFAULT 'New Conversation',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    INDEX idx_user_conversations (user_id),
+    INDEX idx_updated_at (updated_at)
 );
 
 COMMIT;

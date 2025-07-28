@@ -4370,37 +4370,24 @@ $user_id = $_SESSION['user_id'] ?? 1;
             let botMessageDiv = null;
             
             await avatarManager.speakWithTextStream(botAnswer, (streamedText) => {
-              // Check for interruption during streaming
+              // Only show the full text at once, no typewriter effect
               if (window.chatbotInterrupted) {
                 console.log('🛑 Speech interrupted during streaming');
                 return;
               }
-              
-              // Check if this is the initial signal (empty string) that speech is ready
               if (streamedText === '' && !botMessageDiv) {
                 console.log('📝 Speech ready signal received, creating message box...');
-                hideThinking(); // Hide thinking animation when text bubble appears
-                
+                hideThinking();
                 botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'bot-bubble';
-                //botMessageDiv.innerHTML = '<strong>VerzTec Assistant:</strong> ';
                 botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${botAnswer}`;
-                
                 const chatContainer = document.getElementById('chat-container');
                 chatContainer.appendChild(botMessageDiv);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
-                
                 updateAvatarStatus('Speaking...');
-                return; // Don't process this empty signal further
+                return;
               }
-              
-              // Update the message content with streamed text (only after box is created)
-              if (botMessageDiv && streamedText.length > 0) {
-                botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${streamedText}`;
-                // console.log("Final streamedText:", streamedText); //changed
-                const chatContainer = document.getElementById('chat-container');
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-              }
+              // Do not update the message content letter by letter; just show the full text above
             }, currentSpeed); // Pass speed to speakWithTextStream
             
             // Check for interruption after speech completion
