@@ -448,11 +448,20 @@ def chat(question: Question):
                     )
             else:
                 result = llama_pipeline.invoke(full_prompt) # changed
-                # answer = truncate_answer(result.content)
+                
                 raw_answer = result.content
-                answer = truncate_answer(raw_answer)
-                answer = format_answer_if_needed(answer)
-                answer = bold_intro_to_bullets(answer)
+                formatted = format_answer_if_needed(raw_answer)     # wrap bullets first
+                intro_bolded = bold_intro_to_bullets(formatted)     # bold intros after bullets
+                answer = truncate_answer(intro_bolded)              # trim at the end
+
+
+                # intro_bolded = bold_intro_to_bullets(raw_answer)        # bold main intro lines
+                # formatted = format_answer_if_needed(intro_bolded)       # wrap bullets & paragraphs
+                # answer = truncate_answer(formatted)                     # trim long responses last
+
+                # answer = truncate_answer(raw_answer)
+                # answer = format_answer_if_needed(answer)
+                # answer = bold_intro_to_bullets(answer)
                 # answer = answer.replace("\n", "<br>")
 
 
