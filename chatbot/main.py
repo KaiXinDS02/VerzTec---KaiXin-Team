@@ -267,6 +267,7 @@ def convert_markdown_to_html(text: str) -> str: #new
     text = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", text)
     # Convert *italic*
     text = re.sub(r"\*(.*?)\*", r"<em>\1</em>", text)
+    text = text.replace("$", "&#36;")  # ← This escapes all "$"
     return text
 
 def save_chat_to_db(user_id, question, answer):
@@ -486,7 +487,9 @@ def chat(question: Question):
             "Avoid overly casual language like 'just a heads up', 'don’t worry', or 'let them know what’s going on'.\n"
             "Speak as if you're helping a colleague or employee in a business setting.\n"
             "Avoid numbered or overly formatted lists unless they already exist in the document.\n"
-            "Be clear, concise, and human — not robotic or overly formal."
+            "Be clear, concise, and human — not robotic or overly formal not robotic, overly formal, or speculative.\n."
+            "Avoid saying 'I would retrieve' or speculating about documents. Instead, use confident phrasing like 'Yes, I can retrieve' or simply start summarizing directly.\n"
+            "Do not repeat that the document is relevant or restate what was asked. Focus only on answering the question based on the content.\n"
             # "Do not repeat visual diagrams or organization charts by listing roles or positions.\n"
             # "If referring to a chart, summarize its purpose (e.g., department structure or reporting lines) rather than copying its content."
 
