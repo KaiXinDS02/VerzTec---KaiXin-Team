@@ -10,34 +10,51 @@ $message = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Common inputs
     $action = $_POST['action'] ?? '';
     $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
     $title = $_POST['title'] ?? '';
     $content = $_POST['content'] ?? '';
-    $target_audience = $_POST['target_audience'] ?? '';
+    $target_audience = $_POST['target_audience'] ?? [];
+    $audience_str = '';
+
+    if (is_array($target_audience)) {
+        $selected = $target_audience;
+        sort($selected); // Sort to match expected array order for comparison
+
+        if ($selected === ['admins', 'managers', 'users']) {
+            $audience_str = 'all';
+        } else {
+            $audience_str = implode(',', $selected);
+        }
+
+        $roles_to_email = $target_audience; // Original input untouched
+    } else {
+        // Single selection fallback
+        $audience_str = $target_audience;
+        $roles_to_email = [$target_audience];
+    }
+
+
     $priority = $_POST['priority'] ?? '';
 
     if ($conn->connect_error) {
         $error = 'Database connection error.';
     } else {
         if ($action === 'add') {
-            $stmt = $conn->prepare("INSERT INTO announcements (title, context, target_audience, priority) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("ssss", $title, $content, $target_audience, $priority);
 
+            $stmt = $conn->prepare("INSERT INTO announcements (title, context, target_audience, priority) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("ssss", $title, $content, $audience_str, $priority);
         } else if ($action === 'edit' && $id > 0) {
             $stmt = $conn->prepare("UPDATE announcements SET title=?, context=?, target_audience=?, priority=? WHERE id=?");
-            $stmt->bind_param("ssssi", $title, $content, $target_audience, $priority, $id);
-
+            $stmt->bind_param("ssssi", $title, $content, $audience_str, $priority, $id);
         } else if ($action === 'delete' && $id > 0) {
             $stmt = $conn->prepare("DELETE FROM announcements WHERE id=?");
             $stmt->bind_param("i", $id);
-
         } else {
             $error = 'Invalid action or missing ID.';
         }
 
-if (isset($stmt)) {
+        if (isset($stmt)) {
             if ($stmt->execute()) {
                 if ($action === 'add') {
                     // Map frontend audience labels to DB roles
@@ -46,17 +63,27 @@ if (isset($stmt)) {
                         'managers' => 'MANAGER',
                         'admins' => 'ADMIN',
                     ];
-                    $role_key = strtolower($target_audience);
-                    $role = $role_map[$role_key] ?? null;
+                    $roles_to_email = [];
 
-                    if (!$role) {
-                        error_log("Invalid target audience '{$target_audience}' for new announcement.");
+                    if (strtolower($audience_str) === 'all') {
+                        $roles_to_email = ['USER', 'MANAGER', 'ADMIN'];
                     } else {
-                        // Prepare statement to get users with matching role
+                        $selected_roles = explode(',', $audience_str);
+                        foreach ($selected_roles as $r) {
+                            $mapped = $role_map[strtolower($r)] ?? null;
+                            if ($mapped) {
+                                $roles_to_email[] = $mapped;
+                            }
+                        }
+                    }
+
+
+                    foreach ($roles_to_email as $role) {
                         $getEmails = $conn->prepare("SELECT username, email FROM users WHERE role = ?");
                         $getEmails->bind_param("s", $role);
                         $getEmails->execute();
                         $result = $getEmails->get_result();
+                
 
                         if ($result->num_rows === 0) {
                             error_log("No users found with role {$role} for announcement emails.");
@@ -95,7 +122,7 @@ if (isset($stmt)) {
                                         </div>
                                         <h2 style='color: #333;'>📢 " . htmlspecialchars($title, ENT_QUOTES | ENT_SUBSTITUTE) . "</h2>
                                         <p style='color: #555;'>" . nl2br(htmlspecialchars($content, ENT_QUOTES | ENT_SUBSTITUTE)) . "</p>
-                                        <p><strong>Target Audience:</strong> " . htmlspecialchars($target_audience, ENT_QUOTES | ENT_SUBSTITUTE) . "</p>
+                                        <p><strong>Target Audience:</strong> " . htmlspecialchars($audience_str, ENT_QUOTES | ENT_SUBSTITUTE) . "</p>
                                         <p>
                                             <strong>Priority:</strong> 
                                             <span style='display: inline-block; padding: 4px 10px; background-color: $priority_badge_color; color: white; border-radius: 5px;'>
@@ -133,7 +160,8 @@ if (isset($stmt)) {
             $stmt->close();
         }
     }
-}
+} 
+
 
 // Fetch announcements to display
 $sql = "SELECT id, title, context, priority, target_audience, timestamp FROM announcements ORDER BY timestamp DESC";
@@ -324,6 +352,16 @@ $conn->close();
     #announcementTable td:nth-child(1) {
       max-width: 150px; /* limit width for title */
     }
+    .small-alert {
+      max-width: 500px;
+      margin: 10px auto;
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
   </style>
 </head>
 <body>
@@ -431,9 +469,9 @@ $conn->close();
                 <td>
                   <?php
                     if (isset($row['timestamp'])) {
-                        // Get user's country for timezone conversion
-                        $user_country = $_SESSION['country'] ?? 'Singapore';
-                        echo TimezoneHelper::convertToUserTimezone($row['timestamp'], $user_country, "d M Y, H:i");
+                        $date = new DateTime($row['timestamp'], new DateTimeZone('UTC'));
+                        $date->setTimezone(new DateTimeZone('Asia/Singapore'));
+                        echo $date->format("d M Y, H:i");
                     } else {
                         echo 'N/A';
                     } 
@@ -479,6 +517,8 @@ $conn->close();
             <h5 class="modal-title" id="addAnnouncementModalLabel">Add Announcement</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
+
+
           <div class="modal-body">
             <label for="add-title" class="form-label">Title</label>
             <input type="text" class="form-control mb-3" id="add-title" name="title" required />
@@ -491,11 +531,24 @@ $conn->close();
               <option value="High">High</option>
             </select>
             <label for="add-target-audience" class="form-label">Target Audience</label>
-            <select class="form-select" id="add-target-audience" name="target_audience" required>
-              <option value="Users" selected>Users</option>
-              <option value="Managers">Managers</option>
-              <option value="Admins">Admins</option>
-            </select>
+            <!-- Hidden input to store final value -->
+            <input type="hidden" name="target_audience" id="add-target-audience-hidden" value="">
+
+            <!-- Visible checkboxes -->
+            <div id="add-target-audience-group" class="form-check">
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input target-checkbox" value="Users"> Users
+              </label><br>
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input target-checkbox" value="Managers"> Managers
+              </label><br>
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input target-checkbox" value="Admins"> Admins
+              </label>
+            </div>
+            <!-- Alert Popups -->
+          <div id="form-alert" class="alert alert-danger d-none small-alert" role="alert"></div>
+          <div id="form-success" class="alert alert-success d-none small-alert" role="alert"></div>
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-dark">Add</button>
@@ -528,11 +581,21 @@ $conn->close();
               <option value="High">High</option>
             </select>
             <label for="edit-target-audience" class="form-label">Target Audience</label>
-            <select class="form-select" id="edit-target-audience" name="target_audience" required>
-              <option value="Users">Users</option>
-              <option value="Managers">Managers</option>
-              <option value="Admins">Admins</option>
-            </select>
+            <!-- Hidden input to store final value -->
+            <input type="hidden" name="target_audience" id="add-target-audience-hidden" value="">
+
+            <!-- Visible checkboxes -->
+            <div id="add-target-audience-group" class="form-check">
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input target-checkbox" value="Users"> Users
+              </label><br>
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input target-checkbox" value="Managers"> Managers
+              </label><br>
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input target-checkbox" value="Admins"> Admins
+              </label>
+            </div>
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-dark">Save</button>
@@ -617,7 +680,6 @@ $conn->close();
     </div>
 
 
-
   <script src="js/jquery-3.4.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/scripts.js"></script>
@@ -627,6 +689,33 @@ $conn->close();
 
 
   <script>
+
+    function setupAudienceCheckboxSync(groupId, hiddenId) {
+      const checkboxes = document.querySelectorAll(`#${groupId} .target-checkbox`);
+      const hiddenInput = document.getElementById(hiddenId);
+
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+          const selected = Array.from(checkboxes)
+            .filter(c => c.checked)
+            .map(c => c.value);
+
+          if (selected.length === 3) {
+            hiddenInput.value = 'All';
+          } else {
+            hiddenInput.value = selected.join(', ');
+          }
+        });
+      });
+    }
+
+    // Initialize both modals
+    document.addEventListener('DOMContentLoaded', () => {
+      setupAudienceCheckboxSync('add-target-audience-group', 'add-target-audience-hidden');
+      setupAudienceCheckboxSync('edit-target-audience-group', 'edit-target-audience-hidden');
+    });
+
+
     $(document).ready(function () {
       const table = $('#announcementTable').DataTable({
         paging: false,
@@ -650,7 +739,11 @@ $conn->close();
         $('#edit-title').val(tr.data('title'));
         $('#edit-content').val(tr.data('content'));
         $('#edit-priority').val(tr.data('priority'));
-        $('#edit-target-audience').val(tr.data('target_audience'));
+        const audienceStr = tr.data('target_audience');
+        const audienceArr = audienceStr === 'all' 
+          ? ['users', 'managers', 'admins']
+          : audienceStr.split(',');
+        $('#edit-target-audience').val(audienceArr);
         $('#editAnnouncementModal').modal('show');
       });
 
@@ -698,6 +791,62 @@ $conn->close();
       console.log('Loaded theme:', savedTheme);
     });
 
+   
+    
+    //  Form validation Before Add Announcement
+    document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('addAnnouncementForm');
+    const titleInput = document.getElementById('add-title');
+    const contentInput = document.getElementById('add-content');
+    const prioritySelect = document.getElementById('add-priority');
+    const targetCheckboxes = document.querySelectorAll('#add-target-audience-group .target-checkbox');
+    
+    const alertBox = document.getElementById('form-alert');
+    const successBox = document.getElementById('form-success');
+
+    form.addEventListener('submit', (event) => {
+      let isValid = true;
+      let errorMessages = [];
+
+      // Reset alerts
+      alertBox.classList.add('d-none');
+      successBox.classList.add('d-none');
+
+      if (!titleInput.value.trim()) {
+        isValid = false;
+        errorMessages.push('Title is required.');
+      }
+
+      if (!contentInput.value.trim()) {
+        isValid = false;
+        errorMessages.push('Message is required.');
+      }
+
+      if (!prioritySelect.value.trim()) {
+        isValid = false;
+        errorMessages.push('Priority must be selected.');
+      }
+
+      const checkedCount = Array.from(targetCheckboxes).filter(c => c.checked).length;
+      if (checkedCount === 0) {
+        isValid = false;
+        errorMessages.push('At least one target audience must be selected.');
+      }
+
+      if (!isValid) {
+        event.preventDefault();
+        alertBox.innerHTML = errorMessages.map(msg => `<div>${msg}</div>`).join('');
+        alertBox.classList.remove('d-none');
+      } else {
+        // Optionally show success before submission (or after submission completes with AJAX)
+        // event.preventDefault(); // uncomment if you're using AJAX
+        successBox.textContent = 'Announcement submitted successfully!';
+        successBox.classList.remove('d-none');
+      }
+    });
+  });
+
+
     
   </script>
 
@@ -706,4 +855,3 @@ $conn->close();
 </body>
 
 </html>
-
