@@ -214,6 +214,11 @@ def is_generic_or_restricted_response(answer, threshold=85):
             return True
     return False
 
+def is_greeting(question: str) -> bool:
+    greetings = ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"]
+    question = question.lower().strip()
+    return any(question == g or question.startswith(g + " ") for g in greetings)
+
 # Formatting
 def bold_intro_to_bullets(text: str) -> str:
     lines = text.strip().split('\n')
@@ -316,13 +321,23 @@ def chat(question: Question):
     original_question = question.question
     question.question = correct_spelling(original_question)
 
+    if is_greeting(question.question):
+        return {
+            "answer": (
+                "<br>Hello! I'm Verztec's AI Assistant. 👋<br>"
+                "I'm here to help you with HR-related queries such as company policies, employee benefits, retrieval of doucuments, and more."
+                " Just ask your question and I’ll do my best to assist!"
+            ),
+            "reference_file": None
+        }
+    
     # Special case for organization chart question
     if is_org_chart_question(question.question):
         file_name = "2_QUALITY MANUAL-revised Jan 2016-rev NOV 2016-020924.docx"
 
         return {
             "answer": (
-                "The company’s organizational structure is outlined in "
+                "<br>The company’s organizational structure is outlined in "
                 "<strong>Section QM-06: Organization Structure</strong>. "
                 "It provides a visual overview of Verztec Consulting Pte Ltd's key departments and reporting lines across the organization."
             ),
