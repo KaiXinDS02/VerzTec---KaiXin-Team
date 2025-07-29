@@ -232,7 +232,16 @@ def bold_intro_to_bullets(text: str) -> str:
         if re.match(r"^\s*[\u2022\-\*\+]\s+", next_line) and "<strong>" not in current:
             if current.endswith(":"):
                 # Bold full intro line that ends with colon
-                current = f"<strong>{current}</strong>"
+                # current = f"<strong>{current}</strong>"
+                # Only bold the portion before the colon (e.g., "Key responsibilities")
+                bold_part = current.split(":")[0]
+                remaining = current[len(bold_part) + 1:].strip()
+
+                if remaining:
+                    current = f"<strong>{bold_part}</strong>: {remaining}"
+                else:
+                    current = f"<strong>{bold_part}</strong>"
+
 
             elif ";" in current:
                 # Bold up to semicolon if exists
