@@ -22,3 +22,4 @@ rapidfuzz
 pdfplumber
 docx2txt
 docx
+textblob==0.19.0

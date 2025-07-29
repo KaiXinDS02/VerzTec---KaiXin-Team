@@ -15,6 +15,7 @@ from chatbot.llm_loader import llama_pipeline
 from chatbot.config import MAX_ANSWER_WORDS, PDF_DIR
 from rapidfuzz import fuzz
 import mysql.connector
+from textblob import TextBlob
 
 app = FastAPI()
 
@@ -101,6 +102,12 @@ def format_answer_if_needed(answer: str) -> str:
     return "\n".join(formatted_lines)
 
 
+def correct_spelling(text: str) -> str:
+    from textblob import TextBlob
+    corrected_words = [str(TextBlob(word).correct()) for word in text.split()]
+    corrected = " ".join(corrected_words)
+    print(f"📄 Original: {text} → Corrected: {corrected}")
+    return corrected
 
 def is_rejection_response(text: str) -> bool:
     text = text.lower()
@@ -122,21 +129,41 @@ def is_personal_question(question: str) -> bool:
     ]
     return any(word in question.lower() for word in personal_keywords)
 
-def is_hr_query(question: str, use_fuzzy=True) -> bool:
+# def is_hr_query(question: str, use_fuzzy=True) -> bool:
+#     keywords = [
+#         "leave", "policy", "hr", "human resource", "benefits", "meeting", "procedure",
+#         "onboarding", "offboarding", "sop", "salary", "promotion", "resignation",
+#         "complaint", "roles", "pantry", "email etiquette", "company policy", "form",
+#         "employee", "attendance", "audit", "feedback", "payroll", "document", "workflow",
+#         "cover page", "quality manual", "quality procedure", "controlled copy", "uncontrolled copy"
+#     ]
+#     question = question.lower()
+#     for kw in keywords:
+#         if kw in question:
+#             return True
+#         if use_fuzzy and fuzz.partial_ratio(kw, question) >= 80:
+#             return True
+#     return False
+
+def is_hr_query(question: str, threshold: int = 60) -> bool:
     keywords = [
-        "leave", "policy", "hr", "human resource", "benefits", "meeting", "procedure",
-        "onboarding", "offboarding", "sop", "salary", "promotion", "resignation",
-        "complaint", "roles", "pantry", "email etiquette", "company policy", "form",
-        "employee", "attendance", "audit", "feedback", "payroll", "document", "workflow",
-        "cover page", "quality manual", "quality procedure", "controlled copy", "uncontrolled copy"
+        "leave", "pantry", "benefit", "policy", "claim", "resign",
+        "probation", "bonus", "medical", "organisation", "birthday",
+        "working hours", "appraisal", "termination", "staff"
     ]
-    question = question.lower()
-    for kw in keywords:
-        if kw in question:
-            return True
-        if use_fuzzy and fuzz.partial_ratio(kw, question) >= 80:
-            return True
-    return False
+    question = question.lower().strip()
+    
+    # Use both partial_ratio and token_sort_ratio
+    best_score = max(
+        max(
+            fuzz.partial_ratio(kw, question),
+            fuzz.token_sort_ratio(kw, question)
+        )
+        for kw in keywords
+    )
+    
+    print(f"🔍 Best HR keyword fuzzy match score: {best_score}")
+    return best_score >= threshold
 
 def is_org_chart_question(question: str) -> bool:
     keywords = [
@@ -286,6 +313,8 @@ def get_user_role_and_country(user_id):
 @app.post("/chat")
 def chat(question: Question):
     print("❓ User Question:", question.question)
+    original_question = question.question
+    question.question = correct_spelling(original_question)
 
     # Special case for organization chart question
     if is_org_chart_question(question.question):
@@ -347,7 +376,14 @@ def chat(question: Question):
         pass  # Let it proceed to vectorstore and fallback handling
 
     # ❌ Block unrelated non-HR queries
-    elif not is_hr_query(question.question) and not is_hr_question_via_llm(question.question):
+    # HR intent check (outside try)
+    # ❌ Block unrelated non-HR queries
+    print("📌 Calling is_hr_query() and is_hr_question_via_llm()...")
+    is_hr_like = is_hr_query(question.question)
+    is_llm_hr = is_hr_question_via_llm(question.question)
+
+    # Reject unrelated queries early
+    if not is_hr_like and not is_llm_hr:
         return {
             "answer": (
                 "I'm sorry, I can only assist with Verztec's HR-related questions. "
@@ -357,13 +393,12 @@ def chat(question: Question):
             "reference_file": None
         }
 
+    # Continue with document retrieval and answering
     try:
-        is_hr_like = is_hr_query(question.question)
-        is_llm_hr = is_hr_question_via_llm(question.question)
-
         docs_and_scores = []
         if is_hr_like or is_llm_hr:
             docs_and_scores = vectorstore.similarity_search_with_score(question.question, k=3)
+
 
 ##################################🔐 START - RBAC (Charmaine)##################################
             
