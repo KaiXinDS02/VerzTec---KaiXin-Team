@@ -19,21 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (is_array($target_audience)) {
         $selected = $target_audience;
-        sort($selected); // Sort to match expected array order for comparison
+        sort($selected);
 
-        if ($selected === ['admins', 'managers', 'users']) {
-            $audience_str = 'all';
-        } else {
-            $audience_str = implode(',', $selected);
-        }
-
-        $roles_to_email = $target_audience; // Original input untouched
+        $audience_str = ($selected === ['admins', 'managers', 'users']) ? 'all' : implode(',', $selected);
+        $roles_to_email = $target_audience;
     } else {
-        // Single selection fallback
         $audience_str = $target_audience;
         $roles_to_email = [$target_audience];
     }
-
 
     $priority = $_POST['priority'] ?? '';
 
@@ -41,127 +34,106 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Database connection error.';
     } else {
         if ($action === 'add') {
-
             $stmt = $conn->prepare("INSERT INTO announcements (title, context, target_audience, priority) VALUES (?, ?, ?, ?)");
             $stmt->bind_param("ssss", $title, $content, $audience_str, $priority);
-        } else if ($action === 'edit' && $id > 0) {
+        } elseif ($action === 'edit' && $id > 0) {
             $stmt = $conn->prepare("UPDATE announcements SET title=?, context=?, target_audience=?, priority=? WHERE id=?");
             $stmt->bind_param("ssssi", $title, $content, $audience_str, $priority, $id);
-        } else if ($action === 'delete' && $id > 0) {
+        } elseif ($action === 'delete' && $id > 0) {
             $stmt = $conn->prepare("DELETE FROM announcements WHERE id=?");
             $stmt->bind_param("i", $id);
         } else {
             $error = 'Invalid action or missing ID.';
         }
 
-        if (isset($stmt)) {
-            if ($stmt->execute()) {
-                if ($action === 'add') {
-                    // Map frontend audience labels to DB roles
-                    $role_map = [
-                        'users' => 'USER',
-                        'managers' => 'MANAGER',
-                        'admins' => 'ADMIN',
-                    ];
-                    $roles_to_email = [];
+        if (isset($stmt) && $stmt->execute()) {
+            if ($action === 'add') {
+                // Priority badge color
+                $priority_color = [
+                    'High' => '#d9534f',
+                    'Medium' => '#f0ad4e',
+                    'Low' => '#5bc0de'
+                ];
+                $priority_badge_color = $priority_color[$priority] ?? '#6c757d';
 
-                    if (strtolower($audience_str) === 'all') {
-                        $roles_to_email = ['USER', 'MANAGER', 'ADMIN'];
-                    } else {
-                        $selected_roles = explode(',', $audience_str);
-                        foreach ($selected_roles as $r) {
-                            $mapped = $role_map[strtolower($r)] ?? null;
-                            if ($mapped) {
-                                $roles_to_email[] = $mapped;
-                            }
-                        }
-                    }
+                // Email HTML content
+                $logo_url = "https://www.giving.sg/res/GetEntityGroupImage/77c5ee27-4e90-4615-ae1e-f1d28822d75b.jpg";
+                $bodyContent = "
+                    <div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 8px;'>
+                        <div style='text-align: center; margin-bottom: 20px;'>
+                            <img src='$logo_url' alt='Logo' style='max-height: 60px;'>
+                        </div>
+                        <h2 style='color: #333;'>📢 " . htmlspecialchars($title) . "</h2>
+                        <p style='color: #555;'>" . nl2br(htmlspecialchars($content)) . "</p>
+                        <p><strong>Target Audience:</strong> " . htmlspecialchars($audience_str) . "</p>
+                        <p>
+                            <strong>Priority:</strong>
+                            <span style='padding: 4px 10px; background-color: $priority_badge_color; color: white; border-radius: 5px;'>
+                                " . htmlspecialchars($priority) . "
+                            </span>
+                        </p>
+                        <p style='margin-top: 40px; font-size: 12px; color: #999;'>This email was sent by the Announcement System Bot.</p>
+                    </div>
+                ";
 
+                // Map to DB role values
+                $role_map = [
+                    'users' => 'USER',
+                    'managers' => 'MANAGER',
+                    'admins' => 'ADMIN',
+                ];
 
-                    foreach ($roles_to_email as $role) {
-                        $getEmails = $conn->prepare("SELECT username, email FROM users WHERE role = ?");
-                        $getEmails->bind_param("s", $role);
-                        $getEmails->execute();
-                        $result = $getEmails->get_result();
-                
-
-                        if ($result->num_rows === 0) {
-                            error_log("No users found with role {$role} for announcement emails.");
-                        } else {
-                            // Setup PHPMailer once
-                            $mail = new PHPMailer(true);
-                            try {
-                                $mail->isSMTP();
-                                $mail->Host = 'smtp.gmail.com';
-                                $mail->SMTPAuth = true;
-                                $mail->Username = 'spamacc2306@gmail.com';  // Your email
-                                $mail->Password = 'lfvc kyov oife mwze';   // App password #zxsg iiwd jwic xveb
-                                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // 'tls'
-                                $mail->Port = 587;
-
-                                $mail->setFrom('spamacc2306@gmail.com', 'Announcement Bot');
-                                $mail->isHTML(true);
-                                $mail->Subject = "New Announcement: " . htmlspecialchars($title, ENT_QUOTES | ENT_SUBSTITUTE);
-
-                                // Define color based on priority
-                                $priority_color = [
-                                    'High' => '#d9534f',    // red
-                                    'Medium' => '#f0ad4e',  // yellow
-                                    'Low' => '#5bc0de'  // green
-                                ];
-                                $priority_badge_color = $priority_color[$priority] ?? '#6c757d'; // Default gray
-
-                                // Logo (optional) - adjust path if needed
-                                $logo_url = "https://www.giving.sg/res/GetEntityGroupImage/77c5ee27-4e90-4615-ae1e-f1d28822d75b.jpg"; // Or skip this line if you don’t have one
-
-                                // Email body
-                                $bodyContent = "
-                                    <div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 8px;'>
-                                        <div style='text-align: center; margin-bottom: 20px;'>
-                                            <img src='$logo_url' alt='Logo' style='max-height: 60px;'>
-                                        </div>
-                                        <h2 style='color: #333;'>📢 " . htmlspecialchars($title, ENT_QUOTES | ENT_SUBSTITUTE) . "</h2>
-                                        <p style='color: #555;'>" . nl2br(htmlspecialchars($content, ENT_QUOTES | ENT_SUBSTITUTE)) . "</p>
-                                        <p><strong>Target Audience:</strong> " . htmlspecialchars($audience_str, ENT_QUOTES | ENT_SUBSTITUTE) . "</p>
-                                        <p>
-                                            <strong>Priority:</strong> 
-                                            <span style='display: inline-block; padding: 4px 10px; background-color: $priority_badge_color; color: white; border-radius: 5px;'>
-                                                " . htmlspecialchars($priority, ENT_QUOTES | ENT_SUBSTITUTE) . "
-                                            </span>
-                                        </p>
-                                        <div style='margin-top: 30px; text-align: center;'>
-                                            <a href='http://localhost:8080/home.php' style='background-color: #0d6efd; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;'>
-                                                View All Announcements
-                                            </a>
-                                        </div>
-                                        <p style='margin-top: 40px; font-size: 12px; color: #999;'>This email was sent by the Announcement System Bot.</p>
-                                    </div>
-                                ";
-
-                                while ($row = $result->fetch_assoc()) {
-                                    $mail->clearAddresses();
-                                    $mail->addAddress($row['email'], $row['username']);
-                                    $mail->Body = $bodyContent;
-
-                                    $mail->send();
-                                }
-                            } catch (Exception $e) {
-                                error_log("Email sending failed: " . $mail->ErrorInfo);
-                            }
-                        }
-
-                        $getEmails->close();
+                $roles = [];
+                if (strtolower($audience_str) === 'all') {
+                    $roles = ['USER', 'MANAGER', 'ADMIN'];
+                } else {
+                    foreach (explode(',', $audience_str) as $r) {
+                        $mapped = $role_map[strtolower(trim($r))] ?? null;
+                        if ($mapped) $roles[] = $mapped;
                     }
                 }
-                $message = "Action '$action' successful.";
-            } else {
-                $error = 'Database operation failed: ' . $stmt->error;
-            }
-            $stmt->close();
-        }
-    }
-} 
 
+                foreach ($roles as $role) {
+                    $getEmails = $conn->prepare("SELECT username, email FROM users WHERE role = ?");
+                    $getEmails->bind_param("s", $role);
+                    $getEmails->execute();
+                    $result = $getEmails->get_result();
+
+                    while ($row = $result->fetch_assoc()) {
+                        $mail = new PHPMailer(true);
+                        try {
+                            $mail->isSMTP();
+                            $mail->Host = 'smtp.gmail.com';
+                            $mail->SMTPAuth = true;
+                            $mail->Username = 'spamacc2306@gmail.com';
+                            $mail->Password = 'lfvc kyov oife mwze'; // App password
+                            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                            $mail->Port = 587;
+
+                            $mail->setFrom('spamacc2306@gmail.com', 'Announcement Bot');
+                            $mail->addAddress($row['email'], $row['username']);
+                            $mail->isHTML(true);
+                            $mail->Subject = "New Announcement: " . $title;
+                            $mail->Body = $bodyContent;
+
+                            $mail->send();
+                        } catch (Exception $e) {
+                            error_log("Failed to send email to {$row['email']}: " . $mail->ErrorInfo);
+                        }
+                    }
+
+                    $getEmails->close();
+                }
+            }
+
+            $message = "Action '$action' successful.";
+        } else {
+            $error = 'Database operation failed: ' . $stmt->error;
+        }
+
+        if (isset($stmt)) $stmt->close();
+    }
+}
 
 // Fetch announcements to display
 $sql = "SELECT id, title, context, priority, target_audience, timestamp FROM announcements ORDER BY timestamp DESC";
