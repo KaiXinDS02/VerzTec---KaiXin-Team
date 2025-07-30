@@ -6084,7 +6084,8 @@ document.addEventListener('DOMContentLoaded', function() {
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/scripts.js"></script>
 
-<!-- Sidebar for History -->
+
+<!-- Conversation Sidebar (replaces old chat history sidebar) -->
 <div id="chat-history-sidebar" style="
   position: fixed;
   top: 0;
@@ -6094,78 +6095,110 @@ document.addEventListener('DOMContentLoaded', function() {
   background: #fff;
   box-shadow: -4px 0 12px rgba(0,0,0,0.2);
   z-index: 999;
-  padding: 20px;
+  padding: 0;
   overflow-y: auto;
   transition: right 0.3s ease;
+  display: flex;
+  flex-direction: column;
 ">
-  <button onclick="document.getElementById('chat-history-sidebar').style.right='-350px'" style="
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #000;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    font-size: 14px;
-    border-radius: 4px;
-  ">X</button>
-  <h5>Chat History</h5>
-  <div id="chat-history-list">
-    <p>Loading...</p>
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 24px 8px 24px;">
+    <h5 style="margin: 0; font-weight: bold;">Conversations</h5>
+    <button id="close-sidebar-btn" class="btn btn-sm btn-outline-secondary" style="border-radius: 4px;" onclick="toggleSidebar()">X</button>
+  </div>
+  <div id="conversation-list" style="flex: 1 1 auto; overflow-y: auto; padding: 0 24px 0 24px;"></div>
+  <div style="padding: 16px 24px 16px 24px; border-top: 1px solid #eee;">
+    <button id="new-conversation-btn" class="btn btn-primary w-100">+ New Conversation</button>
   </div>
 </div>
 
+
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const historySidebar = document.getElementById('chat-history-sidebar');
-    const historyList = document.getElementById('chat-history-list');
-    const historyButton = document.getElementById('history-button');
-
-    if (historyButton) {
-      historyButton.addEventListener('click', () => {
-        if (historySidebar.style.right === '0px') {
-          historySidebar.style.right = '-350px';
-        } else {
-          historySidebar.style.right = '0px';
-          fetchChatHistory();
-        }
-      });
-    }
-
-    function fetchChatHistory() {
-      fetch('fetch_chat_history.php')
-        .then(response => response.json())
-        .then(data => {
-          if (data.error) {
-            historyList.innerHTML = `<p>${data.error}</p>`;
-            return;
-          }
-
-          if (data.length === 0) {
-            historyList.innerHTML = '<p>No chat history yet.</p>';
-            return;
-          }
-
-          historyList.innerHTML = '';
-          data.forEach(entry => {
-            const item = document.createElement('div');
-            item.style.marginBottom = '15px';
-            item.innerHTML = `
-              <strong>You:</strong> ${entry.question}<br>
-              <strong>Bot:</strong> ${entry.answer}<br>
-              <small>${new Date(entry.timestamp).toLocaleString()}</small>
-              <hr>
-            `;
-            historyList.appendChild(item);
-          });
-        })
-        .catch(err => {
-          console.error('Error fetching chat history:', err);
-          historyList.innerHTML = '<p>Error loading history.</p>';
-        });
-    }
+// Sidebar toggle logic
+function toggleSidebar(forceState) {
+  const sidebar = document.getElementById('chat-history-sidebar');
+  if (!sidebar) return;
+  if (forceState === 'open') {
+    sidebar.style.right = '0';
+  } else if (forceState === 'close') {
+    sidebar.style.right = '-350px';
+  } else {
+    sidebar.style.right = (sidebar.style.right === '0px' || sidebar.style.right === '0') ? '-350px' : '0';
+  }
+}
+// History button toggles sidebar
+document.addEventListener('DOMContentLoaded', function() {
+  const historyBtn = document.getElementById('history-button');
+  if (historyBtn) {
+    historyBtn.onclick = function() { toggleSidebar('open'); };
+  }
+  // Also allow ESC to close sidebar
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') toggleSidebar('close');
   });
+});
+
+// Conversation sidebar logic
+let conversations = [];
+let activeConversationId = null;
+
+async function fetchConversations() {
+  // Replace with your backend endpoint
+  const res = await fetch('fetch_conversations.php');
+  conversations = await res.json();
+  renderConversationList();
+}
+
+function renderConversationList() {
+  const list = document.getElementById('conversation-list');
+  if (!list) return;
+  list.innerHTML = '';
+  if (conversations.length === 0) {
+    list.innerHTML = '<div style="color:#888; text-align:center; margin-top:32px;">No conversations yet.</div>';
+    return;
+  }
+  conversations.forEach(conv => {
+    const div = document.createElement('div');
+    div.className = 'conversation-item' + (conv.id === activeConversationId ? ' active' : '');
+    div.style = 'padding: 10px 0; border-bottom: 1px solid #eee; cursor:pointer;';
+    div.textContent = conv.title || 'Untitled Conversation';
+    div.onclick = () => selectConversation(conv.id);
+    list.appendChild(div);
+  });
+}
+
+async function selectConversation(conversationId) {
+  activeConversationId = conversationId;
+  renderConversationList();
+  // Load messages for this conversation
+  const res = await fetch('fetch_chat_history.php?conversation_id=' + encodeURIComponent(conversationId));
+  const messages = await res.json();
+  renderChatMessages(messages);
+}
+
+async function createNewConversation() {
+  const res = await fetch('create_conversation.php', { method: 'POST' });
+  const newConv = await res.json();
+  conversations.unshift(newConv);
+  activeConversationId = newConv.id;
+  renderConversationList();
+  renderChatMessages([]);
+}
+
+function renderChatMessages(messages) {
+  const chatContainer = document.getElementById('chat-container');
+  if (!chatContainer) return;
+  chatContainer.innerHTML = '';
+  messages.forEach(msg => {
+    addMessageToChat(msg.text, msg.sender);
+  });
+}
+
+// Attach event listeners
+document.addEventListener('DOMContentLoaded', function() {
+  fetchConversations();
+  const newConvBtn = document.getElementById('new-conversation-btn');
+  if (newConvBtn) newConvBtn.onclick = createNewConversation;
+});
 </script>
 
 <style>
