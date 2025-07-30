@@ -324,15 +324,68 @@ $conn->close();
     #announcementTable td:nth-child(1) {
       max-width: 150px; /* limit width for title */
     }
-    .small-alert {
-      max-width: 500px;
-      margin: 10px auto;
-      font-size: 0.9rem;
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      text-align: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+   .small-alert {
+        max-width: 500px;
+        margin: 10px auto;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+        display: flex;
+        align-items: center; /* Keep this to align the message content and button for general centering */
+        text-align: center;
+        line-height: 1.3; /* Keep this line-height consistent */
+
+        position: relative;
+        /* Removed padding-right here as it's better on the content div */
     }
+
+    .small-alert .btn-close {
+        font-size: 0.8rem;
+        padding: 0;
+        box-shadow: none;
+        opacity: 0.7;
+
+        position: absolute;
+        right: 10px; /* Distance from the right edge */
+        top: 10px; /* Start from a small distance from the top */
+        transform: translateY(0); /* Remove the vertical centering transform */
+    }
+
+    .small-alert .btn-close:hover {
+        opacity: 1;
+    }
+
+    .small-alert > div {
+        flex-grow: 1;
+        text-align: center;
+        padding-right: 30px; /* Ensure space for the button */
+    }
+    #add-target-audience-btn::after,
+    #edit-target-audience-btn::after {
+      display: none; /* Remove the small dropdown arrow */
+    }
+    /* Make dropdown menu full width and bigger text */
+    .dropdown-menu.p-3 {
+      width: 100% !important;
+      max-width: none !important;
+      min-width: 100%;
+      font-size: 1.1rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    /* Increase checkbox label font size */
+    .form-check-label {
+      font-size: 1.1rem;
+    }
+
+    /* Make dropdown container full width */
+    .dropdown.mb-3 {
+      width: 100%;
+    }
+
 
   </style>
 </head>
@@ -492,36 +545,50 @@ $conn->close();
 
 
           <div class="modal-body">
+            <div id="add-modal-message" class="mb-3"></div> 
             <label for="add-title" class="form-label">Title</label>
             <input type="text" class="form-control mb-3" id="add-title" name="title" required />
             <label for="add-content" class="form-label">Message</label>
             <textarea class="form-control mb-3" id="add-content" name="content" rows="4" required></textarea>
             <label for="add-priority" class="form-label">Priority</label>
             <select class="form-select mb-3" id="add-priority" name="priority" required>
-              <option value="Low">Low</option>
-              <option value="Medium" selected>Medium</option>
-              <option value="High">High</option>
-            </select>
-            <label for="add-target-audience" class="form-label">Target Audience</label>
-            <!-- Hidden input to store final value -->
+            <option value="">Select Priority</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+
+            <label for="add-target-audience-btn" class="form-label">Target Audience</label>
+
+            <div class="dropdown mb-3">
+              <button
+                class="form-select dropdown-toggle text-start"  
+                type="button"
+                id="add-target-audience-btn"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                aria-haspopup="true"
+              >
+                Select Target Audience
+              </button>
+              <div class="dropdown-menu p-3" aria-labelledby="add-target-audience-btn" style="max-width: 250px;">
+                <div id="add-target-audience-group" class="form-check">
+                  <input type="checkbox" class="form-check-input target-checkbox" id="add-users" value="Users" />
+                  <label class="form-check-label" for="add-users">Users</label><br>
+
+                  <input type="checkbox" class="form-check-input target-checkbox" id="add-managers" value="Managers" />
+                  <label class="form-check-label" for="add-managers">Managers</label><br>
+
+                  <input type="checkbox" class="form-check-input target-checkbox" id="add-admins" value="Admins" />
+                  <label class="form-check-label" for="add-admins">Admins</label>
+                </div>
+              </div>
+            </div>
+
             <input type="hidden" name="target_audience" id="add-target-audience-hidden" value="">
 
-            <!-- Visible checkboxes -->
-            <div id="add-target-audience-group" class="form-check">
-              <label class="form-check-label">
-                <input type="checkbox" class="form-check-input target-checkbox" value="Users"> Users
-              </label><br>
-              <label class="form-check-label">
-                <input type="checkbox" class="form-check-input target-checkbox" value="Managers"> Managers
-              </label><br>
-              <label class="form-check-label">
-                <input type="checkbox" class="form-check-input target-checkbox" value="Admins"> Admins
-              </label>
             </div>
-            <!-- Alert Popups -->
-          <div id="form-alert" class="alert alert-danger d-none small-alert" role="alert"></div>
-          <div id="form-success" class="alert alert-success d-none small-alert" role="alert"></div>
-          </div>
+
           <div class="modal-footer">
             <button type="submit" class="btn btn-dark">Add</button>
           </div>
@@ -552,30 +619,42 @@ $conn->close();
               <option value="Medium">Medium</option>
               <option value="High">High</option>
             </select>
-            <label for="edit-target-audience" class="form-label">Target Audience</label>
-            <!-- Hidden input to store final value -->
-            <input type="hidden" name="target_audience" id="add-target-audience-hidden" value="">
 
-            <!-- Visible checkboxes -->
-            <div id="add-target-audience-group" class="form-check">
-              <label class="form-check-label">
-                <input type="checkbox" class="form-check-input target-checkbox" value="Users"> Users
-              </label><br>
-              <label class="form-check-label">
-                <input type="checkbox" class="form-check-input target-checkbox" value="Managers"> Managers
-              </label><br>
-              <label class="form-check-label">
-                <input type="checkbox" class="form-check-input target-checkbox" value="Admins"> Admins
-              </label>
+             <label class="form-label">Target Audience</label>
+              <div class="dropdown mb-3">
+                <button
+                  class="form-select dropdown-toggle text-start"
+                  type="button"
+                  id="edit-target-audience-btn"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                >
+                  Select Target Audience
+                </button>
+                <div class="dropdown-menu p-3" aria-labelledby="edit-target-audience-btn" style="max-width: 250px;">
+                  <div id="edit-target-audience-group" class="form-check">
+                    <input type="checkbox" class="form-check-input target-checkbox" id="edit-users" value="Users" />
+                    <label class="form-check-label" for="edit-users">Users</label><br />
+
+                    <input type="checkbox" class="form-check-input target-checkbox" id="edit-managers" value="Managers" />
+                    <label class="form-check-label" for="edit-managers">Managers</label><br />
+
+                    <input type="checkbox" class="form-check-input target-checkbox" id="edit-admins" value="Admins" />
+                    <label class="form-check-label" for="edit-admins">Admins</label>
+                  </div>
+                </div>
+              </div>
+
+              <input type="hidden" name="target_audience" id="edit-target-audience-hidden" value="">
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-dark">Save</button>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-dark">Save</button>
-          </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
-  </div>
 
   <!-- DELETE MODAL -->
   <div class="modal fade" id="deleteAnnouncementModal" tabindex="-1" aria-labelledby="deleteAnnouncementModalLabel" aria-hidden="true">
@@ -661,169 +740,187 @@ $conn->close();
 
 
   <script>
+    // --- Helper Functions ---
+    // Synchronizes the state of audience checkboxes with a hidden input and dropdown button text.
+    function setupAudienceCheckboxSync(groupId, hiddenId, dropdownBtnId) {
+        const checkboxes = document.querySelectorAll(`#${groupId} .target-checkbox`);
+        const hiddenInput = document.getElementById(hiddenId);
+        const dropdownBtn = document.getElementById(dropdownBtnId);
 
-    function setupAudienceCheckboxSync(groupId, hiddenId) {
-      const checkboxes = document.querySelectorAll(`#${groupId} .target-checkbox`);
-      const hiddenInput = document.getElementById(hiddenId);
+        function updateAudience() {
+            const selected = Array.from(checkboxes)
+                .filter(c => c.checked)
+                .map(c => c.value);
 
-      checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', () => {
-          const selected = Array.from(checkboxes)
-            .filter(c => c.checked)
-            .map(c => c.value);
+            if (selected.length === checkboxes.length) {
+                hiddenInput.value = 'all';
+                dropdownBtn.textContent = 'All';
+            } else if (selected.length === 0) {
+                hiddenInput.value = '';
+                dropdownBtn.textContent = 'Select Target Audience';
+            } else {
+                hiddenInput.value = selected.join(',');
+                dropdownBtn.textContent = selected.join(', ');
+            }
+        }
 
-          if (selected.length === 3) {
-            hiddenInput.value = 'All';
-          } else {
-            hiddenInput.value = selected.join(', ');
-          }
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateAudience);
         });
-      });
+
+        return updateAudience;
     }
 
-    // Initialize both modals
-    document.addEventListener('DOMContentLoaded', () => {
-      setupAudienceCheckboxSync('add-target-audience-group', 'add-target-audience-hidden');
-      setupAudienceCheckboxSync('edit-target-audience-group', 'edit-target-audience-hidden');
-    });
+    // Displays an alert message within a specified container.
+    function displayModalAlert(containerId, message, type) {
+        $(`#${containerId}`).empty();
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show small-alert" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+        $(`#${containerId}`).html(alertHtml);
+    }
 
+    // --- Global Variables ---
+    let updateAddAudience;
+    let updateEditAudience;
+
+    // --- Event Listeners and Initializations ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialize audience checkbox synchronization for add and edit modals.
+        updateAddAudience = setupAudienceCheckboxSync('add-target-audience-group', 'add-target-audience-hidden', 'add-target-audience-btn');
+        updateEditAudience = setupAudienceCheckboxSync('edit-target-audience-group', 'edit-target-audience-hidden', 'edit-target-audience-btn');
+
+        // Initial call to set the display for the add audience dropdown.
+        updateAddAudience();
+
+        // Load saved theme on page load.
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+        console.log('Loaded theme:', savedTheme);
+    });
 
     $(document).ready(function () {
-      const table = $('#announcementTable').DataTable({
-        paging: false,
-        dom: "rt",
-      });
+        // Initialize DataTables for the announcement table.
+        const table = $('#announcementTable').DataTable({
+            paging: false,
+            dom: "rt",
+        });
 
-      $('#tableSearch').on('input', function () {
-        table.search(this.value).draw();
-      });
+        // Search functionality for the DataTables.
+        $('#tableSearch').on('input', function () {
+            table.search(this.value).draw();
+        });
 
-      // Show Add modal
-      $('#add-ann-btn').on('click', function () {
-        $('#addAnnouncementForm')[0].reset();
-        $('#addAnnouncementModal').modal('show');
-      });
+        // --- Add Announcement Modal Logic ---
+        $('#add-ann-btn').on('click', function () {
+            $('#addAnnouncementForm')[0].reset(); // Reset form fields
+            $('#add-modal-message').empty(); // Clear any previous alert messages
+            $('#add-target-audience-group input.target-checkbox').prop('checked', false); // Uncheck all audience checkboxes
+            updateAddAudience(); // Update the audience dropdown text
+            $('#add-priority').val(''); // Reset priority selection
 
-      // Fill Edit modal
-      $('#announcementTable').on('click', '.edit-announcement', function () {
-        const tr = $(this).closest('tr');
-        $('#edit-id').val(tr.data('id'));
-        $('#edit-title').val(tr.data('title'));
-        $('#edit-content').val(tr.data('content'));
-        $('#edit-priority').val(tr.data('priority'));
-        const audienceStr = tr.data('target_audience');
-        const audienceArr = audienceStr === 'all' 
-          ? ['users', 'managers', 'admins']
-          : audienceStr.split(',');
-        $('#edit-target-audience').val(audienceArr);
-        $('#editAnnouncementModal').modal('show');
-      });
+            $('#addAnnouncementModal').modal('show');
+        });
 
-      // Fill Delete modal
-      $('#announcementTable').on('click', '.delete-announcement', function () {
-        const tr = $(this).closest('tr');
-        $('#delete-id').val(tr.data('id'));
-        $('#delete-title').text(tr.data('title'));
-        $('#deleteAnnouncementModal').modal('show');
-      });
+        // Handle form submission for Add Announcement Modal with client-side validation.
+        $('#addAnnouncementForm').on('submit', function (event) {
+            $('#add-modal-message').empty(); // Clear previous messages on submit attempt
+
+            const title = $('#add-title').val().trim();
+            const content = $('#add-content').val().trim();
+            const priority = $('#add-priority').val();
+            const targetAudience = $('#add-target-audience-hidden').val();
+
+            let errorMessage = '';
+
+            if (!title) {
+                errorMessage += 'Title is required.<br>';
+            }
+            if (!content) {
+                errorMessage += 'Message is required.<br>';
+            }
+            if (!priority) {
+                errorMessage += 'Priority is required.<br>';
+            }
+            if (!targetAudience) {
+                errorMessage += 'Target Audience is required.<br>';
+            }
+
+            if (errorMessage) {
+                event.preventDefault(); // Prevent form submission
+                displayModalAlert('add-modal-message', errorMessage, 'danger'); // Display red error within the modal
+            }
+            // If no errors, the form will submit normally.
+        });
+
+        // --- Edit Announcement Modal Logic ---
+        $('#announcementTable').on('click', '.edit-announcement', function () {
+            const tr = $(this).closest('tr');
+            $('#edit-id').val(tr.data('id'));
+            $('#edit-title').val(tr.data('title'));
+            $('#edit-content').val(tr.data('content'));
+            $('#edit-priority').val(tr.data('priority'));
+
+            const audienceStr = tr.data('target_audience');
+            let audienceArr = [];
+
+            if (audienceStr.toLowerCase() === 'all') {
+                audienceArr = ['Users', 'Managers', 'Admins'];
+            } else {
+                audienceArr = audienceStr.split(',').map(s => s.trim().charAt(0).toUpperCase() + s.trim().slice(1));
+            }
+
+            // Uncheck all audience checkboxes before setting based on data
+            $('#edit-target-audience-group input.target-checkbox').prop('checked', false);
+
+            audienceArr.forEach(val => {
+                $(`#edit-target-audience-group input.target-checkbox[value="${val}"]`).prop('checked', true);
+            });
+
+            updateEditAudience(); // Update the edit audience dropdown text
+
+            $('#editAnnouncementModal').modal('show');
+        });
+
+        // --- Delete Announcement Modal Logic ---
+        $('#announcementTable').on('click', '.delete-announcement', function () {
+            const tr = $(this).closest('tr');
+            $('#delete-id').val(tr.data('id'));
+            $('#delete-title').text(tr.data('title'));
+            $('#deleteAnnouncementModal').modal('show');
+        });
     });
 
-    // Theme toggle functionality
+    // --- Theme Toggle Functionality ---
     function toggleTheme() {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      
-      document.documentElement.setAttribute('data-theme', newTheme);
-      
-      // Save theme preference to localStorage
-      localStorage.setItem('theme', newTheme);
-      
-      // Update theme icon
-      updateThemeIcon(newTheme);
-      
-      console.log('Theme switched to:', newTheme);
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme); // Save theme preference
+        updateThemeIcon(newTheme); // Update theme icon
+        console.log('Theme switched to:', newTheme);
     }
 
     function updateThemeIcon(theme) {
-      const themeIcon = document.querySelector('a[onclick="toggleTheme()"] i');
-      if (themeIcon) {
-        if (theme === 'dark') {
-          themeIcon.className = 'fa-regular fa-sun';
-        } else {
-          themeIcon.className = 'fa-regular fa-moon';
+        const themeIcon = document.querySelector('a[onclick="toggleTheme()"] i');
+        if (themeIcon) {
+            if (theme === 'dark') {
+                themeIcon.className = 'fa-regular fa-sun';
+            } else {
+                themeIcon.className = 'fa-regular fa-moon';
+            }
         }
-      }
     }
 
-    // Load saved theme on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      const savedTheme = localStorage.getItem('theme') || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      updateThemeIcon(savedTheme);
-      console.log('Loaded theme:', savedTheme);
-    });
-
-   
-    
-    //  Form validation Before Add Announcement
-    document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('addAnnouncementForm');
-    const titleInput = document.getElementById('add-title');
-    const contentInput = document.getElementById('add-content');
-    const prioritySelect = document.getElementById('add-priority');
-    const targetCheckboxes = document.querySelectorAll('#add-target-audience-group .target-checkbox');
-    
-    const alertBox = document.getElementById('form-alert');
-    const successBox = document.getElementById('form-success');
-
-    form.addEventListener('submit', (event) => {
-      let isValid = true;
-      let errorMessages = [];
-
-      // Reset alerts
-      alertBox.classList.add('d-none');
-      successBox.classList.add('d-none');
-
-      if (!titleInput.value.trim()) {
-        isValid = false;
-        errorMessages.push('Title is required.');
-      }
-
-      if (!contentInput.value.trim()) {
-        isValid = false;
-        errorMessages.push('Message is required.');
-      }
-
-      if (!prioritySelect.value.trim()) {
-        isValid = false;
-        errorMessages.push('Priority must be selected.');
-      }
-
-      const checkedCount = Array.from(targetCheckboxes).filter(c => c.checked).length;
-      if (checkedCount === 0) {
-        isValid = false;
-        errorMessages.push('At least one target audience must be selected.');
-      }
-
-      if (!isValid) {
-        event.preventDefault();
-        alertBox.innerHTML = errorMessages.map(msg => `<div>${msg}</div>`).join('');
-        alertBox.classList.remove('d-none');
-      } else {
-        // Optionally show success before submission (or after submission completes with AJAX)
-        // event.preventDefault(); // uncomment if you're using AJAX
-        successBox.textContent = 'Announcement submitted successfully!';
-        successBox.classList.remove('d-none');
-      }
-    });
-  });
-
-
-    
-  </script>
-
+</script>
   <!-- Session Timeout -->
   <script src="js/inactivity.js"></script>
 </body>
 
 </html>
+
