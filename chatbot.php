@@ -2536,7 +2536,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
           },
           body: JSON.stringify({
             text: "Test",
-            model_id: "eleven_monolingual_v1",
+            model_id: "eleven_turbo_v2_5",
             voice_settings: {
               stability: 0.5,
               similarity_boost: 0.75
@@ -4355,9 +4355,46 @@ $user_id = $_SESSION['user_id'] ?? 1;
         
         // Speak the response if voice is enabled and avatar is ready
         if (isVoiceEnabled && isAvatarEnabled && avatarManager && avatarManager.isInitialized) {
+            // Debug: Log the language code used for TTS after translation
+            console.log('[DEBUG] userOriginalLanguage (from translation):', userOriginalLanguage);
+            // Map Google Translate codes to TTS codes if needed
+            // Google Translate returns 'zh-CN' for Simplified Chinese, 'zh-TW' for Traditional
+            // We'll map both to 'zh' for voice selection, but pass the full code to TTS
+            let ttsLangCode = userOriginalLanguage || 'en';
+            let langKey = 'en';
+            if (ttsLangCode.toLowerCase().startsWith('zh')) langKey = 'zh';
+            else if (ttsLangCode.toLowerCase().startsWith('ja')) langKey = 'ja';
+            else if (ttsLangCode.toLowerCase().startsWith('id')) langKey = 'id';
+            else if (ttsLangCode.toLowerCase().startsWith('hi')) langKey = 'hi';
+            else if (ttsLangCode.toLowerCase().startsWith('ta')) langKey = 'ta';
+            else langKey = (ttsLangCode || '').toLowerCase().slice(0,2);
+            console.log('[DEBUG] TTS langKey for voice map:', langKey, '| TTS langCode:', ttsLangCode);
           try {
+            // --- Language-based voice selection using detected language of bot response ---
+            // Make sure the voice IDs below are native for the language/accent (not just language name)
+            // Use the language code from the translation step (userOriginalLanguage) for TTS accent
+            // This ensures the TTS accent matches the language shown to the user
+            let langVoiceMap = {
+              'zh': { male: 'MI36FIkp9wRP7cpWKPTl', female: 'bhJUNIXWQQ94l8eI2VUf' }, // Chinese (zh, zh-CN, zh-TW)
+              'ja': { male: '3JDquces8E8bkmvbh6Bc', female: 'RBnMinrYKeccY3vaUxlZ' }, // Japanese (ja, ja-JP)
+              'id': { male: 'GrxM8OEUWBzyFR2xP2Qd', female: 'k5eTzx1VYYlp6BE39Qrj' }, // Indonesian (id, id-ID)
+              'hi': { male: '4BoDaQ6aygOP6fpsUmJe', female: 'broqrJkktxd1CclKTudW' }, // Hindi (hi, hi-IN)
+              'ta': { male: '4BoDaQ6aygOP6fpsUmJe', female: 'broqrJkktxd1CclKTudW' }  // Tamil (ta, ta-IN)
+            };
+            let voiceGender = (currentAvatarGender || 'female').toLowerCase();
+            let ttsVoiceId = currentVoiceId;
+            if (langVoiceMap[langKey]) {
+              let newVoiceId = langVoiceMap[langKey][voiceGender] || langVoiceMap[langKey]['female'];
+              ttsVoiceId = newVoiceId;
+              // Only update currentVoiceId if it is different and not a model name (should never be a model name)
+              if (currentVoiceId !== newVoiceId && !/^eleven_/.test(newVoiceId)) {
+                currentVoiceId = newVoiceId;
+                if (avatarManager.setVoice) avatarManager.setVoice(currentVoiceId);
+              }
+            }
+            // --- End language-based voice selection ---
+            // Always generate speech from the translated text (botAnswer)
             console.log('Starting synchronized speech with speed:', currentSpeed + 'x', 'for text:', botAnswer.substring(0, 50) + '...');
-            
             // Check for interruption before starting speech
             if (window.chatbotInterrupted) {
               console.log('🛑 Speech interrupted before starting');
@@ -4365,52 +4402,90 @@ $user_id = $_SESSION['user_id'] ?? 1;
               enableUserInput();
               return;
             }
-            
             // Variable to track if message box has been created
             let botMessageDiv = null;
-            
-            await avatarManager.speakWithTextStream(botAnswer, (streamedText) => {
-              // Only show the full text at once, no typewriter effect
-              if (window.chatbotInterrupted) {
-                console.log('🛑 Speech interrupted during streaming');
-                return;
-              }
-              if (streamedText === '' && !botMessageDiv) {
-                console.log('📝 Speech ready signal received, creating message box...');
-                hideThinking();
-                botMessageDiv = document.createElement('div');
-                botMessageDiv.className = 'bot-bubble';
-                botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${botAnswer}`;
-                const chatContainer = document.getElementById('chat-container');
-                chatContainer.appendChild(botMessageDiv);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-                updateAvatarStatus('Speaking...');
-                return;
-              }
-              // Do not update the message content letter by letter; just show the full text above
-            }, currentSpeed); // Pass speed to speakWithTextStream
-            
+            // Pass the correct voiceId and language code to the TTS function if supported
+            if (avatarManager.speakWithTextStream.length >= 5) {
+              // (text, callback, speed, voiceId, languageCode)
+              await avatarManager.speakWithTextStream(botAnswer, (streamedText) => {
+                if (window.chatbotInterrupted) {
+                  console.log('🛑 Speech interrupted during streaming');
+                  return;
+                }
+                if (streamedText === '' && !botMessageDiv) {
+                  console.log('📝 Speech ready signal received, creating message box...');
+                  hideThinking();
+                  botMessageDiv = document.createElement('div');
+                  botMessageDiv.className = 'bot-bubble';
+                  botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${botAnswer}`;
+                  const chatContainer = document.getElementById('chat-container');
+                  chatContainer.appendChild(botMessageDiv);
+                  chatContainer.scrollTop = chatContainer.scrollHeight;
+                  updateAvatarStatus('Speaking...');
+                  return;
+                }
+                // Do not update the message content letter by letter; just show the full text above
+              }, currentSpeed, ttsVoiceId, ttsLangCode);
+            } else if (avatarManager.speakWithTextStream.length >= 4) {
+              // (text, callback, speed, voiceId)
+              await avatarManager.speakWithTextStream(botAnswer, (streamedText) => {
+                if (window.chatbotInterrupted) {
+                  console.log('🛑 Speech interrupted during streaming');
+                  return;
+                }
+                if (streamedText === '' && !botMessageDiv) {
+                  console.log('📝 Speech ready signal received, creating message box...');
+                  hideThinking();
+                  botMessageDiv = document.createElement('div');
+                  botMessageDiv.className = 'bot-bubble';
+                  botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${botAnswer}`;
+                  const chatContainer = document.getElementById('chat-container');
+                  chatContainer.appendChild(botMessageDiv);
+                  chatContainer.scrollTop = chatContainer.scrollHeight;
+                  updateAvatarStatus('Speaking...');
+                  return;
+                }
+                // Do not update the message content letter by letter; just show the full text above
+              }, currentSpeed, ttsVoiceId);
+            } else {
+              // fallback: old signature (text, callback, speed)
+              await avatarManager.speakWithTextStream(botAnswer, (streamedText) => {
+                if (window.chatbotInterrupted) {
+                  console.log('🛑 Speech interrupted during streaming');
+                  return;
+                }
+                if (streamedText === '' && !botMessageDiv) {
+                  console.log('📝 Speech ready signal received, creating message box...');
+                  hideThinking();
+                  botMessageDiv = document.createElement('div');
+                  botMessageDiv.className = 'bot-bubble';
+                  botMessageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${botAnswer}`;
+                  const chatContainer = document.getElementById('chat-container');
+                  chatContainer.appendChild(botMessageDiv);
+                  chatContainer.scrollTop = chatContainer.scrollHeight;
+                  updateAvatarStatus('Speaking...');
+                  return;
+                }
+                // Do not update the message content letter by letter; just show the full text above
+              }, currentSpeed);
+            }
             // Check for interruption after speech completion
             if (window.chatbotInterrupted) {
               console.log('🛑 Speech was interrupted');
               return;
             }
-            
             // Text is fully generated, no need to hide thinking again
             console.log('🎯 Text fully generated');
-            
             // Check for interruption before adding reference file
             if (window.chatbotInterrupted) {
               console.log('🛑 Process interrupted before adding reference file');
               return;
             }
-            
             // Now add reference file link after text is fully generated
             if (referenceFile && !window.chatbotInterrupted) {
               console.log('📄 Adding reference file after text completion...');
               addReferenceLink(referenceFile.url, referenceFile.name);
             }
-            
             if (!window.chatbotInterrupted) {
               updateAvatarStatus('Ready to help');
               enableUserInput(); // Re-enable input after response is complete
@@ -4418,7 +4493,6 @@ $user_id = $_SESSION['user_id'] ?? 1;
           } catch (error) {
             console.error('Speech failed:', error);
             hideThinking(); // Hide thinking animation on error
-            
             // Only proceed if not interrupted
             if (!window.chatbotInterrupted) {
               // If speech fails, show the text normally

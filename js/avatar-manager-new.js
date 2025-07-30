@@ -2,6 +2,8 @@
 // Integrates Ready Player Me avatar with lipsync and ElevenLabs TTS
 
 class AvatarManager {
+  // Always use the turbo model for ElevenLabs TTS
+  static ELEVENLABS_TURBO_MODEL_ID = 'eleven_turbo_v2_5';
   constructor(containerId, options = {}) {
     this.container = document.getElementById(containerId);
     this.options = {
@@ -408,36 +410,40 @@ class AvatarManager {
   
   async generateSpeech(text) {
     try {
-      console.log('Generating speech for:', text.substring(0, 50) + '...');
-      console.log('Using voice:', this.options.voice);
-      
+      const modelId = AvatarManager.ELEVENLABS_TURBO_MODEL_ID;
+      const ttsPayload = {
+        text: text,
+        model_id: AvatarManager.ELEVENLABS_TURBO_MODEL_ID,
+        voice_settings: {
+          stability: 0.5,
+          similarity_boost: 0.75
+        }
+      };
+      const ttsHeaders = {
+        'Accept': 'audio/mpeg',
+        'Content-Type': 'application/json',
+        'xi-api-key': this.options.elevenlabsApiKey
+      };
+      console.log('[TTS DEBUG] ElevenLabs request payload:', JSON.stringify(ttsPayload, null, 2));
+      console.log('[TTS DEBUG] ElevenLabs request headers:', ttsHeaders);
       const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${this.options.voice}`, {
         method: 'POST',
-        headers: {
-          'Accept': 'audio/mpeg',
-          'Content-Type': 'application/json',
-          'xi-api-key': this.options.elevenlabsApiKey
-        },
-        body: JSON.stringify({
-          text: text,
-          model_id: 'eleven_monolingual_v1',
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.75
-          }
-        })
+        headers: ttsHeaders,
+        body: JSON.stringify(ttsPayload)
       });
-      
+      // Log response headers for debugging
+      const responseHeaders = {};
+      response.headers.forEach((v, k) => { responseHeaders[k] = v; });
+      console.log('[TTS DEBUG] ElevenLabs response status:', response.status);
+      console.log('[TTS DEBUG] ElevenLabs response headers:', responseHeaders);
       if (!response.ok) {
         const errorText = await response.text();
         console.error('ElevenLabs API error:', response.status, errorText);
         throw new Error(`ElevenLabs API error: ${response.status} - ${errorText}`);
       }
-      
       const audioBlob = await response.blob();
       console.log('Speech generated successfully, blob size:', audioBlob.size);
       return audioBlob;
-      
     } catch (error) {
       console.error('Speech generation failed:', error);
       throw error;

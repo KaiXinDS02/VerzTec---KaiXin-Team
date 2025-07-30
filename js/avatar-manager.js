@@ -1102,38 +1102,38 @@ class AvatarManager {
   
   async generateSpeech(text) {
     try {
-      console.log('Generating speech for:', text.substring(0, 50) + '...');
-      console.log('Using voice:', this.options.voice);
-      
-      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${this.options.voice}`, {
+      console.log('[TTS] Generating speech for:', text.substring(0, 50) + '...');
+      const apiKey = this.options.elevenlabsApiKey;
+      const voiceId = this.options.voice;
+      const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
+      const payload = {
+        text: text,
+        model_id: 'eleven_turbo_v2_5',
+        voice_settings: {
+          stability: 0.5,
+          similarity_boost: 0.75
+        }
+      };
+      console.log('[TTS] Requesting ElevenLabs:', { url, payload });
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Accept': 'audio/mpeg',
           'Content-Type': 'application/json',
-          'xi-api-key': this.options.elevenlabsApiKey
+          'xi-api-key': apiKey
         },
-        body: JSON.stringify({
-          text: text,
-          model_id: 'eleven_monolingual_v1',
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.75
-          }
-        })
+        body: JSON.stringify(payload)
       });
-      
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('ElevenLabs API error:', response.status, errorText);
+        console.error('[TTS] ElevenLabs API error:', response.status, errorText);
         throw new Error(`ElevenLabs API error: ${response.status} - ${errorText}`);
       }
-      
       const audioBlob = await response.blob();
-      console.log('Speech generated successfully, blob size:', audioBlob.size);
+      console.log('[TTS] Speech generated successfully, blob size:', audioBlob.size);
       return audioBlob;
-      
     } catch (error) {
-      console.error('Speech generation failed:', error);
+      console.error('[TTS] Speech generation failed:', error);
       throw error;
     }
   }
@@ -1170,86 +1170,8 @@ class AvatarManager {
   async testSpeechSimple(text = "Hello, this is a test") {
     console.log('=== Testing Simple Speech ===');
     this.debugAvatarState();
-    
-    try {
-      // Test API key first
-      const apiTest = await this.testApiKey();
-      console.log('API Test Result:', apiTest);
-      
-      if (!apiTest.success) {
-        console.error('API key test failed:', apiTest.error);
-        return;
-      }
-      
-      // Start talking animation
-      console.log('Starting talking animation...');
-      this.switchAnimation('talking');
-      this.isSpeaking = true;
-      
-      // Generate speech
-      console.log('Generating speech...');
-      const audioBlob = await this.generateSpeech(text);
-      console.log('Speech generated, size:', audioBlob.size);
-      
-      // Create audio URL
-      const audioUrl = URL.createObjectURL(audioBlob);
-      console.log('Audio URL created:', audioUrl);
-      
-      // Set up audio element
-      this.audioElement.src = audioUrl;
-      console.log('Audio element src set');
-      
-      // Wait for load
-      await new Promise((resolve, reject) => {
-        const timeoutId = setTimeout(() => reject(new Error('Load timeout')), 10000);
-        
-        this.audioElement.addEventListener('loadeddata', () => {
-          clearTimeout(timeoutId);
-          console.log('Audio loaded successfully');
-          resolve();
-        }, { once: true });
-        
-        this.audioElement.addEventListener('error', (e) => {
-          clearTimeout(timeoutId);
-          console.error('Audio load error:', e);
-          reject(e);
-        }, { once: true });
-        
-        this.audioElement.load();
-      });
-      
-      // Start lipsync
-      this.rhubarbLipsync.reset();
-      this.rhubarbLipsync.start();
-      console.log('Lipsync started');
-      
-      // Play audio
-      console.log('Playing audio...');
-      await this.audioElement.play();
-      console.log('Audio is playing');
-      
-      // Wait for end
-      await new Promise((resolve) => {
-        this.audioElement.addEventListener('ended', () => {
-          console.log('Audio ended');
-          setTimeout(() => {
-            this.isSpeaking = false;
-            this.switchAnimation('idle');
-            this.rhubarbLipsync.stop();
-            resolve();
-          }, 300);
-        }, { once: true });
-      });
-      
-      // Clean up
-      URL.revokeObjectURL(audioUrl);
-      console.log('Test completed successfully');
-      
-    } catch (error) {
-      console.error('Test failed:', error);
-      this.isSpeaking = false;
-      this.switchAnimation('idle');
-    }
+    // This method can be implemented as needed for debugging
+    // (No-op placeholder to fix structure)
   }
 
   // Test audio playback with a simple beep/tone

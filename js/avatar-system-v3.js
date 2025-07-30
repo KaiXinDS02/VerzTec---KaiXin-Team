@@ -372,6 +372,14 @@ class AvatarSystemV3 {
   
   async generateSpeech(text) {
     try {
+      // Always use eleven_turbo_v2_5 and never default to Eleven English v1
+      let ttsText = text;
+      // Add accent tag for Chinese if detected
+      if (/[0-FF0-FF0- F0-F0-F0-F0-F0-FE80-	FFF]/.test(text)) {
+        ttsText = `<|zh|>${text}`;
+      }
+      const modelId = 'eleven_turbo_v2_5';
+      console.log('[TTS DEBUG] Requesting ElevenLabs with model_id:', modelId, '| text:', ttsText);
       const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${this.options.voice}`, {
         method: 'POST',
         headers: {
@@ -380,8 +388,8 @@ class AvatarSystemV3 {
           'xi-api-key': this.options.elevenlabsApiKey
         },
         body: JSON.stringify({
-          text: text,
-          model_id: 'eleven_monolingual_v1',
+          text: ttsText,
+          model_id: modelId,
           voice_settings: {
             stability: 0.5,
             similarity_boost: 0.75
