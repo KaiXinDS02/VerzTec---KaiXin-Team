@@ -6085,7 +6085,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <script src="js/scripts.js"></script>
 
 
-<!-- Conversation Sidebar (replaces old chat history sidebar) -->
+<!-- Conversation Sidebar (static, no logic) -->
 <div id="chat-history-sidebar" style="
   position: fixed;
   top: 0;
@@ -6103,13 +6103,60 @@ document.addEventListener('DOMContentLoaded', function() {
 ">
   <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 24px 8px 24px;">
     <h5 style="margin: 0; font-weight: bold;">Conversations</h5>
-    <button id="close-sidebar-btn" class="btn btn-sm btn-outline-secondary" style="border-radius: 4px;" onclick="toggleSidebar()">X</button>
+    <button id="close-sidebar-btn" class="btn btn-sm btn-outline-secondary sidebar-x-btn" style="border-radius: 4px;">X</button>
   </div>
-  <div id="conversation-list" style="flex: 1 1 auto; overflow-y: auto; padding: 0 24px 0 24px;"></div>
-  <div style="padding: 16px 24px 16px 24px; border-top: 1px solid #eee;">
+  <div style="padding: 8px 24px 8px 24px;">
     <button id="new-conversation-btn" class="btn btn-primary w-100">+ New Conversation</button>
   </div>
+  <div id="conversation-list" style="flex: 1 1 auto; overflow-y: auto; padding: 0 24px 0 24px;"></div>
+</style>
+<style>
+/* Sidebar X button hover effect: black bg turns yellow, white text turns black */
+.sidebar-x-btn {
+  background: #000 !important;
+  color: #fff !important;
+  border: none;
+  transition: background 0.2s, color 0.2s;
+}
+.sidebar-x-btn:hover, .sidebar-x-btn:focus {
+  background: #FFD600 !important;
+  color: #000 !important;
+  border: none;
+}
+</style>
 </div>
+
+
+<script>
+// Sidebar toggle logic (show/hide sidebar when pressing the history button)
+function toggleSidebar(forceState) {
+  const sidebar = document.getElementById('chat-history-sidebar');
+  if (!sidebar) return;
+  if (forceState === 'open') {
+    sidebar.style.right = '0';
+  } else if (forceState === 'close') {
+    sidebar.style.right = '-350px';
+  } else {
+    sidebar.style.right = (sidebar.style.right === '0px' || sidebar.style.right === '0') ? '-350px' : '0';
+  }
+}
+// History button toggles sidebar
+document.addEventListener('DOMContentLoaded', function() {
+  const historyBtn = document.getElementById('history-button');
+  if (historyBtn) {
+    historyBtn.onclick = function() { toggleSidebar('open'); };
+  }
+  // X button closes sidebar
+  const closeBtn = document.getElementById('close-sidebar-btn');
+  if (closeBtn) {
+    closeBtn.onclick = function() { toggleSidebar('close'); };
+  }
+  // Also allow ESC to close sidebar
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') toggleSidebar('close');
+  });
+});
+</script>
 
 
 <script>
@@ -6140,142 +6187,338 @@ document.addEventListener('DOMContentLoaded', function() {
 // Conversation sidebar logic
 let conversations = [];
 let activeConversationId = null;
+let isInitialLoad = true;
 
 async function fetchConversations() {
-  // Replace with your backend endpoint
   const res = await fetch('fetch_conversations.php');
   conversations = await res.json();
-  renderConversationList();
-}
-
-function renderConversationList() {
-  const list = document.getElementById('conversation-list');
-  if (!list) return;
-  list.innerHTML = '';
-  if (conversations.length === 0) {
-    list.innerHTML = '<div style="color:#888; text-align:center; margin-top:32px;">No conversations yet.</div>';
+  // If no conversations exist, auto-create one and re-fetch
+  if (!conversations || conversations.length === 0) {
+    await createNewConversation(true); // pass silent flag to avoid double render
+    // After creation, conversations will be re-fetched and rendered
     return;
   }
-  conversations.forEach(conv => {
-    const div = document.createElement('div');
-    div.className = 'conversation-item' + (conv.id === activeConversationId ? ' active' : '');
-    div.style = 'padding: 10px 0; border-bottom: 1px solid #eee; cursor:pointer;';
-    div.textContent = conv.title || 'Untitled Conversation';
-    div.onclick = () => selectConversation(conv.id);
-    list.appendChild(div);
-  });
-}
-
-async function selectConversation(conversationId) {
-  activeConversationId = conversationId;
   renderConversationList();
-  // Load messages for this conversation
-  const res = await fetch('fetch_chat_history.php?conversation_id=' + encodeURIComponent(conversationId));
-  const messages = await res.json();
-  renderChatMessages(messages);
-}
-
-async function createNewConversation() {
-  const res = await fetch('create_conversation.php', { method: 'POST' });
-  const newConv = await res.json();
-  conversations.unshift(newConv);
-  activeConversationId = newConv.id;
-  renderConversationList();
-  renderChatMessages([]);
-}
-
-function renderChatMessages(messages) {
-  const chatContainer = document.getElementById('chat-container');
-  if (!chatContainer) return;
-  chatContainer.innerHTML = '';
-  messages.forEach(msg => {
-    addMessageToChat(msg.text, msg.sender);
-  });
-}
-
-// Attach event listeners
-document.addEventListener('DOMContentLoaded', function() {
-  fetchConversations();
+  // Always ensure the new conversation button is enabled and visible
   const newConvBtn = document.getElementById('new-conversation-btn');
-  if (newConvBtn) newConvBtn.onclick = createNewConversation;
-});
-</script>
-
-<style>
-  .loading-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    display: none;
+  if (newConvBtn) {
+    newConvBtn.disabled = false;
+    newConvBtn.style.display = '';
+    newConvBtn.onclick = function() { createNewConversation(); };
   }
-  .loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid white;
-    border-top: 5px solid #fbbf24;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+  // On initial load, select the most recent conversation automatically
+  if (isInitialLoad && conversations.length > 0) {
+    isInitialLoad = false;
+    // Try to restore last active conversation from localStorage
+    const lastConvId = localStorage.getItem('activeConversationId');
+    let found = false;
+    if (lastConvId) {
+      for (const conv of conversations) {
+        if (String(conv.id) === String(lastConvId)) {
+          selectConversation(conv.id);
+          found = true;
+          break;
+        }
+      }
+    }
+    if (!found) {
+      selectConversation(conversations[0].id);
+    }
   }
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  .avatar-button {
-    background-color: white !important;
-    color: black !important;
-    border: 2px solid white;
-    transition: background-color 0.3s, color 0.3s;
-  }
-  .avatar-button.active {
-    background-color: #007bff !important;
-    color: white !important;
-    border-color: #007bff;
-  }
-</style>
-<div id="avatar-loading-overlay" class="loading-overlay">
-  <div class="loading-spinner"></div>
-</div>
-
-<script>
-  function showAvatarLoading() {
-    const overlay = document.getElementById('avatar-loading-overlay');
-    overlay.style.display = 'flex';
-  }
-
-  function hideAvatarLoading() {
-    const overlay = document.getElementById('avatar-loading-overlay');
-    overlay.style.display = 'none';
-  }
-
-  function switchAvatarWithLoading(newAvatar) {
-    showAvatarLoading();
-    loadAvatar(newAvatar, () => {
-      setTimeout(() => {
-        hideAvatarLoading();
-      }, 2000);
-    });
-  }
-
-  function loadAvatar(avatarName, callback) {
-    const iframe = document.getElementById('avatarIframe');
-    iframe.src = `/avatars/${avatarName}.html`;
-    iframe.onload = callback;
-  }
-
-  document.querySelectorAll('.avatar-button').forEach(button => {
-    button.addEventListener('click', () => {
-      document.querySelectorAll('.avatar-button').forEach(b => b.classList.remove('active'));
-      button.classList.add('active');
-    });
+}
+    body: `conversation_id=${encodeURIComponent(activeConversationId)}&question=${encodeURIComponent(message)}&answer=`
   });
-</script>
 
-</body>
-</html>
+  // Clear input
+  userInput.value = '';
+
+  // Always show thinking animation immediately in chat UI
+  console.log('🤔 Showing thinking animation immediately...');
+  showThinking(); // Show thinking animation in chat immediately
+  
+  // Trigger avatar thinking animation only if avatar is ready AND voice is enabled
+  if (avatarManager && avatarManager.isInitialized && isVoiceEnabled && isAvatarEnabled) {
+    console.log('🤔 Triggering avatar thinking animation...');
+    avatarManager.startThinking();
+    updateAvatarStatus('Thinking...');
+  } else {
+    // Avatar not ready or voice disabled, but chat thinking animation is still shown
+    if (!isVoiceEnabled) {
+      updateAvatarStatus('Voice disabled - processing...');
+    } else if (!isAvatarEnabled) {
+      updateAvatarStatus('Avatar disabled - processing...');
+    } else {
+      updateAvatarStatus('Processing...');
+    }
+  }
+
+  const userId = <?php echo json_encode($user_id); ?>;
+
+  // Language Detection and Translation (always enabled)
+  let processedMessage = message;
+  
+  try {
+    // Check for interruption before starting language detection
+    if (window.chatbotInterrupted) {
+      console.log('🛑 Process interrupted before language detection');
+      hideThinking();
+      enableUserInput();
+      return;
+    }
+    
+    // Always detect language via API for accuracy
+    showTranslationStatus('🌐 Detecting language...');
+    
+    // Detect the language of the user input using Google Translate API
+    detectedLanguage = await detectLanguage(message);
+    userOriginalLanguage = detectedLanguage;
+    
+    console.log('🌐 API detected language:', detectedLanguage, 'for message:', message);
+    
+    // Check for interruption after language detection
+    if (window.chatbotInterrupted) {
+      console.log('🛑 Process interrupted after language detection');
+      hideThinking();
+      enableUserInput();
+      return;
+    }
+    
+    if (detectedLanguage !== 'en') {
+      showTranslationStatus(`🔄 Translating from ${detectedLanguage.toUpperCase()} to English...`);
+      
+      // Translate message to English for processing
+      processedMessage = await translateText(message, detectedLanguage, 'en');
+      
+      console.log('🌐 Original message:', message);
+      console.log('🌐 Translated message:', processedMessage);
+      
+      showTranslationStatus('✅ Translation complete, processing...');
+    } else {
+      console.log('🌐 Message detected as English, no translation needed');
+      userOriginalLanguage = 'en';
+      showTranslationStatus('✅ English detected, processing...');
+    }
+  } catch (error) {
+    console.error('❌ Translation error:', error);
+    showTranslationStatus('⚠️ Translation failed, using original message');
+    
+    // Check for interruption before handling translation error
+    if (window.chatbotInterrupted) {
+      console.log('🛑 Process interrupted during translation error handling');
+      hideThinking();
+      enableUserInput();
+      return;
+    }
+    
+    // Continue with original message if translation fails (non-critical error)
+    processedMessage = message;
+    userOriginalLanguage = 'en';
+    
+    // Only stop completely if it's a critical error (like network is completely down)
+    if (error.message.includes('Network request failed') || error.message.includes('Failed to fetch')) {
+      hideThinking();
+      enableUserInput();
+      
+      // Only show network error message if not interrupted
+      if (!window.chatbotInterrupted) {
+        addMessageToChat('Sorry, I cannot connect to the translation service. Please check your connection and try again.', 'bot');
+        updateAvatarStatus('Network error');
+      }
+      return;
+    }
+  }
+
+  // Create AbortController for this request
+  currentAbortController = new AbortController();
+
+  // Check for interruption before making API call
+  if (window.chatbotInterrupted) {
+    console.log('🛑 Process interrupted before API call');
+    hideThinking();
+    enableUserInput();
+    return;
+  }
+
+  // Send message to chatbot API
+  try {
+    console.log('🔄 Sending message to API:', processedMessage);
+    // Always include activeConversationId when appending message
+    const response = await fetch('http://localhost:8000/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ user_id: userId, question: processedMessage, conversation_id: activeConversationId }),
+      signal: currentAbortController.signal
+    });
+    
+    console.log('📡 API Response status:', response.status);
+    
+    // Check for interruption immediately after API response
+    if (window.chatbotInterrupted) {
+      console.log('🛑 Process interrupted immediately after API response');
+      hideThinking();
+      enableUserInput();
+      return;
+    }
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('📦 API Response data:', data);
+    
+    // Check for interruption after receiving API response
+    if (window.chatbotInterrupted) {
+      console.log('🛑 Process interrupted after receiving API response');
+      hideThinking();
+      enableUserInput();
+      return;
+    }
+    
+    // Check if the response has the expected structure
+    if (!data || (!data.answer && !data.response)) {
+      console.error('❌ Invalid API response structure:', data);
+      hideThinking();
+      enableUserInput();
+      
+      // Only show invalid response message if not interrupted
+      if (!window.chatbotInterrupted) {
+        addMessageToChat('Sorry, I received an invalid response from the server. Please try again.', 'bot');
+        updateAvatarStatus('Invalid response error');
+      }
+      throw new Error('Invalid response from chatbot API');
+    }
+    
+    // Get the answer from the response (try both 'answer' and 'response' fields)
+    let botAnswer = data.answer || data.response || 'Sorry, I could not generate a response.';
+    console.log('🤖 Bot answer (English):', botAnswer.substring(0, 100) + '...');
+    // Save bot response to conversation
+    await fetch('append_message.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `conversation_id=${encodeURIComponent(activeConversationId)}&question=&answer=${encodeURIComponent(botAnswer)}`
+    });
+    
+    // Check for interruption before response translation
+    if (window.chatbotInterrupted) {
+      console.log('🛑 Process interrupted before response translation');
+      hideThinking();
+      enableUserInput();
+      return;
+    }
+    
+    // Translate bot response back to user's original language if needed
+    if (userOriginalLanguage !== 'en') {
+      try {
+        showTranslationStatus(`🔄 Translating response to ${userOriginalLanguage.toUpperCase()}...`);
+        botAnswer = await translateText(botAnswer, 'en', userOriginalLanguage);
+        console.log('🤖 Bot answer (translated):', botAnswer.substring(0, 100) + '...');
+        showTranslationStatus('✅ Response translated successfully');
+      } catch (translationError) {
+        console.error('❌ Response translation failed:', translationError);
+        showTranslationStatus('⚠️ Response translation failed, showing in English');
+        // Continue with English response if translation fails
+      }
+    }
+    
+    // Check for interruption after response translation
+    if (window.chatbotInterrupted) {
+      console.log('🛑 Process interrupted after response translation');
+      hideThinking();
+      enableUserInput();
+      return;
+    }
+    
+    // Store reference file info for later use (after text is complete)
+    let referenceFile = null;
+    if (data.reference_file && data.reference_file.name) {
+      referenceFile = {
+        url: data.reference_file.url,
+        name: data.reference_file.name
+      };
+    }
+    
+    // Speak the response if voice is enabled and avatar is ready
+    if (isVoiceEnabled && isAvatarEnabled && avatarManager && avatarManager.isInitialized) {
+        // Debug: Log the language code used for TTS after translation
+        console.log('[DEBUG] userOriginalLanguage (from translation):', userOriginalLanguage);
+        // Map Google Translate codes to TTS codes if needed
+        // Google Translate returns 'zh-CN' for Simplified Chinese, 'zh-TW' for Traditional
+        // We'll map both to 'zh' for voice selection, but pass the full code to TTS
+        let ttsLangCode = userOriginalLanguage || 'en';
+        let langKey = 'en';
+        if (ttsLangCode.toLowerCase().startsWith('zh')) langKey = 'zh';
+        else if (ttsLangCode.toLowerCase().startsWith('ja')) langKey = 'ja';
+        else if (ttsLangCode.toLowerCase().startsWith('id')) langKey = 'id';
+        else if (ttsLangCode.toLowerCase().startsWith('hi')) langKey = 'hi';
+        else if (ttsLangCode.toLowerCase().startsWith('ta')) langKey = 'ta';
+        else langKey = (ttsLangCode || '').toLowerCase().slice(0,2);
+        console.log('[DEBUG] TTS langKey for voice map:', langKey, '| TTS langCode:', ttsLangCode);
+      try {
+        // --- Language-based voice selection using detected language of bot response ---
+        // Make sure the voice IDs below are native for the language/accent (not just language name)
+        // Use the language code from the translation step (userOriginalLanguage) for TTS accent
+        // This ensures the TTS accent matches the language shown to the user
+        let langVoiceMap = {...};
+        let voiceGender = (currentAvatarGender || 'female').toLowerCase();
+        let ttsVoiceId = currentVoiceId;
+        if (langVoiceMap[langKey]) {...}
+        // --- End language-based voice selection ---
+        // Always generate speech from the translated text (botAnswer)
+        console.log('Starting synchronized speech with speed:', currentSpeed + 'x', 'for text:', botAnswer.substring(0, 50) + '...');
+        // Check for interruption before starting speech
+        if (window.chatbotInterrupted) {...}
+        // Variable to track if message box has been created
+        let botMessageDiv = null;
+        // Pass the correct voiceId and language code to the TTS function if supported
+        if (avatarManager.speakWithTextStream.length >= 5) {...}, currentSpeed, ttsVoiceId, ttsLangCode);
+        } else if (avatarManager.speakWithTextStream.length >= 4) {...}, currentSpeed, ttsVoiceId);
+      } catch (error) {...}
+    } else {
+      hideThinking(); // Hide thinking animation if avatar not ready or voice disabled
+      
+      // Only proceed if not interrupted
+      if (!window.chatbotInterrupted) {...}
+    }
+    
+  } catch (error) {
+    hideThinking(); // Hide thinking animation on error
+    enableUserInput(); // Ensure UI is properly reset
+    console.error('Error:', error);
+    
+    // Check if request was aborted by user
+    if (error.name === 'AbortError') {
+      console.log('🛑 Request was aborted by user');
+      return; // Don't show error message for user-initiated stops
+    }
+    
+    // Check for interruption before showing any error messages
+    if (window.chatbotInterrupted) {
+      console.log('🛑 Process was interrupted, not showing error message');
+      return; // Don't show error message if process was interrupted
+    }
+    
+    // More specific error messages
+    let errorMessage = 'Sorry, I encountered an error. ';
+    if (error.message.includes('Failed to fetch')) {
+      errorMessage += 'Cannot connect to the chatbot server. Please make sure it is running on port 8000.';
+    } else if (error.message.includes('HTTP error')) {
+      errorMessage += `Server responded with error: ${error.message}`;
+    } else if (error.message.includes('Invalid response')) {
+      errorMessage += 'The server returned an invalid response format.';
+    } else {
+      errorMessage += `${error.message}`;
+    }
+    
+    // Only show error if not interrupted by user
+    if (!window.chatbotInterrupted) {
+      addMessageToChat(errorMessage, 'bot');
+      updateAvatarStatus('Connection error');
+      
+      // Reset avatar state on error
+      if (avatarManager && avatarManager.isInitialized && isVoiceEnabled && isAvatarEnabled) {...}
+    }
+  }
+}

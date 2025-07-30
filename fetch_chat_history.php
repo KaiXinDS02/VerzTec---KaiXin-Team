@@ -17,14 +17,22 @@ if ($conn->connect_error) {
     exit();
 }
 
-$sql = "SELECT question, answer, timestamp FROM chat_history WHERE user_id = ? ORDER BY timestamp DESC";
+
+// Get conversation_id from GET or POST
+$conversation_id = isset($_GET['conversation_id']) ? intval($_GET['conversation_id']) : (isset($_POST['conversation_id']) ? intval($_POST['conversation_id']) : 0);
+if (!$conversation_id) {
+    echo json_encode(['error' => 'Missing conversation_id']);
+    exit();
+}
+
+$sql = "SELECT question, answer, timestamp FROM chat_history WHERE user_id = ? AND conversation_id = ? ORDER BY timestamp ASC";
 $stmt = $conn->prepare($sql);
 if (!$stmt) {
     echo json_encode(['error' => 'SQL prepare failed: ' . $conn->error]);
     exit();
 }
 
-$stmt->bind_param("i", $user_id);
+$stmt->bind_param("ii", $user_id, $conversation_id);
 if (!$stmt->execute()) {
     echo json_encode(['error' => 'SQL execute failed: ' . $stmt->error]);
     exit();
