@@ -59,6 +59,32 @@ $capitalizedName = capitalizeName($_SESSION['username']);
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="css/responsive.css">
   <style>
+  /* Make nav bar profile picture smaller and round */
+  #nav-profile-pic {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #e0e0e0;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 0;
+    padding: 0;
+    display: block;
+  }
+  #home-profile-pic {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #e0e0e0;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    margin-bottom: 12px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
     /* Override main layout to fit viewport */
     .page-content-wp {
       padding-top: 170px !important;
@@ -320,10 +346,10 @@ $capitalizedName = capitalizeName($_SESSION['username']);
         </div>
         <div class="col-md-3 col-6 d-flex justify-content-end order-2 order-md-3">
           <div class="page-user-icon profile">
-            <button><img src="images/Profile-Icon.svg" alt=""></button>
+            <button style="padding:0; border:none; background:none;"><img id="nav-profile-pic" src="images/Profile-Icon.svg" alt=""></button>
             <div class="menu">
               <ul>
-                <li><a href="#"><i class="fa-regular fa-user"></i> Profile</a></li>
+                <li><a href="#" id="nav-profile-item"><i class="fa-regular fa-user"></i> Profile</a></li>
                 <li><a href="#"><i class="fa-regular fa-moon"></i> Theme</a></li>
                 <li><a href="login.php"><i class="fa-regular fa-right-from-bracket"></i> Sign Out</a></li>
               </ul>
@@ -340,7 +366,7 @@ $capitalizedName = capitalizeName($_SESSION['username']);
         <div class="col-lg-3">
           <div class="left-sidebar">
             <div class="sidebar-top">
-              <figure><img src="images/ellipse.png" alt=""></figure>
+              <figure><img id="home-profile-pic" src="images/ellipse.png" alt=""></figure>
               <div class="content">
                 <h3><?= htmlspecialchars($_SESSION['username']) ?></h3>
                 <span><?= htmlspecialchars($_SESSION['department']) ?>/<?= htmlspecialchars($_SESSION['role']) ?></span>
@@ -574,5 +600,248 @@ $capitalizedName = capitalizeName($_SESSION['username']);
   </script>
   <script src="js/inactivity.js"></script>
 </body>
+</main>
+
+
+
+  <!-- Profile Popup Modal (EXACT from chatbot.php) -->
+  <div id="profile-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.45);">
+    <div class="profile-modal-content" style="background:#fff; max-width:540px; margin:60px auto; border-radius:16px; box-shadow:0 4px 32px rgba(0,0,0,0.20); padding:40px 40px 32px 40px; position:relative;">
+      <button onclick="closeProfileModal()" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:26px; color:#888; cursor:pointer;">&times;</button>
+      <h2 style="margin-top:0; margin-bottom:24px; font-size:1.6em; text-align:center;">Edit Profile</h2>
+      <div style="display:flex; flex-direction:column; align-items:center;">
+        <div class="profile-pic-wrapper">
+          <img id="profile-pic-preview" class="profile-pic-preview" src="assets/avatars/default.png" alt="Profile Picture">
+          <label for="profile-pic-input" class="profile-pic-pencil" title="Change profile picture">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13.586 3.586a2 2 0 0 1 2.828 2.828l-8.5 8.5a2 2 0 0 1-.878.515l-3 1a1 1 0 0 1-1.263-1.263l1-3a2 2 0 0 1 .515-.878l8.5-8.5z" stroke="#444" stroke-width="1.2"/>
+              <path d="M11 6l3 3" stroke="#444" stroke-width="1.2"/>
+            </svg>
+          </label>
+          <input type="file" id="profile-pic-input" class="profile-pic-input" accept="image/*" onchange="handleProfilePicChange(this)">
+        </div>
+        <button onclick="saveProfile()" class="btn-save-profile">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+  #profile-modal input[type="file"]::-webkit-file-upload-button {
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 12px;
+    cursor: pointer;
+  }
+  #profile-modal input[type="file"]::file-selector-button {
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 12px;
+    cursor: pointer;
+  }
+  #profile-modal input[type="text"]:focus {
+    border-color: #0066cc;
+    outline: none;
+  }
+  #profile-modal button:active {
+    background: #005bb5;
+  }
+  #profile-modal.xlarge-profile-modal .profile-modal-content {
+    width: 540px !important;
+    max-width: 98vw !important;
+    min-height: 520px !important;
+    padding: 40px 40px 32px 40px !important;
+  }
+  #profile-modal .profile-pic-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  #profile-modal .profile-pic-preview {
+    width: 260px;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #e0e0e0;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  #profile-modal .profile-pic-pencil {
+    position: absolute;
+    bottom: 18px;
+    right: 28px;
+    background: #fff;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+    cursor: pointer;
+    border: 1.5px solid #d0d0d0;
+    transition: background 0.2s;
+  }
+  #profile-modal .profile-pic-pencil:hover {
+    background: #f0f0f0;
+  }
+  #profile-modal .profile-pic-pencil svg {
+    width: 26px;
+    height: 26px;
+    color: #444;
+  }
+  #profile-modal .btn-save-profile {
+    background: #111;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 0;
+    width: 160px;
+    font-size: 1.15em;
+    font-weight: 600;
+    margin-top: 32px;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  #profile-modal .btn-save-profile:hover {
+    background: #FFD600;
+    color: #111;
+  }
+  #profile-modal .profile-pic-input {
+    display: none;
+  }
+  </style>
+<script>
+    // --- Profile Popup Modal Logic (EXACT from chatbot.php) ---
+    // Open profile modal when nav profile menu is clicked
+    document.addEventListener('DOMContentLoaded', function() {
+      // Attach event to the Profile menu item only
+      const navProfileItem = document.getElementById('nav-profile-item');
+      if (navProfileItem) {
+        navProfileItem.addEventListener('click', function(e) {
+          e.preventDefault();
+          openProfileModal();
+        });
+      }
+      // Load profile info on page load (optional)
+      loadProfileInfo();
+    });
+
+    function openProfileModal() {
+      const modal = document.getElementById('profile-modal');
+      modal.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+      // Make modal even bigger
+      modal.classList.add('xlarge-profile-modal');
+      loadProfileInfo();
+    }
+
+    function closeProfileModal() {
+      const modal = document.getElementById('profile-modal');
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+      // Remove modal size classes when closing
+      modal.classList.remove('large-profile-modal');
+      modal.classList.remove('xlarge-profile-modal');
+    }
+
+    // Handle profile picture preview
+    function handleProfilePicChange(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('profile-pic-preview').src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    // Save profile (picture only)
+    async function saveProfile() {
+      const picInput = document.getElementById('profile-pic-input');
+      const formData = new FormData();
+      if (picInput.files && picInput.files[0]) {
+        formData.append('profile_pic', picInput.files[0]);
+      }
+      try {
+        const response = await fetch('save_profile.php', {
+          method: 'POST',
+          body: formData
+        });
+        const result = await response.json();
+        if (result.success) {
+          alert('Profile updated successfully!');
+          // After saving, reload and update all profile pics
+          await updateAllProfilePics();
+          closeProfileModal();
+        } else {
+          alert('Failed to update profile: ' + (result.error || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Error saving profile: ' + err.message);
+      }
+    }
+
+    // Load profile info (picture)
+    async function loadProfileInfo() {
+      await updateAllProfilePics();
+    }
+
+    // Update all profile pictures (modal, nav, home)
+    async function updateAllProfilePics() {
+      try {
+        const response = await fetch('get_profile.php');
+        if (!response.ok) return;
+        const data = await response.json();
+        let picUrl = (data && data.profile_pic_url) ? data.profile_pic_url : 'assets/avatars/default.png';
+        // If the URL is not absolute, make it relative to the site root
+        if (!/^https?:\/\//i.test(picUrl) && !picUrl.startsWith('/')) {
+          picUrl = '/' + picUrl.replace(/^\/+/,'');
+        }
+        // Modal
+        const modalImg = document.getElementById('profile-pic-preview');
+        if (modalImg) {
+          modalImg.src = picUrl;
+          modalImg.onerror = function() { modalImg.src = '/assets/avatars/default.png'; };
+        }
+        // Nav bar
+        const navImg = document.getElementById('nav-profile-pic');
+        if (navImg) {
+          navImg.src = picUrl;
+          navImg.onerror = function() { navImg.src = '/assets/avatars/default.png'; };
+        }
+        // Home sidebar
+        const homeImg = document.getElementById('home-profile-pic');
+        if (homeImg) {
+          homeImg.src = picUrl;
+          homeImg.onerror = function() { homeImg.src = '/assets/avatars/default.png'; };
+        }
+      } catch (err) {
+        // fallback for all
+        const modalImg = document.getElementById('profile-pic-preview');
+        if (modalImg) modalImg.src = '/assets/avatars/default.png';
+        const navImg = document.getElementById('nav-profile-pic');
+        if (navImg) navImg.src = '/assets/avatars/default.png';
+        const homeImg = document.getElementById('home-profile-pic');
+        if (homeImg) homeImg.src = '/assets/avatars/default.png';
+      }
+    }
+
+    // Close modal when clicking outside content
+    document.addEventListener('click', function(e) {
+      const modal = document.getElementById('profile-modal');
+      if (modal && e.target === modal) {
+        closeProfileModal();
+      }
+    });
+
+    // --- End Profile Popup Modal Logic ---
+</script>
+</html>
+
 </html>
 

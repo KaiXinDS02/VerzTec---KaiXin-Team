@@ -415,7 +415,7 @@ $conn->close();
             <button><img src="images/Profile-Icon.svg" alt="Profile" /></button>
             <div class="menu">
               <ul>
-                <li><a href="#"><i class="fa-regular fa-user"></i> Profile</a></li>
+                <li><a href="#" id="nav-profile-item"><i class="fa-regular fa-user"></i> Profile</a></li>
                 <li><a href="#"><i class="fa-regular fa-moon"></i> Theme</a></li>
                 <li><a href="login.php"><i class="fa-regular fa-right-from-bracket"></i> Sign Out</a></li>
               </ul>
@@ -921,6 +921,202 @@ $conn->close();
   <!-- Session Timeout -->
   <script src="js/inactivity.js"></script>
 </body>
+  <!-- Profile Popup Modal (EXACT from chatbot.php) -->
+  <div id="profile-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.45);">
+    <div class="profile-modal-content" style="background:#fff; max-width:540px; margin:60px auto; border-radius:16px; box-shadow:0 4px 32px rgba(0,0,0,0.20); padding:40px 40px 32px 40px; position:relative;">
+      <button onclick="closeProfileModal()" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:26px; color:#888; cursor:pointer;">&times;</button>
+      <h2 style="margin-top:0; margin-bottom:24px; font-size:1.6em; text-align:center;">Edit Profile</h2>
+      <div style="display:flex; flex-direction:column; align-items:center;">
+        <div class="profile-pic-wrapper">
+          <img id="profile-pic-preview" class="profile-pic-preview" src="assets/avatars/default.png" alt="Profile Picture">
+          <label for="profile-pic-input" class="profile-pic-pencil" title="Change profile picture">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13.586 3.586a2 2 0 0 1 2.828 2.828l-8.5 8.5a2 2 0 0 1-.878.515l-3 1a1 1 0 0 1-1.263-1.263l1-3a2 2 0 0 1 .515-.878l8.5-8.5z" stroke="#444" stroke-width="1.2"/>
+              <path d="M11 6l3 3" stroke="#444" stroke-width="1.2"/>
+            </svg>
+          </label>
+          <input type="file" id="profile-pic-input" class="profile-pic-input" accept="image/*" onchange="handleProfilePicChange(this)">
+        </div>
+        <button onclick="saveProfile()" class="btn-save-profile">Save</button>
+      </div>
+    </div>
+  </div>
 
+  <style>
+  #profile-modal input[type="file"]::-webkit-file-upload-button {
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 12px;
+    cursor: pointer;
+  }
+  #profile-modal input[type="file"]::file-selector-button {
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 12px;
+    cursor: pointer;
+  }
+  #profile-modal input[type="text"]:focus {
+    border-color: #0066cc;
+    outline: none;
+  }
+  #profile-modal button:active {
+    background: #005bb5;
+  }
+  #profile-modal.xlarge-profile-modal .profile-modal-content {
+    width: 540px !important;
+    max-width: 98vw !important;
+    min-height: 520px !important;
+    padding: 40px 40px 32px 40px !important;
+  }
+  #profile-modal .profile-pic-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  #profile-modal .profile-pic-preview {
+    width: 260px;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #e0e0e0;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  #profile-modal .profile-pic-pencil {
+    position: absolute;
+    bottom: 18px;
+    right: 28px;
+    background: #fff;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+    cursor: pointer;
+    border: 1.5px solid #d0d0d0;
+    transition: background 0.2s;
+  }
+  #profile-modal .profile-pic-pencil:hover {
+    background: #f0f0f0;
+  }
+  #profile-modal .profile-pic-pencil svg {
+    width: 26px;
+    height: 26px;
+    color: #444;
+  }
+  #profile-modal .btn-save-profile {
+    background: #111;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 0;
+    width: 160px;
+    font-size: 1.15em;
+    font-weight: 600;
+    margin-top: 32px;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  #profile-modal .btn-save-profile:hover {
+    background: #FFD600;
+    color: #111;
+  }
+  #profile-modal .profile-pic-input {
+    display: none;
+  }
+  </style>
+
+
+  <script>
+    // --- Profile Popup Modal Logic ---
+    document.addEventListener('DOMContentLoaded', function() {
+      const navProfileItem = document.getElementById('nav-profile-item');
+      if (navProfileItem) {
+        navProfileItem.addEventListener('click', function(e) {
+          e.preventDefault();
+          openProfileModal();
+        });
+      }
+      loadProfileInfo();
+    });
+    function openProfileModal() {
+      const modal = document.getElementById('profile-modal');
+      modal.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+      modal.classList.add('xlarge-profile-modal');
+      loadProfileInfo();
+    }
+    function closeProfileModal() {
+      const modal = document.getElementById('profile-modal');
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+      modal.classList.remove('large-profile-modal');
+      modal.classList.remove('xlarge-profile-modal');
+    }
+    function handleProfilePicChange(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('profile-pic-preview').src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+    async function saveProfile() {
+      const picInput = document.getElementById('profile-pic-input');
+      const formData = new FormData();
+      if (picInput.files && picInput.files[0]) {
+        formData.append('profile_pic', picInput.files[0]);
+      }
+      try {
+        const response = await fetch('../save_profile.php', {
+          method: 'POST',
+          body: formData
+        });
+        const result = await response.json();
+        if (result.success) {
+          alert('Profile updated successfully!');
+          closeProfileModal();
+        } else {
+          alert('Failed to update profile: ' + (result.error || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Error saving profile: ' + err.message);
+      }
+    }
+    async function loadProfileInfo() {
+      try {
+        const response = await fetch('../get_profile.php');
+        if (!response.ok) return;
+        const data = await response.json();
+        const img = document.getElementById('profile-pic-preview');
+        let picUrl = (data && data.profile_pic_url) ? data.profile_pic_url : 'assets/avatars/default.png';
+        if (!/^https?:\/\//i.test(picUrl) && !picUrl.startsWith('/')) {
+          picUrl = '../' + picUrl.replace(/^\/+/,'');
+        }
+        img.src = picUrl;
+        img.onerror = function() {
+          img.src = '../assets/avatars/default.png';
+        };
+      } catch (err) {
+        const img = document.getElementById('profile-pic-preview');
+        img.src = '../assets/avatars/default.png';
+      }
+    }
+    document.addEventListener('click', function(e) {
+      const modal = document.getElementById('profile-modal');
+      if (modal && e.target === modal) {
+        closeProfileModal();
+      }
+    });
+    // --- End Profile Popup Modal Logic ---
+  </script>
 </html>
 

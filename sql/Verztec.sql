@@ -95,29 +95,44 @@ INSERT INTO `announcements` (`title`, `context`, `target_audience`, `priority`) 
 ('New Feature Released', 'Document tagging is now available under the files section!', 'Users', 'Medium');
 
 
--- CHAT HISTORY TABLE
-CREATE TABLE chat_history (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    question TEXT,
-    answer TEXT,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    conversation_id INT,
-    voice_file VARCHAR(255),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL,
-    INDEX idx_conversation_id (conversation_id)
-);
-
--- CONVERSATIONS TABLE (for ChatGPT-style conversation management)
+-- Create the conversations table
 CREATE TABLE conversations (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    title VARCHAR(255) NOT NULL DEFAULT 'New Conversation',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    INDEX idx_user_conversations (user_id),
-    INDEX idx_updated_at (updated_at)
-);
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    user_id    INT NOT NULL,
+    title      VARCHAR(255) NOT NULL DEFAULT 'New Conversation',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
+               ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_conversations_user
+      FOREIGN KEY (user_id)
+      REFERENCES users(user_id)
+      ON DELETE CASCADE,
+    CONSTRAINT uq_conversations_user_title
+      UNIQUE (user_id, title),
+    INDEX idx_user_conversations   (user_id),
+    INDEX idx_conversations_updated (updated_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Create the chat_history table
+CREATE TABLE chat_history (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    conversation_id INT         NOT NULL,
+    user_id         INT         NOT NULL,
+    question        TEXT,
+    answer          TEXT,
+    voice_file      VARCHAR(255),
+    timestamp       DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_chat_history_conversation
+      FOREIGN KEY (conversation_id)
+      REFERENCES conversations(id)
+      ON DELETE CASCADE,
+    CONSTRAINT fk_chat_history_user
+      FOREIGN KEY (user_id)
+      REFERENCES users(user_id)
+      ON DELETE SET NULL,
+    INDEX idx_chat_history_conversation (conversation_id),
+    INDEX idx_chat_history_user         (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 COMMIT;
