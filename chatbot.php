@@ -2010,6 +2010,8 @@ $user_id = $_SESSION['user_id'] ?? 1;
     </style>
 </head>
 <body>
+    <!-- Conversation Sidebar -->
+    <div id="conversation-sidebar"></div>
 
   <!-- header (unchanged) -->
   <header class="header-area" style="position: fixed; top:0; left:0; width:100%; z-index:999; background:white;">
@@ -2264,8 +2266,24 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="chat-header">
               <div class="d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fa fa-robot me-2"></i>VerzTec AI Assistant</h5>
-                <div class="chat-header-controls">
-    <!-- History button removed -->
+                <div class="chat-header-controls d-flex align-items-center gap-2">
+                  <!-- Clear Chat Button -->
+                  <button id="clear-chat-btn" class="btn btn-sm btn-dark" title="Clear chat">
+                    <i class="fa fa-trash"></i> Clear Chat
+                  </button>
+                  <style>
+                    #clear-chat-btn.btn-dark, #clear-chat-btn.btn-dark:focus {
+                      background-color: #333333 !important;
+                      color: #fff !important;
+                      border: none !important;
+                      box-shadow: none !important;
+                    }
+                    #clear-chat-btn.btn-dark:hover, #clear-chat-btn.btn-dark:active {
+                      background-color: #ffc107 !important;
+                      color: #333333 !important;
+                      border: none !important;
+                    }
+                  </style>
                   <button id="show-avatar" class="btn btn-sm btn-outline-primary" style="display: none;">
                     <i class="fa fa-robot"></i> Show Avatar
                   </button>
@@ -2480,6 +2498,21 @@ document.addEventListener('DOMContentLoaded', function() {
   <script src="js/avatar-manager.js"></script>
   <script src="js\notification.js"></script> <!-- script for handling announcements -->
   <script>
+    // Clear Chat Button Logic
+    document.addEventListener('DOMContentLoaded', function() {
+      const clearBtn = document.getElementById('clear-chat-btn');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+          const chatContainer = document.getElementById('chat-container');
+          if (chatContainer) {
+            // Find the initial message (bot-initial)
+            const initial = chatContainer.querySelector('.bot-initial');
+            chatContainer.innerHTML = '';
+            if (initial) chatContainer.appendChild(initial);
+          }
+        });
+      }
+    });
     // Global variables
     let avatarManager = null;
     let isVoiceEnabled = true;
@@ -4216,6 +4249,47 @@ function stopChatbot() {
     }
 // ------------------- TRANSLATION AND LANGUAGE DETECTION FUNCTIONS END (Charmaine) ------------------- 
 
+    // Fetch chat history from the server and render
+    async function loadChatHistory() {
+      try {
+        const response = await fetch('fetch_chat_history.php');
+        if (!response.ok) throw new Error('Failed to fetch chat history');
+        const history = await response.json();
+        if (Array.isArray(history)) {
+          // Clear chat container
+          const chatContainer = document.getElementById('chat-container');
+          chatContainer.innerHTML = '';
+          // Render each message
+          history.forEach(msg => {
+            if (msg.question) addMessageToChat(msg.question, 'user', msg.timestamp);
+            if (msg.answer) addMessageToChat(msg.answer, 'bot', msg.timestamp);
+          });
+        }
+      } catch (err) {
+        console.error('Error loading chat history:', err);
+      }
+    }
+
+    // Render a message bubble (keeps existing styling)
+    function addMessageToChat(message, sender, timestamp) {
+      const chatContainer = document.getElementById('chat-container');
+      const messageDiv = document.createElement('div');
+      if (sender === 'user') {
+        messageDiv.className = 'user-bubble';
+        messageDiv.innerHTML = `<strong>You:</strong> ${message}`;
+      } else {
+        messageDiv.className = 'bot-bubble';
+        messageDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${message}`;
+      }
+      if (timestamp) {
+        messageDiv.innerHTML += `<div class=\"chat-timestamp\">${timestamp}</div>`;
+      }
+      chatContainer.appendChild(messageDiv);
+      setTimeout(() => {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }, 0);
+    }
+
     async function sendMessage() {
       // Don't send if chatbot is busy
       if (isChatbotBusy) {
@@ -4233,15 +4307,16 @@ function stopChatbot() {
       disableUserInput();
 
 
+
       // Add user message to chat
       addMessageToChat(message, 'user');
 
-      // Record user prompt in chat_history (always)
+      // Record user prompt in chat_history (always, via fetch_chat_history.php)
       try {
-        await fetch('append_message.php', {
+        await fetch('fetch_chat_history.php', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: `conversation_id=${encodeURIComponent(typeof activeConversationId !== 'undefined' && activeConversationId ? activeConversationId : '')}&question=${encodeURIComponent(message)}&answer=`
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: message, sender: 'user' })
         });
       } catch (e) {
         console.warn('⚠️ Failed to record user prompt:', e);
@@ -4451,12 +4526,12 @@ function stopChatbot() {
           };
         }
         
-        // Record bot response in chat_history (always)
+        // Record bot response in chat_history (always, via fetch_chat_history.php)
         try {
-          await fetch('append_message.php', {
+          await fetch('fetch_chat_history.php', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `conversation_id=${encodeURIComponent(typeof activeConversationId !== 'undefined' && activeConversationId ? activeConversationId : '')}&question=&answer=${encodeURIComponent(botAnswer)}`
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: botAnswer, sender: 'bot' })
           });
         } catch (e) {
           console.warn('⚠️ Failed to record bot response:', e);
@@ -5415,7 +5490,268 @@ function stopChatbot() {
       }
     }
     
-    // --- Gender and Voice Selection Modal Logic ---
+
+    // --- Conversation Sidebar UI ---
+    // Add sidebar HTML on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Sidebar HTML/CSS as a string
+      const sidebarHTML = `
+        <div id="conversation-sidebar" class="sidebar-hidden">
+          <div class="sidebar-header">
+            <span>Chats</span>
+            <button id="new-chat-btn" title="Start new chat">＋</button>
+          </div>
+          <div class="sidebar-search-wrapper">
+            <input id="sidebar-search" type="text" placeholder="Search chats..." autocomplete="off" />
+          </div>
+          <ul id="conversation-list"></ul>
+        </div>
+      `;
+
+      // Sidebar CSS as a string
+      const sidebarCSS = `
+        #conversation-sidebar {
+          position: fixed;
+          left: 0; top: 0; bottom: 0;
+          width: 240px;
+          background: #f7f7f9;
+          border-right: 1px solid #e0e0e0;
+          z-index: 1000;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+          transition: transform 0.25s cubic-bezier(.4,0,.2,1), opacity 0.25s cubic-bezier(.4,0,.2,1);
+          will-change: transform, opacity;
+          transform: translateX(0);
+          opacity: 1;
+        }
+        #conversation-sidebar.sidebar-hidden {
+          transform: translateX(-100%);
+          opacity: 0;
+          pointer-events: none;
+        }
+        #conversation-sidebar .sidebar-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 18px 16px 10px 16px;
+          font-size: 1.18em;
+          font-weight: 600;
+          border-bottom: 1px solid #e0e0e0;
+        }
+        .sidebar-search-wrapper {
+          padding: 10px 16px 8px 16px;
+          border-bottom: 1px solid #e0e0e0;
+        }
+        #sidebar-search {
+          width: 100%;
+          padding: 7px 12px;
+          border-radius: 6px;
+          border: 1px solid #ccc;
+          font-size: 1em;
+          outline: none;
+          transition: border 0.18s;
+        }
+        #sidebar-search:focus {
+          border: 1.5px solid #333;
+        }
+        #new-chat-btn {
+          background: #111;
+          color: #fff;
+          border: none;
+          border-radius: 50%;
+          width: 32px; height: 32px;
+          font-size: 1.3em;
+          cursor: pointer;
+          transition: background 0.18s;
+        }
+        #new-chat-btn:hover {
+          background: #FFD600;
+          color: #111;
+        }
+        #conversation-list {
+          flex: 1;
+          list-style: none;
+          margin: 0; padding: 0;
+          overflow-y: auto;
+        }
+        #conversation-list li {
+          padding: 14px 18px;
+          cursor: pointer;
+          border-bottom: 1px solid #ececec;
+          font-size: 1.05em;
+          transition: background 0.13s;
+        }
+        #conversation-list li.active, #conversation-list li:hover {
+          background: #111;
+          color: #fff;
+        }
+        #conversation-list li.active {
+          background: #111;
+          color: #fff;
+        }
+        #conversation-list li.active:hover {
+          background: #111;
+          color: #fff;
+        }
+        #toggle-chats-btn {
+          background: #333333;
+          color: #fff;
+          border: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+        #toggle-chats-btn i.fa-comments {
+          color: #fff;
+          transition: color 0.18s;
+        }
+        #toggle-chats-btn span, #toggle-chats-btn {
+          color: #fff;
+        }
+        #toggle-chats-btn:hover {
+          background: #ffc107;
+          color: #333333;
+        }
+        #toggle-chats-btn:hover i.fa-comments {
+          color: #333333;
+        }
+        #toggle-chats-btn:hover span, #toggle-chats-btn:hover {
+          color: #333333;
+        }
+        @media (max-width: 900px) {
+          #conversation-sidebar { width: 180px; font-size: 0.98em; }
+        }
+        @media (max-width: 600px) {
+          #conversation-sidebar { width: 100vw; left: 0; top: 0; bottom: unset; height: 100vh; }
+        }
+      `;
+
+      // Insert sidebar CSS once
+      if (!document.getElementById('sidebar-style')) {
+        const sidebarStyle = document.createElement('style');
+        sidebarStyle.id = 'sidebar-style';
+        sidebarStyle.innerHTML = sidebarCSS;
+        document.head.appendChild(sidebarStyle);
+      }
+
+
+      // Function to insert sidebar into DOM (hidden by default)
+      function showSidebar(animate = true) {
+        if (document.getElementById('conversation-sidebar')) return;
+        const chatMain = document.getElementById('main-chat-container') || document.getElementById('chat-container');
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = sidebarHTML.trim();
+        const sidebar = tempDiv.firstElementChild;
+        if (chatMain && chatMain.parentNode) {
+          chatMain.parentNode.insertBefore(sidebar, chatMain);
+        } else {
+          document.body.appendChild(sidebar);
+        }
+        // Dummy conversations for now
+        const dummyConversations = [
+          { id: 1, title: 'Chat with HR' },
+          { id: 2, title: 'Project Q&A' },
+          { id: 3, title: 'General Help' }
+        ];
+        // Store conversations for search
+        sidebar._allConversations = dummyConversations;
+        renderConversationList(dummyConversations, 1);
+        // New chat button event
+        document.getElementById('new-chat-btn').addEventListener('click', function() {
+          alert('New chat (backend not implemented yet)');
+        });
+        // Search input event
+        const searchInput = document.getElementById('sidebar-search');
+        if (searchInput) {
+          searchInput.addEventListener('input', function() {
+            const query = searchInput.value.trim().toLowerCase();
+            const filtered = sidebar._allConversations.filter(conv => conv.title.toLowerCase().includes(query));
+            // Keep the currently active conversation highlighted
+            const activeLi = document.querySelector('#conversation-list li.active');
+            let activeId = null;
+            if (activeLi) activeId = Number(activeLi.dataset.conversationId);
+            renderConversationList(filtered, activeId);
+          });
+        }
+        // Animate in
+        if (animate) {
+          setTimeout(() => {
+            sidebar.classList.remove('sidebar-hidden');
+          }, 10);
+        } else {
+          sidebar.classList.remove('sidebar-hidden');
+          // Remove transition for instant show
+          sidebar.style.transition = 'none';
+          // Force reflow, then restore transition
+          void sidebar.offsetWidth;
+          sidebar.style.transition = '';
+        }
+      }
+
+      // Function to hide sidebar, optionally with animation
+      function hideSidebar(animate = true) {
+        const sidebar = document.getElementById('conversation-sidebar');
+        if (sidebar) {
+          if (animate) {
+            sidebar.classList.add('sidebar-hidden');
+            setTimeout(() => {
+              if (sidebar.parentNode) sidebar.parentNode.removeChild(sidebar);
+            }, 250); // match transition duration
+          } else {
+            // Instantly remove sidebar, no animation
+            if (sidebar.parentNode) sidebar.parentNode.removeChild(sidebar);
+          }
+        }
+      }
+
+      // Add 'Chats' toggle button next to 'Clear Chat' button
+      const clearChatBtn = document.getElementById('clear-chat-btn');
+      if (clearChatBtn) {
+        const chatsToggleBtn = document.createElement('button');
+        chatsToggleBtn.id = 'toggle-chats-btn';
+        chatsToggleBtn.innerHTML = '<i class="fa fa-comments"></i> Chats';
+        chatsToggleBtn.style.marginRight = '8px';
+        chatsToggleBtn.style.marginLeft = '0px';
+        chatsToggleBtn.className = clearChatBtn.className;
+        clearChatBtn.parentNode.insertBefore(chatsToggleBtn, clearChatBtn);
+        let sidebarVisible = false; // Always hidden by default
+        chatsToggleBtn.addEventListener('click', function() {
+          sidebarVisible = !sidebarVisible;
+          if (sidebarVisible) {
+            showSidebar(true);
+          } else {
+            hideSidebar(true);
+          }
+        });
+      }
+
+      // Always hide sidebar by default on page load, no animation
+      hideSidebar(false);
+    });
+
+    // Render conversation list in sidebar
+    function renderConversationList(conversations, activeId) {
+      const list = document.getElementById('conversation-list');
+      if (!list) return;
+      list.innerHTML = '';
+      conversations.forEach(conv => {
+        const li = document.createElement('li');
+        li.textContent = conv.title;
+        li.dataset.conversationId = conv.id;
+        if (conv.id === activeId) li.classList.add('active');
+        li.addEventListener('click', function() {
+          // TODO: Switch conversation (backend integration)
+          document.querySelectorAll('#conversation-list li').forEach(el => el.classList.remove('active'));
+          li.classList.add('active');
+          // Placeholder: reload chat history for this conversation
+          alert('Switch to conversation #' + conv.id + ' (backend not implemented yet)');
+        });
+        list.appendChild(li);
+      });
+    }
+
+    // --- End Conversation Sidebar UI ---
 
     // --- Profile Popup Modal Logic ---
     // Open profile modal when nav profile menu is clicked
@@ -5428,6 +5764,34 @@ function stopChatbot() {
           openProfileModal();
         });
       }
+      // Attach event to clear chat button if present
+      const clearChatBtn = document.getElementById('clear-chat-btn');
+      if (clearChatBtn) {
+        clearChatBtn.addEventListener('click', clearChat);
+      }
+          // Clear chat history for this user and conversation (both UI and DB)
+    async function clearChat() {
+      if (!confirm('Are you sure you want to clear the chat history? This cannot be undone.')) return;
+      try {
+        const response = await fetch('clear_chat_history.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        const result = await response.json();
+        if (result.success) {
+          // Clear chat UI
+          const chatContainer = document.getElementById('chat-container');
+          chatContainer.innerHTML = '';
+        } else {
+          alert('Failed to clear chat: ' + (result.error || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Error clearing chat: ' + err.message);
+      }
+    }
+      // Load chat history on page load
+      loadChatHistory();
       // Load profile info on page load (optional)
       loadProfileInfo();
     });
@@ -5498,7 +5862,7 @@ function stopChatbot() {
         const response = await fetch('get_profile.php');
         if (!response.ok) return;
         const data = await response.json();
-        let picUrl = (data && data.profile_pic_url) ? data.profile_pic_url : 'assets/avatars/default.png';
+        let picUrl = (data && data.profile_pic_url) ? data.profile_pic_url : 'Images/Profile-Icon.svg';
         // If the URL is not absolute, make it relative to the site root
         if (!/^https?:\/\//i.test(picUrl) && !picUrl.startsWith('/')) {
           picUrl = '/' + picUrl.replace(/^\/+/,'');
@@ -6482,64 +6846,7 @@ function toggleSidebar(forceState) {
 }
 // History button toggles sidebar
 // History button logic removed
-// --- Chat Message Persistence (SQL Database) ---
-async function loadChatMessages() {
-  try {
-    const chatContainer = document.getElementById('chat-container');
-    if (!chatContainer) return;
-    const response = await fetch('fetch_chat_history.php');
-    if (!response.ok) throw new Error('Failed to fetch chat history');
-    const messages = await response.json();
-    chatContainer.innerHTML = '';
-    // Display both user and bot messages in order
-    messages.forEach(msg => {
-      if (msg.question && msg.question.trim() !== '') {
-        const userDiv = document.createElement('div');
-        userDiv.className = 'user-message';
-        userDiv.innerHTML = `<strong>You:</strong> ${msg.question}`;
-        chatContainer.appendChild(userDiv);
-      }
-      if (msg.answer && msg.answer.trim() !== '') {
-        const botDiv = document.createElement('div');
-        botDiv.className = 'bot-message';
-        botDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${msg.answer}`;
-        chatContainer.appendChild(botDiv);
-      }
-    });
-  } catch (e) {
-    console.warn('⚠️ Failed to load chat messages from server:', e);
-  }
-}
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Patch addMessageToChat to save to server after adding
-  setTimeout(() => {
-    const originalAddMessageToChat = window.addMessageToChat;
-    window.addMessageToChat = async function(message, sender) {
-      if (typeof originalAddMessageToChat === 'function') {
-        const result = originalAddMessageToChat.apply(this, arguments);
-        if (result && typeof result.then === 'function') {
-          await result;
-        }
-      }
-      // Save chat message to server
-      try {
-        await fetch('fetch_chat_history.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: message, sender: sender })
-        });
-        // Reload chat history after saving
-        loadChatMessages();
-      } catch (e) {
-        console.warn('⚠️ Failed to save chat message to server:', e);
-      }
-    };
-  }, 1000);
-
-  // On page load, restore chat messages from server
-  loadChatMessages();
-});
 </script>
 
 <!-- Profile Popup Modal HTML -->
@@ -6549,7 +6856,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <h2 style="margin-top:0; margin-bottom:24px; font-size:1.6em; text-align:center;">Edit Profile</h2>
     <div style="display:flex; flex-direction:column; align-items:center;">
       <div class="profile-pic-wrapper">
-        <img id="profile-pic-preview" class="profile-pic-preview" src="assets/avatars/default.png" alt="Profile Picture">
+        <img id="profile-pic-preview" class="profile-pic-preview" src="Images/Profile-Icon.svg" alt="Profile Picture">
         <label for="profile-pic-input" class="profile-pic-pencil" title="Change profile picture">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M13.586 3.586a2 2 0 0 1 2.828 2.828l-8.5 8.5a2 2 0 0 1-.878.515l-3 1a1 1 0 0 1-1.263-1.263l1-3a2 2 0 0 1 .515-.878l8.5-8.5z" stroke="#444" stroke-width="1.2"/>
@@ -6594,7 +6901,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <button onclick="closeProfileModal()" style="position:absolute; top:12px; right:12px; background:none; border:none; font-size:22px; color:#888; cursor:pointer;">&times;</button>
     <h2 style="margin-top:0; margin-bottom:18px; font-size:1.4em; text-align:center;">Edit Profile</h2>
     <div style="display:flex; flex-direction:column; align-items:center;">
-      <img id="profile-pic-preview" src="assets/avatars/default.png" alt="Profile Picture" style="width:90px; height:90px; border-radius:50%; object-fit:cover; border:2px solid #eee; margin-bottom:16px;">
+      <img id="profile-pic-preview" src="Images/Profile-Icon.svg" alt="Profile Picture" style="width:90px; height:90px; border-radius:50%; object-fit:cover; border:2px solid #eee; margin-bottom:16px;">
       <input id="profile-pic-input" type="file" accept="image/*" style="margin-bottom:12px;" onchange="handleProfilePicChange(this)">
       <input id="profile-nickname" type="text" maxlength="32" placeholder="Enter nickname" style="width:100%; padding:8px 12px; border-radius:6px; border:1px solid #ccc; margin-bottom:18px; font-size:1em;">
       <button onclick="saveProfile()" style="background:#0066cc; color:#fff; border:none; border-radius:6px; padding:10px 24px; font-size:1em; cursor:pointer;">Save</button>
