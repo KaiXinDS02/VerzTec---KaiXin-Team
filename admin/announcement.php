@@ -167,6 +167,18 @@ $conn->close();
   <link rel="stylesheet" href="css/responsive.css" />
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
   <style>
+    #nav-profile-pic {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid #e0e0e0;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      margin: 0;
+      padding: 0;
+      display: block;
+    }
     /* Dark Theme Variables */
     :root {
       --bg-color: #f2f3fa;
@@ -412,7 +424,7 @@ $conn->close();
         </div>
         <div class="col-md-3 col-6 d-flex justify-content-end order-2 order-md-3">
           <div class="page-user-icon profile">
-            <button><img src="images/Profile-Icon.svg" alt="Profile" /></button>
+            <button><img id="nav-profile-pic" src="images/Profile-Icon.svg" alt="Profile" /></button>
             <div class="menu">
               <ul>
                 <li><a href="#" id="nav-profile-item"><i class="fa-regular fa-user"></i> Profile</a></li>
@@ -1085,6 +1097,8 @@ $conn->close();
         const result = await response.json();
         if (result.success) {
           alert('Profile updated successfully!');
+          // After saving, reload and update all profile pics
+          await updateAllProfilePics();
           closeProfileModal();
         } else {
           alert('Failed to update profile: ' + (result.error || 'Unknown error'));
@@ -1093,31 +1107,60 @@ $conn->close();
         alert('Error saving profile: ' + err.message);
       }
     }
+
+    // Load profile info (picture)
     async function loadProfileInfo() {
+      await updateAllProfilePics();
+    }
+
+    // Update all profile pictures (modal, nav, home)
+    async function updateAllProfilePics() {
       try {
-        const response = await fetch('../get_profile.php');
+        const response = await fetch('get_profile.php');
         if (!response.ok) return;
         const data = await response.json();
-        const img = document.getElementById('profile-pic-preview');
         let picUrl = (data && data.profile_pic_url) ? data.profile_pic_url : 'assets/avatars/default.png';
+        // If the URL is not absolute, make it relative to the site root
         if (!/^https?:\/\//i.test(picUrl) && !picUrl.startsWith('/')) {
-          picUrl = '../' + picUrl.replace(/^\/+/,'');
+          picUrl = '/' + picUrl.replace(/^\/+/,'');
         }
-        img.src = picUrl;
-        img.onerror = function() {
-          img.src = '../assets/avatars/default.png';
-        };
+        // Modal
+        const modalImg = document.getElementById('profile-pic-preview');
+        if (modalImg) {
+          modalImg.src = picUrl;
+          modalImg.onerror = function() { modalImg.src = '/assets/avatars/default.png'; };
+        }
+        // Nav bar
+        const navImg = document.getElementById('nav-profile-pic');
+        if (navImg) {
+          navImg.src = picUrl;
+          navImg.onerror = function() { navImg.src = '/assets/avatars/default.png'; };
+        }
+        // Home sidebar
+        const homeImg = document.getElementById('home-profile-pic');
+        if (homeImg) {
+          homeImg.src = picUrl;
+          homeImg.onerror = function() { homeImg.src = '/assets/avatars/default.png'; };
+        }
       } catch (err) {
-        const img = document.getElementById('profile-pic-preview');
-        img.src = '../assets/avatars/default.png';
+        // fallback for all
+        const modalImg = document.getElementById('profile-pic-preview');
+        if (modalImg) modalImg.src = '/assets/avatars/default.png';
+        const navImg = document.getElementById('nav-profile-pic');
+        if (navImg) navImg.src = '/assets/avatars/default.png';
+        const homeImg = document.getElementById('home-profile-pic');
+        if (homeImg) homeImg.src = '/assets/avatars/default.png';
       }
     }
+
+    // Close modal when clicking outside content
     document.addEventListener('click', function(e) {
       const modal = document.getElementById('profile-modal');
       if (modal && e.target === modal) {
         closeProfileModal();
       }
     });
+
     // --- End Profile Popup Modal Logic ---
   </script>
 </html>

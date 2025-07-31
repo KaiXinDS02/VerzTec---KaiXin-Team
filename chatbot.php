@@ -39,6 +39,20 @@ $user_id = $_SESSION['user_id'] ?? 1;
     <link rel="stylesheet" href="css/responsive.css">
 
     <style>
+
+      /* Make nav bar profile picture smaller and round */
+      #nav-profile-pic {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid #e0e0e0;
+        background: #fff;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        margin: 0;
+        padding: 0;
+        display: block;
+      }
       /* Dark Theme Variables */
       :root {
         --bg-color: #ffffff;
@@ -2018,7 +2032,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
         </div>
         <div class="col-md-3 col-6 d-flex justify-content-end order-2 order-md-3">
           <div class="page-user-icon profile">
-            <button><img src="images/Profile-Icon.svg" alt=""></button>
+            <button style="padding:0; border:none; background:none;"><img id="nav-profile-pic" src="images/Profile-Icon.svg" alt="Profile"></button>
             <div class="menu">
               <ul>
                 <li><a href="#" id="nav-profile-item"><i class="fa-regular fa-user"></i> Profile</a></li>
@@ -2031,6 +2045,40 @@ $user_id = $_SESSION['user_id'] ?? 1;
       </div>
     </div>
   </header>
+
+<script>
+// --- Profile Picture Dynamic Update (copied from home.php) ---
+function fetchProfilePicUrl() {
+  // This function should return the URL of the user's profile picture
+  // Replace with your actual logic if needed
+  // Example: fetch from server or session
+  if (window.sessionStorage && sessionStorage.getItem('profilePicUrl')) {
+    return sessionStorage.getItem('profilePicUrl');
+  }
+  // Fallback to default
+  return 'images/Profile-Icon.svg';
+}
+
+function updateAllProfilePics() {
+  var url = fetchProfilePicUrl();
+  var navPic = document.getElementById('nav-profile-pic');
+  if (navPic) navPic.src = url;
+  // Add more if you have other profile pic elements
+}
+
+// Listen for profile picture changes (e.g., after modal update)
+window.addEventListener('profilePicChanged', function(e) {
+  if (e.detail && e.detail.url) {
+    if (window.sessionStorage) sessionStorage.setItem('profilePicUrl', e.detail.url);
+    updateAllProfilePics();
+  }
+});
+
+// On page load, update profile pic
+document.addEventListener('DOMContentLoaded', function() {
+  updateAllProfilePics();
+});
+</script>
 
   <!-- Chatbot Interface -->
   <section class="chat-section py-4" id="chat-section">
@@ -5428,6 +5476,8 @@ function stopChatbot() {
         const result = await response.json();
         if (result.success) {
           alert('Profile updated successfully!');
+          // After saving, reload and update all profile pics
+          await updateAllProfilePics();
           closeProfileModal();
         } else {
           alert('Failed to update profile: ' + (result.error || 'Unknown error'));
@@ -5439,23 +5489,46 @@ function stopChatbot() {
 
     // Load profile info (picture)
     async function loadProfileInfo() {
+      await updateAllProfilePics();
+    }
+
+    // Update all profile pictures (modal, nav, home)
+    async function updateAllProfilePics() {
       try {
         const response = await fetch('get_profile.php');
         if (!response.ok) return;
         const data = await response.json();
-        const img = document.getElementById('profile-pic-preview');
         let picUrl = (data && data.profile_pic_url) ? data.profile_pic_url : 'assets/avatars/default.png';
         // If the URL is not absolute, make it relative to the site root
         if (!/^https?:\/\//i.test(picUrl) && !picUrl.startsWith('/')) {
-          picUrl = '/' + picUrl.replace(/^\/+/, '');
+          picUrl = '/' + picUrl.replace(/^\/+/,'');
         }
-        img.src = picUrl;
-        img.onerror = function() {
-          img.src = '/assets/avatars/default.png';
-        };
+        // Modal
+        const modalImg = document.getElementById('profile-pic-preview');
+        if (modalImg) {
+          modalImg.src = picUrl;
+          modalImg.onerror = function() { modalImg.src = '/assets/avatars/default.png'; };
+        }
+        // Nav bar
+        const navImg = document.getElementById('nav-profile-pic');
+        if (navImg) {
+          navImg.src = picUrl;
+          navImg.onerror = function() { navImg.src = '/assets/avatars/default.png'; };
+        }
+        // Home sidebar
+        const homeImg = document.getElementById('home-profile-pic');
+        if (homeImg) {
+          homeImg.src = picUrl;
+          homeImg.onerror = function() { homeImg.src = '/assets/avatars/default.png'; };
+        }
       } catch (err) {
-        const img = document.getElementById('profile-pic-preview');
-        img.src = '/assets/avatars/default.png';
+        // fallback for all
+        const modalImg = document.getElementById('profile-pic-preview');
+        if (modalImg) modalImg.src = '/assets/avatars/default.png';
+        const navImg = document.getElementById('nav-profile-pic');
+        if (navImg) navImg.src = '/assets/avatars/default.png';
+        const homeImg = document.getElementById('home-profile-pic');
+        if (homeImg) homeImg.src = '/assets/avatars/default.png';
       }
     }
 
