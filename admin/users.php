@@ -397,11 +397,24 @@ $userCount = $res->fetch_assoc()['cnt'];
             </div>
             <div class="mb-3">
               <label>Role</label>
-              <select class="form-select" id="add-role" name="role" required>
-                <option>ADMIN</option>
-                <option>MANAGER</option>
-                <option selected>USER</option>
+              <select class="form-select" id="add-role" name="role" required
+                <?php
+                  if (isset($_SESSION['role']) && $_SESSION['role'] === 'MANAGER') {
+                      echo 'disabled readonly';
+                  }
+                ?>
+              >
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'MANAGER'): ?>
+                  <option value="USER" selected>USER</option>
+                <?php else: ?>
+                  <option>ADMIN</option>
+                  <option>MANAGER</option>
+                  <option selected>USER</option>
+                <?php endif; ?>
               </select>
+              <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'MANAGER'): ?>
+                <input type="hidden" name="role" value="USER">
+              <?php endif; ?>
             </div>
             <div class="mb-3">
               <label>Country</label>
@@ -465,11 +478,24 @@ $userCount = $res->fetch_assoc()['cnt'];
             </div>
             <div class="mb-3">
               <label>Role</label>
-              <select class="form-control" id="edit-role" name="role">
-                <option>ADMIN</option>
-                <option>MANAGER</option>
-                <option>USER</option>
+              <select class="form-control" id="edit-role" name="role" required
+                <?php
+                  if (isset($_SESSION['role']) && $_SESSION['role'] === 'MANAGER') {
+                      echo 'disabled readonly';
+                  }
+                ?>
+              >
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'MANAGER'): ?>
+                  <option value="USER" selected>USER</option>
+                <?php else: ?>
+                  <option>ADMIN</option>
+                  <option>MANAGER</option>
+                  <option>USER</option>
+                <?php endif; ?>
               </select>
+              <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'MANAGER'): ?>
+                <input type="hidden" name="role" value="USER">
+              <?php endif; ?>
             </div>
             <div class="mb-3">
               <label>Country</label>
@@ -665,18 +691,25 @@ $userCount = $res->fetch_assoc()['cnt'];
         {data:'department'}, {data:'role'}, {data:'country'},
         {
           data:null, orderable:false,
-          render:d=>`
-            <button class="edit-user btn-link" data-userid="${d.user_id}"
-                    data-username="${d.username}"
-                    data-email="${d.email}"
-                    data-department="${d.department}"
-                    data-role="${d.role}"
-                    data-country="${d.country}">
-              <i class="fa fa-edit"></i>
-            </button>
-            <button class="delete-user btn-link" data-userid="${d.user_id}">
-              <i class="fa fa-trash"></i>
-            </button>`
+          render:d=>{
+            const userRole = '<?= $_SESSION['role'] ?? '' ?>';
+            // If logged in user is MANAGER, only show buttons for USER role accounts
+            if (userRole === 'MANAGER' && d.role !== 'USER') {
+              return ''; // No buttons for ADMIN or MANAGER accounts
+            }
+            return `
+              <button class="edit-user btn-link" data-userid="${d.user_id}"
+                      data-username="${d.username}"
+                      data-email="${d.email}"
+                      data-department="${d.department}"
+                      data-role="${d.role}"
+                      data-country="${d.country}">
+                <i class="fa fa-edit"></i>
+              </button>
+              <button class="delete-user btn-link" data-userid="${d.user_id}">
+                <i class="fa fa-trash"></i>
+              </button>`;
+          }
         }
       ]
     });
@@ -766,7 +799,17 @@ $userCount = $res->fetch_assoc()['cnt'];
       $('#edit-password').val('•••••••••').prop('disabled',true).prop('readonly',true);
       $('#edit-email').val(d.email);
       $('#edit-department').val(d.department);
-      $('#edit-role').val(d.role);
+      
+      // Handle role selection based on user's role
+      const userRole = '<?= $_SESSION['role'] ?? '' ?>';
+      if (userRole === 'MANAGER') {
+        // For managers, always set to USER and disable
+        $('#edit-role').val('USER').prop('disabled', true).prop('readonly', true);
+      } else {
+        // For admins, allow full role selection
+        $('#edit-role').val(d.role).prop('disabled', false).prop('readonly', false);
+      }
+      
       $('#edit-country').val(d.country);
       $('#editUserModal').modal('show');
     });
