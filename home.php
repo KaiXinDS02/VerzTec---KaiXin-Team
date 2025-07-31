@@ -130,7 +130,6 @@ $capitalizedName = capitalizeName($_SESSION['username']);
     
     .input-box input {
       width: 100%;
-      padding: .75rem 1rem;
       padding-left: 2rem;
       border-radius: 50px;
       border: 1px solid transparent;
@@ -350,7 +349,7 @@ $capitalizedName = capitalizeName($_SESSION['username']);
             <div class="menu">
               <ul>
                 <li><a href="#" id="nav-profile-item"><i class="fa-regular fa-user"></i> Profile</a></li>
-                <li><a href="#"><i class="fa-regular fa-moon"></i> Theme</a></li>
+                <li><a href="#" id="theme-toggle"><i class="fa-regular fa-moon"></i> Theme</a></li>
                 <li><a href="login.php"><i class="fa-regular fa-right-from-bracket"></i> Sign Out</a></li>
               </ul>
             </div>
@@ -536,10 +535,190 @@ $capitalizedName = capitalizeName($_SESSION['username']);
 
   </main>
 
+
+  <!-- Dark mode styles -->
+  <style id="dark-mode-style" media="none">
+    body.dark-mode {
+      background: #181a1b !important;
+      color: #e0e0e0 !important;
+    }
+    .header-area, .modal-content, .modal-header, .modal-body, .left-sidebar, .rc-content-box, .announcements-wp, .profile-modal-content {
+      background: #181a1b !important;
+      color: #e0e0e0 !important;
+      box-shadow: none !important;
+    }
+    .header-area {
+      border-bottom: 1px solid #23272a !important;
+    }
+    .modal-header, .announcements-wp h3 {
+      background: #23272a !important;
+      color: #fff !important;
+    }
+    .page-menu-wp ul li a, .page-menu-wp ul li.active a {
+      color: #e0e0e0 !important;
+    }
+    .page-menu-wp ul li.active a {
+      border-bottom: 2px solid #FFD600 !important;
+    }
+    /* 1. Logo swap */
+    body.dark-mode .page-logo-wp img {
+      content: url('images/logo-white.png');
+    }
+    /* 2. Greeting text white */
+    body.dark-mode #greeting-display {
+      color: #fff !important;
+      text-shadow: 0 1px 8px #0002;
+    }
+    /* 3. Profile area bg black, text white/gray */
+    body.dark-mode .left-sidebar {
+      background: transparent !important;
+      color: #fff !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+    body.dark-mode .sidebar-top {
+      background: #23272a !important;
+      color: #fff !important;
+      border-radius: 12px !important;
+      box-shadow: 0 2px 12px #0002 !important;
+    }
+    body.dark-mode .left-sidebar .content h3,
+    body.dark-mode .left-sidebar .content span,
+    body.dark-mode .left-sidebar .d-flex span {
+      color: #fff !important;
+    }
+    body.dark-mode .left-sidebar .d-flex img {
+      filter: brightness(0.8) invert(0.8);
+    }
+    /* 4. Announcements text white/light gray */
+    body.dark-mode .announcements-wp {
+      background: #181a1b !important;
+      color: #e0e0e0 !important;
+    }
+    body.dark-mode .announcements-wp h3 {
+      color: #fff !important;
+    }
+    body.dark-mode .announcement {
+      background: #23272a !important;
+      color: #e0e0e0 !important;
+      border-bottom: 1px solid #23272a !important;
+    }
+    body.dark-mode .announcement-header h4 {
+      color: #fff !important;
+    }
+    body.dark-mode .announcement p,
+    body.dark-mode .announcement .mb-1 {
+      color: #bfc4d1 !important;
+    }
+    body.dark-mode .priority-btn.priority-high { background: #b22222 !important; }
+    body.dark-mode .priority-btn.priority-medium { background: #b8860b !important; }
+    body.dark-mode .priority-btn.priority-low { background: #4682b4 !important; }
+    /* 5. Search bar fully blueish gray */
+    body.dark-mode .input-box {
+      background: #232b3b !important;
+      border-radius: 50px;
+      position: relative;
+      margin-bottom: 1rem;
+      padding: 0; /* match light mode */
+    }
+    body.dark-mode .input-box input {
+      width: 100%;
+      background: #232b3b !important;
+      color: #e0e0e0 !important;
+      border-radius: 50px;
+      border: 1px solid transparent;
+      font-size: 1rem;
+      outline: none;
+      box-shadow: none !important;
+      padding-left: 3rem;
+      height: unset;
+      margin: 0;
+      display: block;
+      background-clip: padding-box;
+    }
+    body.dark-mode .input-box .search-icon {
+      position: absolute;
+      top: 50%;
+      left: 1rem;
+      transform: translateY(-50%);
+      color: #e0e0e0 !important;
+      font-size: 1.2rem;
+      pointer-events: none;
+      line-height: 1;
+    }
+    body.dark-mode .input-box .search-icon {
+      color: #e0e0e0 !important;
+    }
+    /* 6. Action boxes: keep color, but darker shade */
+    body.dark-mode .single-acti-box {
+      background: #9b3838ff !important;
+      color: #fff !important;
+      border: 1.5px solid #232b3b !important;
+    }
+    body.dark-mode .single-acti-box.bg-green {
+      background: #468423ff !important;
+      color: #fff !important;
+    }
+    body.dark-mode .single-acti-box[style*="background:#FCBD33;"] {
+      background: #9e7214ff !important;
+      color: #fff !important;
+    }
+    body.dark-mode .single-acti-box .d-flex p {
+      color: #fff !important;
+    }
+    /* Modal, profile modal, etc. */
+    body.dark-mode .modal-content, body.dark-mode .modal-header, body.dark-mode .modal-body, body.dark-mode .profile-modal-content {
+      background: #23272a !important;
+      color: #e0e0e0 !important;
+    }
+    body.dark-mode #profile-modal .btn-save-profile { background: #FFD600 !important; color: #23272a !important; }
+    body.dark-mode #profile-modal .btn-save-profile:hover { background: #fff !important; color: #23272a !important; }
+    /* Scrollbar for dark mode */
+    body.dark-mode ::-webkit-scrollbar { width: 8px; background: #23272a; }
+    body.dark-mode ::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+  </style>
+
+
   <script src="js/jquery-3.4.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/scripts.js"></script>
   <script src="js/notification.js"></script> <!-- Custom script for handling announcements -->
+
+  <script>
+    // --- Dark Mode Toggle Logic ---
+    function setDarkMode(enabled) {
+      const style = document.getElementById('dark-mode-style');
+      if (enabled) {
+        document.body.classList.add('dark-mode');
+        style.media = 'all';
+        localStorage.setItem('darkMode', '1');
+      } else {
+        document.body.classList.remove('dark-mode');
+        style.media = 'none';
+        localStorage.setItem('darkMode', '0');
+      }
+    }
+
+    function toggleDarkMode() {
+      setDarkMode(!document.body.classList.contains('dark-mode'));
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // On page load, set dark mode if user previously enabled it
+      if (localStorage.getItem('darkMode') === '1') {
+        setDarkMode(true);
+      }
+      // Attach event to theme toggle
+      const themeToggle = document.getElementById('theme-toggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          toggleDarkMode();
+        });
+      }
+    });
+    // --- End Dark Mode Toggle Logic ---
+  </script>
 
   <script>
     (function(){
