@@ -6482,7 +6482,64 @@ function toggleSidebar(forceState) {
 }
 // History button toggles sidebar
 // History button logic removed
+// --- Chat Message Persistence (SQL Database) ---
+async function loadChatMessages() {
+  try {
+    const chatContainer = document.getElementById('chat-container');
+    if (!chatContainer) return;
+    const response = await fetch('fetch_chat_history.php');
+    if (!response.ok) throw new Error('Failed to fetch chat history');
+    const messages = await response.json();
+    chatContainer.innerHTML = '';
+    // Display both user and bot messages in order
+    messages.forEach(msg => {
+      if (msg.question && msg.question.trim() !== '') {
+        const userDiv = document.createElement('div');
+        userDiv.className = 'user-message';
+        userDiv.innerHTML = `<strong>You:</strong> ${msg.question}`;
+        chatContainer.appendChild(userDiv);
+      }
+      if (msg.answer && msg.answer.trim() !== '') {
+        const botDiv = document.createElement('div');
+        botDiv.className = 'bot-message';
+        botDiv.innerHTML = `<strong>VerzTec Assistant:</strong> ${msg.answer}`;
+        chatContainer.appendChild(botDiv);
+      }
+    });
+  } catch (e) {
+    console.warn('⚠️ Failed to load chat messages from server:', e);
+  }
+}
 
+document.addEventListener('DOMContentLoaded', function() {
+  // Patch addMessageToChat to save to server after adding
+  setTimeout(() => {
+    const originalAddMessageToChat = window.addMessageToChat;
+    window.addMessageToChat = async function(message, sender) {
+      if (typeof originalAddMessageToChat === 'function') {
+        const result = originalAddMessageToChat.apply(this, arguments);
+        if (result && typeof result.then === 'function') {
+          await result;
+        }
+      }
+      // Save chat message to server
+      try {
+        await fetch('fetch_chat_history.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: message, sender: sender })
+        });
+        // Reload chat history after saving
+        loadChatMessages();
+      } catch (e) {
+        console.warn('⚠️ Failed to save chat message to server:', e);
+      }
+    };
+  }, 1000);
+
+  // On page load, restore chat messages from server
+  loadChatMessages();
+});
 </script>
 
 <!-- Profile Popup Modal HTML -->

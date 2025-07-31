@@ -1,0 +1,11 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Update chat history to server",
+			"type": "shell",
+			"command": "echo",
+			"isBackground": false
+		}
+	]
+}
