@@ -5637,7 +5637,7 @@ function stopChatbot() {
 
 
       // Function to insert sidebar into DOM (hidden by default)
-      function showSidebar(animate = true) {
+      async function showSidebar(animate = true) {
         if (document.getElementById('conversation-sidebar')) return;
         const chatMain = document.getElementById('main-chat-container') || document.getElementById('chat-container');
         const tempDiv = document.createElement('div');
@@ -5648,18 +5648,57 @@ function stopChatbot() {
         } else {
           document.body.appendChild(sidebar);
         }
-        // Dummy conversations for now
-        const dummyConversations = [
-          { id: 1, title: 'Chat with HR' },
-          { id: 2, title: 'Project Q&A' },
-          { id: 3, title: 'General Help' }
-        ];
+        // Fetch conversations from backend
+        let conversations = [];
+        let activeId = null;
+        try {
+          const res = await fetch('fetch_conversations.php');
+          conversations = await res.json();
+          if (Array.isArray(conversations) && conversations.length > 0) {
+            activeId = conversations[0].id;
+          } else {
+            conversations = [];
+          }
+        } catch (e) {
+          conversations = [];
+        }
         // Store conversations for search
-        sidebar._allConversations = dummyConversations;
-        renderConversationList(dummyConversations, 1);
+        sidebar._allConversations = conversations;
+        renderConversationList(conversations, activeId);
         // New chat button event
-        document.getElementById('new-chat-btn').addEventListener('click', function() {
-          alert('New chat (backend not implemented yet)');
+        document.getElementById('new-chat-btn').addEventListener('click', async function() {
+          let title = prompt('Enter a name for the new chat:', 'New Conversation');
+          if (title === null) return; // Cancelled
+          title = title.trim();
+          if (!title) title = 'New Conversation';
+          try {
+            const res = await fetch('create_conversation.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ title })
+            });
+            const data = await res.json();
+            if (data && data.success) {
+              // Refetch conversations and set new one active
+              const res2 = await fetch('fetch_conversations.php');
+              const conversations2 = await res2.json();
+              sidebar._allConversations = conversations2;
+              renderConversationList(conversations2, data.id);
+              // Set session to new conversation
+              await fetch('set_conversation.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ conversation_id: data.id })
+              });
+              // Clear chat container
+              const chatContainer = document.getElementById('chat-container');
+              if (chatContainer) chatContainer.innerHTML = '';
+            } else {
+              alert(data && data.error ? data.error : 'Failed to create conversation');
+            }
+          } catch (e) {
+            alert('Failed to create conversation');
+          }
         });
         // Search input event
         const searchInput = document.getElementById('sidebar-search');
@@ -5737,16 +5776,190 @@ function stopChatbot() {
       list.innerHTML = '';
       conversations.forEach(conv => {
         const li = document.createElement('li');
-        li.textContent = conv.title;
+        // Container for title and actions
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.justifyContent = 'space-between';
+        // Title span (inline editable)
+        const titleSpan = document.createElement('span');
+        titleSpan.textContent = conv.title;
+        titleSpan.style.flex = '1';
+        titleSpan.style.overflow = 'hidden';
+        titleSpan.style.textOverflow = 'ellipsis';
+        titleSpan.style.whiteSpace = 'nowrap';
+        titleSpan.style.cursor = 'text';
+        // Inline editing logic
+        titleSpan.addEventListener('dblclick', function(e) {
+          e.stopPropagation();
+          // Replace span with input
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = conv.title;
+          input.style.flex = '1';
+          input.style.fontSize = '1em';
+          input.style.padding = '2px 4px';
+          input.style.margin = '0';
+          input.style.border = '1px solid #bbb';
+          input.style.borderRadius = '4px';
+          input.style.background = '#fff';
+          input.style.color = '#111';
+          input.style.outline = 'none';
+          input.style.minWidth = '40px';
+          input.style.maxWidth = '100%';
+          input.addEventListener('click', ev => ev.stopPropagation());
+          input.addEventListener('keydown', async function(ev) {
+            if (ev.key === 'Enter' || ev.key === 'Tab') {
+              ev.preventDefault();
+              input.blur();
+            } else if (ev.key === 'Escape') {
+              ev.preventDefault();
+              cancelEdit();
+            }
+          });
+          input.addEventListener('blur', async function() {
+            const newName = input.value.trim();
+            if (newName && newName !== conv.title) {
+              try {
+                const res = await fetch('rename_conversation.php', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ conversation_id: conv.id, new_name: newName })
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                  // Refresh conversations
+                  const res2 = await fetch('fetch_conversations.php');
+                  const conversations2 = await res2.json();
+                  renderConversationList(conversations2, conv.id);
+                } else {
+                  alert(data && data.error ? data.error : 'Rename failed');
+                  cancelEdit();
+                }
+              } catch (e) {
+                alert('Rename failed');
+                cancelEdit();
+              }
+            } else {
+              cancelEdit();
+            }
+          });
+          function cancelEdit() {
+            row.replaceChild(titleSpan, input);
+          }
+          row.replaceChild(input, titleSpan);
+          input.focus();
+          input.select();
+        });
+        row.appendChild(titleSpan);
+        // Actions container
+        const actions = document.createElement('span');
+        actions.style.display = 'flex';
+        actions.style.gap = '6px';
+        // Rename button
+        const renameBtn = document.createElement('button');
+        renameBtn.innerHTML = '<i class="fa fa-edit"></i>';
+        renameBtn.title = 'Rename chat';
+        renameBtn.style.background = 'none';
+        renameBtn.style.border = 'none';
+        renameBtn.style.cursor = 'pointer';
+        renameBtn.style.fontSize = '1em';
+        // Delete button
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '<i class="fa fa-trash"></i>';
+        deleteBtn.title = 'Delete chat';
+        deleteBtn.style.background = 'none';
+        deleteBtn.style.border = 'none';
+        deleteBtn.style.cursor = 'pointer';
+        deleteBtn.style.fontSize = '1em';
+        // Set icon colors based on selection or hover
+        function updateIconColors(selectedOrHover) {
+          if (selectedOrHover) {
+            renameBtn.style.color = '#fff';
+            deleteBtn.style.color = '#fff';
+          } else {
+            renameBtn.style.color = '#111';
+            deleteBtn.style.color = '#111';
+          }
+        }
+        // Initial icon color
+        updateIconColors(conv.id === activeId);
+        // Hover events for icon color
+        li.addEventListener('mouseenter', function() {
+          updateIconColors(true);
+        });
+        li.addEventListener('mouseleave', function() {
+          updateIconColors(conv.id === activeId);
+        });
+        // Rename button now triggers inline edit
+        renameBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          titleSpan.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+        });
+        actions.appendChild(renameBtn);
+        deleteBtn.addEventListener('click', async function(e) {
+          e.stopPropagation();
+          if (!confirm('Delete this chat? This cannot be undone.')) return;
+          try {
+            const res = await fetch('delete_conversation.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ conversation_id: conv.id })
+            });
+            const data = await res.json();
+            if (data && data.success) {
+              // Refresh conversations, select first if any
+              const res2 = await fetch('fetch_conversations.php');
+              const conversations2 = await res2.json();
+              let newActive = null;
+              if (conversations2.length > 0) newActive = conversations2[0].id;
+              renderConversationList(conversations2, newActive);
+              // Optionally, clear chat UI if deleted chat was active
+              if (conv.id === activeId) {
+                const chatContainer = document.getElementById('chat-container');
+                if (chatContainer) chatContainer.innerHTML = '';
+              }
+            } else {
+              alert(data && data.error ? data.error : 'Delete failed');
+            }
+          } catch (e) {
+            alert('Delete failed');
+          }
+        });
+        actions.appendChild(deleteBtn);
+        row.appendChild(actions);
+        li.appendChild(row);
         li.dataset.conversationId = conv.id;
         if (conv.id === activeId) li.classList.add('active');
-        li.addEventListener('click', function() {
-          // TODO: Switch conversation (backend integration)
-          document.querySelectorAll('#conversation-list li').forEach(el => el.classList.remove('active'));
+        li.addEventListener('click', async function() {
+          // Switch conversation: set session and reload chat history
+          document.querySelectorAll('#conversation-list li').forEach(el => {
+            el.classList.remove('active');
+            // Update icon colors for all
+            const btns = el.querySelectorAll('button');
+            btns.forEach(btn => btn.style.color = '#111');
+          });
           li.classList.add('active');
-          // Placeholder: reload chat history for this conversation
-          alert('Switch to conversation #' + conv.id + ' (backend not implemented yet)');
+          updateIconColors(true);
+          try {
+            await fetch('set_conversation.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ conversation_id: conv.id })
+            });
+            // Optionally, clear chat UI before loading
+            const chatContainer = document.getElementById('chat-container');
+            if (chatContainer) chatContainer.innerHTML = '';
+            // Load chat history for this conversation
+            if (typeof loadChatHistory === 'function') loadChatHistory();
+          } catch (e) {
+            alert('Failed to switch conversation');
+          }
         });
+        // If not active, set icon color to black
+        if (conv.id !== activeId) {
+          updateIconColors(false);
+        }
         list.appendChild(li);
       });
     }

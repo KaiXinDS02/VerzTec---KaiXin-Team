@@ -20,7 +20,14 @@ if ($conn->connect_error) {
 $sql = "DELETE FROM conversations WHERE id = ? AND user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('ii', $conversation_id, $user_id);
+
 if ($stmt->execute()) {
+    // Also delete chat history for this conversation
+    $stmt2 = $conn->prepare('DELETE FROM chat_history WHERE conversation_id = ?');
+    $stmt2->bind_param('i', $conversation_id);
+    $stmt2->execute();
+    $stmt2->close();
+
     // If the deleted conversation was active, unset it
     if (isset($_SESSION['conversation_id']) && $_SESSION['conversation_id'] == $conversation_id) {
         unset($_SESSION['conversation_id']);
