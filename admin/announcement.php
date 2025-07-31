@@ -437,11 +437,13 @@ $conn->close();
                 <i class="fa fa-users me-2"></i> Users
               </a>
             </li>
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'ADMIN'): ?>
             <li class="nav-item">
               <a class="nav-link d-flex align-items-center" href="admin/audit_log.php">
                 <i class="fa fa-clock-rotate-left me-2"></i> Audit log
               </a>
             </li>
+            <?php endif; ?>
             <li class="nav-item">
               <a class="nav-link active d-flex align-items-center" href="admin/announcement.php">
                 <i class="fa fa-bullhorn me-2"></i> Announcements
