@@ -84,14 +84,14 @@ $user_id = $_SESSION['user_id'] ?? 1;
       }
       
       .header-area {
-        background-color: var(--header-bg) !important;
-        border-bottom: 1px solid var(--border-color);
+        background-color: #fff !important;
+        border-bottom: none;
         transition: background-color 0.3s ease;
       }
       
       .chat-panel {
         background-color: var(--chat-panel-bg);
-        border: 1px solid var(--border-color);
+        border: none;
         transition: background-color 0.3s ease;
       }
       
@@ -107,7 +107,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
       }
       
       .form-control {
-        background-color: var(--input-bg);
+        background-color: #ECE6F0;
         color: var(--text-color);
         border-color: var(--border-color);
         transition: background-color 0.3s ease;
@@ -1024,6 +1024,7 @@ $user_id = $_SESSION['user_id'] ?? 1;
         background: #ffc107;
         color: #333;
         border-radius: 20px;
+        border: 1px solid #ffc107;
         padding: 0.75rem 1rem;
         margin-bottom: 1rem;
         margin-left: auto;
