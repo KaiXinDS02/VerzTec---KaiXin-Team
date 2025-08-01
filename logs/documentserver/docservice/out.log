@@ -1,0 +1,16 @@
+[2025-08-01T08:08:15.147] [WARN] [localhost] [docId] [userId] nodeJS - Express server starting...
+[2025-08-01T08:08:15.208] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-08-01T08:08:15.211] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-08-01T08:08:15.631] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 9.0.3. Build: 29
+[2025-08-01T08:09:14.141] [WARN] [localhost] [docId] [userId] nodeJS - Express server starting...
+[2025-08-01T08:09:14.163] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-08-01T08:09:14.164] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-08-01T08:09:14.412] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 9.0.3. Build: 29
+[2025-08-01T08:33:32.544] [WARN] [localhost] [docId] [userId] nodeJS - Express server starting...
+[2025-08-01T08:33:32.577] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-08-01T08:33:32.580] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-08-01T08:33:32.956] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 9.0.3. Build: 29
+[2025-08-01T08:36:14.426] [WARN] [localhost] [docId] [userId] nodeJS - Express server starting...
+[2025-08-01T08:36:14.484] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-08-01T08:36:14.487] [WARN] [localhost] [docId] [userId] nodeJS - notifyLicenseExpiration(): expiration date is not defined
+[2025-08-01T08:36:14.961] [WARN] [localhost] [docId] [userId] nodeJS - Express server listening on port 8000 in production-linux mode. Version: 9.0.3. Build: 29
