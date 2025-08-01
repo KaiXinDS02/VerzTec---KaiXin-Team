@@ -15,7 +15,9 @@ from chatbot.llm_loader import llama_pipeline
 from chatbot.config import MAX_ANSWER_WORDS, PDF_DIR
 from rapidfuzz import fuzz
 import mysql.connector
-from textblob import TextBlob
+import enchant
+from textblob import Word
+
 
 app = FastAPI()
 
@@ -101,13 +103,31 @@ def format_answer_if_needed(answer: str) -> str:
 
     return "\n".join(formatted_lines)
 
+# English dictionary
+english_dict = enchant.Dict("en_US")
 
 def correct_spelling(text: str) -> str:
-    from textblob import TextBlob
-    corrected_words = [str(TextBlob(word).correct()) for word in text.split()]
-    corrected = " ".join(corrected_words)
-    print(f"📄 Original: {text} → Corrected: {corrected}")
-    return corrected
+    corrected_words = []
+    for word in text.split():
+        original = word
+        # Check if word is not in dictionary AND longer than 3 characters
+        if not english_dict.check(original) and len(word) > 3:
+            corrected = str(Word(original).correct())
+            # Only apply if the correction is actually different
+            if original.lower() != corrected.lower():
+                corrected_words.append(corrected)
+                continue
+        corrected_words.append(original)
+    corrected_text = " ".join(corrected_words)
+    print(f"📄 Original: {text} → Corrected: {corrected_text}")
+    return corrected_text
+
+# def correct_spelling(text: str) -> str:
+#     from textblob import TextBlob
+#     corrected_words = [str(TextBlob(word).correct()) for word in text.split()]
+#     corrected = " ".join(corrected_words)
+#     print(f"📄 Original: {text} → Corrected: {corrected}")
+#     return corrected
 
 def is_rejection_response(text: str) -> bool:
     text = text.lower()
@@ -164,6 +184,15 @@ def is_hr_query(question: str, threshold: int = 60) -> bool:
     
     print(f"🔍 Best HR keyword fuzzy match score: {best_score}")
     return best_score >= threshold
+
+def is_non_hr_topic(question: str) -> bool:
+    non_hr_keywords = [
+        "visa", "tourist", "immigration", "passport", "flight", "travel", "hotel",
+        "booking", "application for country", "apply for visa", "overseas trip",
+        "embassy", "moe", "moh", "housing", "hdb", "singpass", "government", "bank"
+    ]
+    return any(kw in question.lower() for kw in non_hr_keywords)
+
 
 def is_org_chart_question(question: str) -> bool:
     keywords = [
@@ -358,6 +387,15 @@ def chat(question: Question):
             }
         }
            
+    if is_non_hr_topic(question.question):
+        return {
+            "answer": (
+                "I'm sorry, I can only assist with Verztec's HR-related questions.  "
+                "Please ensure your queries are related to HR matters."
+                "You may want to contact the HR department at <strong>HR@verztec.com</strong> for further assistance."
+            ),
+            "reference_file": None
+    }
 
     if is_personal_question(question.question):
         return {
