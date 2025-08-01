@@ -7,7 +7,7 @@ header('Content-Type: text/html; charset=utf-8');
 
 $message = "";
 //Hi
-// Fetch audit logs
+// Fetch audit logs - only show logs from users that still exist in the system
 $auditLogs = [];
 $sql = "
   SELECT 
@@ -19,7 +19,7 @@ $sql = "
     al.details,
     u.username
   FROM audit_log AS al
-  LEFT JOIN users AS u ON al.user_id = u.user_id
+  INNER JOIN users AS u ON al.user_id = u.user_id
   ORDER BY al.timestamp DESC
 ";
 $result = $conn->query($sql);

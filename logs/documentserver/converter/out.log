@@ -1,0 +1,20 @@
+[2025-08-01T08:08:11.619] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: 12
+[2025-08-01T08:08:11.623] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-08-01T08:08:11.638] [WARN] [localhost] [docId] [userId] nodeJS - worker 816 started.
+[2025-08-01T08:08:11.640] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: 12
+[2025-08-01T08:08:11.641] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-08-01T08:09:14.733] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: 12
+[2025-08-01T08:09:14.743] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-08-01T08:09:14.758] [WARN] [localhost] [docId] [userId] nodeJS - worker 1126 started.
+[2025-08-01T08:09:14.760] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: 12
+[2025-08-01T08:09:14.761] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-08-01T08:33:30.512] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: 12
+[2025-08-01T08:33:30.529] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-08-01T08:33:30.558] [WARN] [localhost] [docId] [userId] nodeJS - worker 815 started.
+[2025-08-01T08:33:30.563] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: 12
+[2025-08-01T08:33:30.564] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-08-01T08:36:14.568] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: 12
+[2025-08-01T08:36:14.587] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
+[2025-08-01T08:36:14.614] [WARN] [localhost] [docId] [userId] nodeJS - worker 1233 started.
+[2025-08-01T08:36:14.624] [WARN] [localhost] [docId] [userId] nodeJS - num of CPUs: 12; availableParallelism: 12
+[2025-08-01T08:36:14.627] [WARN] [localhost] [docId] [userId] nodeJS - update cluster with 1 workers
