@@ -418,11 +418,20 @@ def chat(question: Question):
             "reference_file": None
         }
 
+    
     # Continue with document retrieval and answering
     try:
         docs_and_scores = []
         if is_hr_like or is_llm_hr:
-            docs_and_scores = vectorstore.similarity_search_with_score(question.question, k=3)
+            # Get top 5 candidates to increase chance of matching cover page
+            docs_and_scores = vectorstore.similarity_search_with_score(question.question, k=5)
+
+            # ✅ Filter to prefer cover pages if asking about "cover page"
+            if "cover page" in question.question.lower():
+                cover_docs = [(doc, score) for doc, score in docs_and_scores if doc.metadata.get("doc_type") == "cover_page"]
+                if cover_docs:
+                    docs_and_scores = cover_docs
+
 
 
 ##################################🔐 START - RBAC (Charmaine)##################################
@@ -530,8 +539,17 @@ def chat(question: Question):
             full_prompt = f"{system_prefix}\n---\n{content}\n---\nBased only on the content above, how would you answer this question?\n{question.question}"
 
             # 🔍 Special handling for cover pages
-            if top_doc.metadata.get("doc_type") == "cover_page":
-                content_snippet = top_doc.page_content.lower()
+            # if top_doc.metadata.get("doc_type") == "cover_page":
+            #     content_snippet = top_doc.page_content.lower()
+            doc_type = top_doc.metadata.get("doc_type", "")
+            content_snippet = top_doc.page_content.lower()
+            question_lower = question.question.lower()
+
+            if (
+                doc_type == "cover_page" or
+                ("cover page" in question_lower and any(kw in content_snippet for kw in ["quality manual", "quality procedure"]))
+            ):
+
 
                 if "quality manual" in content_snippet:
                     answer = (

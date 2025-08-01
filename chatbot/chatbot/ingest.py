@@ -105,15 +105,30 @@ def ingest_documents():
 
         source_file = matched_file if matched_file else f"{base_name}.docx"
 
+        # 📄 Use first chunk to intelligently detect doc_type
+        first_chunk_text = chunks[0].page_content if chunks else ""
         # 🏷️ Metadata tagging
-        if "cover" in base_name.lower():
-            doc_type = "cover_page"
-        elif any(term in base_name.lower() for term in ["digital meeting", "online meeting", "virtual meeting"]):
-            doc_type = "digital"
-        elif "etiquette" in base_name.lower() or "physical" in base_name.lower():
-            doc_type = "physical"
-        else:
-            doc_type = "general"
+        def infer_doc_type(base_name, first_chunk_text):
+            lowered = first_chunk_text.lower()
+
+            if any(keyword in lowered for keyword in ["quality manual", "quality procedure"]) and "controlled copy" in lowered:
+                return "cover_page"
+            elif any(term in base_name.lower() for term in ["digital meeting", "online meeting", "virtual meeting"]):
+                return "digital"
+            elif "etiquette" in base_name.lower() or "physical" in base_name.lower():
+                return "physical"
+            else:
+                return "general"
+        doc_type = infer_doc_type(base_name, first_chunk_text)
+        
+        # if "cover" in base_name.lower():
+        #     doc_type = "cover_page"
+        # elif any(term in base_name.lower() for term in ["digital meeting", "online meeting", "virtual meeting"]):
+        #     doc_type = "digital"
+        # elif "etiquette" in base_name.lower() or "physical" in base_name.lower():
+        #     doc_type = "physical"
+        # else:
+        #     doc_type = "general"
 
         # get Visibility info of file for RBAC (Charmaine)
         visibility = get_visibility_for_file(base_name)
