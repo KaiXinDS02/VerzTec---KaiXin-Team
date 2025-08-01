@@ -501,7 +501,7 @@ $capitalizedName = capitalizeName($_SESSION['username']);
                         <img src="images/tabler_message-chatbot-filled.svg" alt="">
                         <p>AI Chat bot for all <br> your inquiries</p>
                       </div>
-                      <div class="text-end"><a href="chatbot.html">Go Now</a></div>
+                      <div class="text-end"><a href="chatbot.php">Go Now</a></div>
                     </div>
                   </div>
                   <div class="col-xl-4 col-lg-6">
