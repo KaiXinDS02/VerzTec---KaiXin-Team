@@ -391,7 +391,7 @@ def chat(question: Question):
         return {
             "answer": (
                 "I'm sorry, I can only assist with Verztec's HR-related questions.  "
-                "Please ensure your queries are related to HR matters."
+                "Please ensure your queries are related to HR matters. "
                 "You may want to contact the HR department at <strong>HR@verztec.com</strong> for further assistance."
             ),
             "reference_file": None
